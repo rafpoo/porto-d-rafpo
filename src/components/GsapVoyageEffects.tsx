@@ -1,4 +1,12 @@
-import { useRef, type RefObject } from 'react';
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useRef,
+  type ReactElement,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { Compass, Database, LockKeyhole, Sailboat, ServerCog, Sparkles, Smartphone } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -213,7 +221,7 @@ export function GsapStrawHatStory() {
 
       if (reduceMotion) {
         gsap.set(wrapper, { autoAlpha: 0 });
-        gsap.set(dockImage, { autoAlpha: 1, scale: 1, rotation: 0 });
+        gsap.set(dockImage, { autoAlpha: 1, scale: 1, rotation: 45 });
         return;
       }
 
@@ -252,7 +260,7 @@ export function GsapStrawHatStory() {
 
       gsap.set(dockImage, {
         autoAlpha: 0,
-        rotation: -5,
+        rotation: 45,
         scale: 0.82,
         transformOrigin: '50% 52%',
       });
@@ -294,7 +302,7 @@ export function GsapStrawHatStory() {
           {
             duration: 0.54,
             ease: 'power2.inOut',
-            rotation: 700,
+            rotation: 765,
             scale: getEndScale,
             x: () => getDockOffset().x,
             y: () => getDockOffset().y,
@@ -307,7 +315,7 @@ export function GsapStrawHatStory() {
             autoAlpha: 1,
             duration: 0.16,
             ease: 'none',
-            rotation: 0,
+            rotation: 45,
             scale: 1,
           },
           0.82,
@@ -324,7 +332,6 @@ export function GsapStrawHatStory() {
 
       gsap.to(dockImage, {
         y: -8,
-        rotation: 2,
         duration: 3.8,
         ease: 'sine.inOut',
         repeat: -1,
@@ -345,6 +352,88 @@ export function GsapStrawHatStory() {
   return (
     <div className="straw-hat-story" ref={scope} aria-hidden="true">
       <img className="straw-hat-story-image" src={STRAW_HAT_URL} alt="" decoding="async" />
+    </div>
+  );
+}
+
+export function GsapBountyCarousel({ children }: { children: ReactNode }) {
+  const scope = useRef<HTMLDivElement>(null);
+  const items = Children.toArray(children);
+
+  useGSAP(
+    () => {
+      const root = scope.current;
+
+      if (!root) {
+        return;
+      }
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const track = root.querySelector<HTMLElement>('.bounty-carousel-track');
+      const firstSet = root.querySelector<HTMLElement>('.bounty-carousel-set');
+
+      if (!track || !firstSet) {
+        return;
+      }
+
+      if (reduceMotion) {
+        gsap.set(track, { clearProps: 'all' });
+        return;
+      }
+
+      const createLoop = () => {
+        const gap = Number.parseFloat(getComputedStyle(track).columnGap || '0');
+        const distance = firstSet.offsetWidth + gap;
+
+        gsap.set(track, { x: 0 });
+
+        return gsap.to(track, {
+          duration: 14,
+          ease: 'none',
+          repeat: -1,
+          x: -distance,
+        });
+      };
+
+      let loop = createLoop();
+
+      const handleResize = () => {
+        loop.kill();
+        loop = createLoop();
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        loop.kill();
+        window.removeEventListener('resize', handleResize);
+      };
+    },
+    { scope },
+  );
+
+  return (
+    <div className="bounty-carousel" ref={scope}>
+      <div className="bounty-carousel-track">
+        <div className="bounty-carousel-set">
+          {items.map((item, index) =>
+            isValidElement(item)
+              ? cloneElement(item as ReactElement<Record<string, unknown>>, {
+                  key: `bounty-${index}`,
+                })
+              : item,
+          )}
+        </div>
+        <div className="bounty-carousel-set" aria-hidden="true">
+          {items.map((item, index) =>
+            isValidElement(item)
+              ? cloneElement(item as ReactElement<Record<string, unknown>>, {
+                  key: `bounty-clone-${index}`,
+                })
+              : item,
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -29,6 +29,7 @@ import {
 } from 'framer-motion';
 import { useMemo, useRef, useState } from 'react';
 import {
+  GsapBountyCarousel,
   GsapBountyCounter,
   GsapHeroConstellation,
   GsapJourneyRoute,
@@ -462,31 +463,23 @@ function App() {
               whileInView="visible"
               viewport={{ once: true, margin: '-100px' }}
             >
-              <div className="straw-hat-dock" aria-hidden="true">
-                <img
-                  className="straw-hat-dock-image"
-                  src="/assets/straw-hat.png"
-                  alt=""
-                  decoding="async"
-                />
-              </div>
               <motion.p variants={revealVariants}>
                 I am a semester 6 Informatics undergraduate at Universitas Multimedia Nusantara
                 with a 3.86 GPA and expected graduation in 2027. I build maintainable applications
                 with React, TypeScript, Node.js, and MySQL, and I communicate progress clearly in
                 collaborative team environments.
               </motion.p>
-              <motion.div className="bounty-grid" variants={staggerVariants}>
-                <motion.div variants={revealVariants}>
+              <GsapBountyCarousel>
+                <div className="bounty-carousel-card">
                   <GsapBountyCounter value={3.86} decimals={2} label="Current GPA" />
-                </motion.div>
-                <motion.div variants={revealVariants}>
+                </div>
+                <div className="bounty-carousel-card">
                   <GsapBountyCounter value={2000} suffix="+" label="Users Served" />
-                </motion.div>
-                <motion.div variants={revealVariants}>
+                </div>
+                <div className="bounty-carousel-card">
                   <GsapBountyCounter value={2027} label="Expected Graduation" useGrouping={false} />
-                </motion.div>
-              </motion.div>
+                </div>
+              </GsapBountyCarousel>
             </motion.div>
           </div>
         </Section>
@@ -676,7 +669,26 @@ function Section({ id, eyebrow, title, children }: SectionProps) {
         transition={{ duration: 0.45, ease: 'easeOut' }}
       >
         <p className="eyebrow">{eyebrow}</p>
-        <h2 id={`${id}-title`}>{title}</h2>
+        <h2 id={`${id}-title`}>
+          {id === 'about' ? (
+            <>
+              About the Capta
+              <span className="captain-hat-anchor">
+                in
+                <span className="straw-hat-dock" aria-hidden="true">
+                  <img
+                    className="straw-hat-dock-image"
+                    src="/assets/straw-hat.png"
+                    alt=""
+                    decoding="async"
+                  />
+                </span>
+              </span>
+            </>
+          ) : (
+            title
+          )}
+        </h2>
       </motion.div>
       {children}
     </section>

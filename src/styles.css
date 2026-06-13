@@ -634,6 +634,16 @@ h1 {
   text-wrap: balance;
 }
 
+.section-heading h2 {
+  position: relative;
+  overflow: visible;
+}
+
+.captain-hat-anchor {
+  position: relative;
+  display: inline-block;
+}
+
 .about-grid {
   display: grid;
   grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
@@ -729,21 +739,25 @@ h1 {
 }
 
 .straw-hat-dock {
-  position: relative;
-  display: grid;
-  min-height: clamp(108px, 14vw, 168px);
-  place-items: center start;
+  position: absolute;
+  left: 50%;
+  top: -0.46em;
+  z-index: 2;
+  display: block;
+  width: clamp(86px, 12vw, 146px);
+  aspect-ratio: 1;
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .straw-hat-dock::before {
   position: absolute;
-  left: clamp(40px, 10vw, 132px);
-  top: 50%;
-  width: clamp(138px, 18vw, 210px);
-  height: clamp(34px, 5vw, 52px);
+  left: 50%;
+  top: 72%;
+  width: 78%;
+  height: 18%;
   content: '';
-  transform: translate(-50%, 28%);
+  transform: translate(-50%, -50%) rotate(45deg);
   border-radius: 999px;
   background: radial-gradient(ellipse, rgba(63, 53, 36, 0.24), transparent 68%);
   filter: blur(8px);
@@ -753,7 +767,7 @@ h1 {
 .straw-hat-dock-image {
   position: relative;
   display: block;
-  width: clamp(132px, 18vw, 208px);
+  width: 100%;
   height: auto;
   opacity: 0;
   transform-origin: 50% 52%;
@@ -766,14 +780,35 @@ h1 {
   font-size: clamp(1rem, 2vw, 1.18rem);
 }
 
-.bounty-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+.bounty-carousel {
+  position: relative;
+  min-height: clamp(108px, 12vw, 132px);
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: 8px;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
 }
 
-.bounty-grid > div {
+.bounty-carousel-track {
+  display: flex;
+  min-height: inherit;
+  column-gap: 14px;
+  width: max-content;
+  will-change: transform;
+}
+
+.bounty-carousel-set {
+  display: grid;
+  grid-template-columns: repeat(3, calc((100cqw - 28px) / 3));
+  gap: 14px;
+  width: 100cqw;
+  flex: 0 0 auto;
+}
+
+.bounty-carousel-card {
+  width: 100%;
   min-width: 0;
+  will-change: transform;
 }
 
 .bounty-card {
@@ -1527,7 +1562,6 @@ h1 {
   .skill-grid,
   .certification-grid,
   .route-log-grid,
-  .bounty-grid,
   .contact-actions {
     grid-template-columns: 1fr;
   }
@@ -1547,17 +1581,21 @@ h1 {
   }
 
   .straw-hat-dock {
+    top: -0.38em;
+    width: 92px;
+  }
+
+  .bounty-carousel {
     min-height: 118px;
-    place-items: center;
+    mask-image: linear-gradient(90deg, transparent, black 7%, black 93%, transparent);
   }
 
-  .straw-hat-dock::before {
-    left: 50%;
-    width: 148px;
+  .bounty-carousel-card {
+    width: 100%;
   }
 
-  .straw-hat-dock-image {
-    width: 148px;
+  .bounty-carousel-set {
+    grid-template-columns: 100cqw 100cqw 100cqw;
   }
 
   .cv-summary {
