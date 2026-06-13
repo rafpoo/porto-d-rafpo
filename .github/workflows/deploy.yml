@@ -1,10 +1,9 @@
-name: Deploy Vite React to GitHub Pages
+name: Deploy Vite to GitHub Pages
 
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 permissions:
@@ -37,17 +36,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build application
         run: npm run build
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
-      - name: Upload build artifact
+      - name: Upload build
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
