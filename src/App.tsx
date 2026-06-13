@@ -33,6 +33,7 @@ import {
   GsapHeroConstellation,
   GsapJourneyRoute,
   GsapRouteLogbook,
+  GsapStrawHatStory,
   useGsapHoverEffects,
 } from './components/GsapVoyageEffects';
 
@@ -241,6 +242,7 @@ function App() {
 
   return (
     <div className="app-shell" ref={appRef}>
+      <GsapStrawHatStory />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -460,6 +462,14 @@ function App() {
               whileInView="visible"
               viewport={{ once: true, margin: '-100px' }}
             >
+              <div className="straw-hat-dock" aria-hidden="true">
+                <img
+                  className="straw-hat-dock-image"
+                  src="/assets/straw-hat.png"
+                  alt=""
+                  decoding="async"
+                />
+              </div>
               <motion.p variants={revealVariants}>
                 I am a semester 6 Informatics undergraduate at Universitas Multimedia Nusantara
                 with a 3.86 GPA and expected graduation in 2027. I build maintainable applications

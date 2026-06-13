@@ -95,6 +95,25 @@ button:focus-visible {
   background: linear-gradient(90deg, var(--sea-400), var(--gold-300), var(--red-600));
 }
 
+.straw-hat-story {
+  display: grid;
+  width: min(88vmin, 880px);
+  aspect-ratio: 1;
+  place-items: center;
+  opacity: 0;
+  transform-style: preserve-3d;
+  will-change: opacity, transform, visibility;
+}
+
+.straw-hat-story-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-style: preserve-3d;
+  will-change: transform, filter;
+}
+
 .site-header {
   position: fixed;
   top: 16px;
@@ -707,6 +726,39 @@ h1 {
 .about-copy {
   display: grid;
   gap: 28px;
+}
+
+.straw-hat-dock {
+  position: relative;
+  display: grid;
+  min-height: clamp(108px, 14vw, 168px);
+  place-items: center start;
+  pointer-events: none;
+}
+
+.straw-hat-dock::before {
+  position: absolute;
+  left: clamp(40px, 10vw, 132px);
+  top: 50%;
+  width: clamp(138px, 18vw, 210px);
+  height: clamp(34px, 5vw, 52px);
+  content: '';
+  transform: translate(-50%, 28%);
+  border-radius: 999px;
+  background: radial-gradient(ellipse, rgba(63, 53, 36, 0.24), transparent 68%);
+  filter: blur(8px);
+  opacity: 0.48;
+}
+
+.straw-hat-dock-image {
+  position: relative;
+  display: block;
+  width: clamp(132px, 18vw, 208px);
+  height: auto;
+  opacity: 0;
+  transform-origin: 50% 52%;
+  will-change: opacity, transform;
+  filter: drop-shadow(0 18px 22px rgba(63, 53, 36, 0.22));
 }
 
 .about-copy > p {
@@ -1455,6 +1507,10 @@ h1 {
     text-align: left;
   }
 
+  .straw-hat-story {
+    width: min(116vmin, 560px);
+  }
+
   .hero-actions {
     justify-content: flex-start;
   }
@@ -1488,6 +1544,20 @@ h1 {
 
   .route-log-card {
     padding: 18px;
+  }
+
+  .straw-hat-dock {
+    min-height: 118px;
+    place-items: center;
+  }
+
+  .straw-hat-dock::before {
+    left: 50%;
+    width: 148px;
+  }
+
+  .straw-hat-dock-image {
+    width: 148px;
   }
 
   .cv-summary {
@@ -1653,5 +1723,14 @@ h1 {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .straw-hat-story {
+    display: none;
+  }
+
+  .straw-hat-dock-image {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

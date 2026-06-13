@@ -14,6 +14,8 @@ type BountyCounterProps = {
   value: number;
 };
 
+const STRAW_HAT_URL = '/assets/straw-hat.png';
+
 const routeLogItems = [
   {
     icon: ServerCog,
@@ -190,6 +192,160 @@ export function useGsapHoverEffects(scopeRef: RefObject<HTMLElement | null>) {
       };
     },
     { scope: scopeRef },
+  );
+}
+
+export function GsapStrawHatStory() {
+  const scope = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const wrapper = scope.current;
+      const hat = wrapper?.querySelector<HTMLImageElement>('.straw-hat-story-image');
+      const dock = document.querySelector<HTMLElement>('.straw-hat-dock');
+      const dockImage = document.querySelector<HTMLImageElement>('.straw-hat-dock-image');
+      const about = document.querySelector<HTMLElement>('#about');
+
+      if (!wrapper || !hat || !dock || !dockImage || !about) {
+        return;
+      }
+
+      if (reduceMotion) {
+        gsap.set(wrapper, { autoAlpha: 0 });
+        gsap.set(dockImage, { autoAlpha: 1, scale: 1, rotation: 0 });
+        return;
+      }
+
+      const getDockOffset = () => {
+        const dockRect = dock.getBoundingClientRect();
+        const centerX = dockRect.left + dockRect.width / 2;
+        const centerY = dockRect.top + dockRect.height / 2;
+
+        return {
+          x: centerX - window.innerWidth / 2,
+          y: centerY - window.innerHeight / 2,
+        };
+      };
+
+      const getEndScale = () => (window.innerWidth < 680 ? 0.34 : 0.2);
+
+      gsap.set(wrapper, {
+        autoAlpha: 0,
+        left: '50%',
+        pointerEvents: 'none',
+        position: 'fixed',
+        top: '50%',
+        xPercent: -50,
+        yPercent: -50,
+        zIndex: 52,
+      });
+
+      gsap.set(hat, {
+        filter: 'drop-shadow(0 34px 44px rgba(3, 15, 28, 0.32))',
+        rotation: -18,
+        scale: 0.44,
+        transformOrigin: '50% 52%',
+        x: 0,
+        y: 70,
+      });
+
+      gsap.set(dockImage, {
+        autoAlpha: 0,
+        rotation: -5,
+        scale: 0.82,
+        transformOrigin: '50% 52%',
+      });
+
+      const hatTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: about,
+          start: 'top bottom',
+          end: 'top 20%',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      hatTimeline
+        .to(
+          wrapper,
+          {
+            autoAlpha: 1,
+            duration: 0.08,
+            ease: 'none',
+          },
+          0,
+        )
+        .to(
+          hat,
+          {
+            duration: 0.38,
+            ease: 'power1.inOut',
+            rotation: 250,
+            scale: () => (window.innerWidth < 680 ? 1.38 : 1.22),
+            x: 0,
+            y: () => (window.innerWidth < 680 ? -8 : 0),
+          },
+          0.08,
+        )
+        .to(
+          hat,
+          {
+            duration: 0.54,
+            ease: 'power2.inOut',
+            rotation: 700,
+            scale: getEndScale,
+            x: () => getDockOffset().x,
+            y: () => getDockOffset().y,
+          },
+          0.44,
+        )
+        .to(
+          dockImage,
+          {
+            autoAlpha: 1,
+            duration: 0.16,
+            ease: 'none',
+            rotation: 0,
+            scale: 1,
+          },
+          0.82,
+        )
+        .to(
+          wrapper,
+          {
+            autoAlpha: 0,
+            duration: 0.18,
+            ease: 'none',
+          },
+          0.86,
+        );
+
+      gsap.to(dockImage, {
+        y: -8,
+        rotation: 2,
+        duration: 3.8,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+        scrollTrigger: {
+          trigger: dock,
+          start: 'top 85%',
+          end: 'bottom 20%',
+          toggleActions: 'play pause resume pause',
+        },
+      });
+
+      ScrollTrigger.refresh();
+    },
+    { scope },
+  );
+
+  return (
+    <div className="straw-hat-story" ref={scope} aria-hidden="true">
+      <img className="straw-hat-story-image" src={STRAW_HAT_URL} alt="" decoding="async" />
+    </div>
   );
 }
 
