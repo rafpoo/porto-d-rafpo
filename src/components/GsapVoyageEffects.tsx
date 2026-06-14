@@ -22,7 +22,7 @@ type BountyCounterProps = {
   value: number;
 };
 
-const STRAW_HAT_URL = '/assets/straw-hat.png';
+const STRAW_HAT_URL = `${import.meta.env.BASE_URL}assets/straw-hat.png`;
 
 const routeLogItems = [
   {

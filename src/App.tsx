@@ -71,7 +71,10 @@ type SocialLink = {
   icon: 'mail' | 'github' | 'linkedin' | 'phone';
 };
 
-const CV_URL = '/Rafael_Nicholas_Po_CV.pdf';
+const publicAssetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+
+const CV_URL = publicAssetUrl('Rafael_Nicholas_Po_CV.pdf');
+const STRAW_HAT_URL = publicAssetUrl('assets/straw-hat.png');
 
 const navItems = [
   { label: 'About', href: '#about' },
@@ -678,7 +681,7 @@ function Section({ id, eyebrow, title, children }: SectionProps) {
                 <span className="straw-hat-dock" aria-hidden="true">
                   <img
                     className="straw-hat-dock-image"
-                    src="/assets/straw-hat.png"
+                    src={STRAW_HAT_URL}
                     alt=""
                     decoding="async"
                   />
