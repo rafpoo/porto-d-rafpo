@@ -22,8 +22,8 @@ import {
   SiDocker,
   SiFirebase,
   SiGithubactions,
-  SiJavascript,
   SiKotlin,
+  SiLaravel,
   SiMysql,
   SiNginx,
   SiNodedotjs,
@@ -325,19 +325,35 @@ const linearLoopTransition = (duration: number, delay = 0) => ({
   ease: "linear" as const,
 });
 
-const heroStackStreamItems: { Icon: IconType; label: string; className: string }[] = [
+const heroStackStreamItems: {
+  Icon: IconType;
+  label: string;
+  className: string;
+}[] = [
   { Icon: SiReact, label: "React", className: "tech-icon-react" },
   { Icon: SiNodedotjs, label: "Node.js", className: "tech-icon-node" },
   { Icon: SiMysql, label: "MySQL", className: "tech-icon-mysql" },
   { Icon: SiSupabase, label: "Supabase", className: "tech-icon-supabase" },
   { Icon: SiDocker, label: "Docker", className: "tech-icon-docker" },
   { Icon: SiNginx, label: "Nginx", className: "tech-icon-nginx" },
-  { Icon: SiGithubactions, label: "GitHub Actions", className: "tech-icon-actions" },
+  {
+    Icon: SiGithubactions,
+    label: "GitHub Actions",
+    className: "tech-icon-actions",
+  },
   { Icon: SiKotlin, label: "Kotlin", className: "tech-icon-kotlin" },
   { Icon: SiFirebase, label: "Firebase", className: "tech-icon-firebase" },
   { Icon: SiPostgresql, label: "PostgreSQL", className: "tech-icon-postgres" },
-  { Icon: SiTypescript, label: "TypeScript", className: "tech-icon-typescript" },
-  { Icon: SiTailwindcss, label: "Tailwind CSS", className: "tech-icon-tailwind" },
+  {
+    Icon: SiTypescript,
+    label: "TypeScript",
+    className: "tech-icon-typescript",
+  },
+  {
+    Icon: SiTailwindcss,
+    label: "Tailwind CSS",
+    className: "tech-icon-tailwind",
+  },
 ];
 
 function TechIcon({
@@ -407,18 +423,17 @@ function App() {
           href="#top"
           aria-label="Rafael's Voyage Log home"
         >
-          <motion.span
-            className="brand-emblem"
+          <span
+            className="brand-emblem nav-straw-hat-anchor"
             aria-hidden="true"
-            animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-            transition={linearLoopTransition(24)}
           >
-            <TechIcon
-              Icon={SiJavascript}
-              label="JavaScript"
-              className="tech-icon-javascript tech-icon-compact"
+            <img
+              className="nav-straw-hat-image"
+              src={STRAW_HAT_URL}
+              alt=""
+              decoding="async"
             />
-          </motion.span>
+          </span>
           <span>Rafael</span>
         </a>
         <nav className="desktop-nav" aria-label="Main menu">
@@ -504,9 +519,9 @@ function App() {
             transition={loopTransition(7)}
           >
             <TechIcon
-              Icon={SiTypescript}
+              Icon={SiLaravel}
               label="TypeScript"
-              className="tech-icon-typescript"
+              className="tech-icon-laravel"
             />
           </motion.div>
           <motion.div

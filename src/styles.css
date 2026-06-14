@@ -190,6 +190,25 @@ button:focus-visible {
   will-change: transform;
 }
 
+.nav-straw-hat-anchor {
+  overflow: hidden;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 122, 0.24),
+    rgba(166, 56, 49, 0.14)
+  );
+}
+
+.nav-straw-hat-image {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  transform: rotate(-16deg);
+  transform-origin: 50% 52%;
+  filter: drop-shadow(0 5px 7px rgba(3, 15, 28, 0.22));
+}
+
 .tech-icon {
   display: inline-grid;
   min-width: 48px;
@@ -258,6 +277,14 @@ button:focus-visible {
 
 .tech-icon-typescript {
   background: linear-gradient(135deg, #3178c6, #164f88);
+}
+
+.tech-icon-laravel {
+  background: linear-gradient(135deg, #f05340, #d62828);
+}
+
+.tech-icon-express {
+  background: linear-gradient(135deg, #000000, #434343);
 }
 
 .tech-icon-react {
@@ -1554,7 +1581,7 @@ h1 {
   position: absolute;
   top: 28px;
   bottom: 28px;
-  left: 112px;
+  left: 132px;
   width: 2px;
   content: "";
   background: linear-gradient(
@@ -1570,15 +1597,15 @@ h1 {
 .timeline-item {
   position: relative;
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  gap: 42px;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 36px;
   align-items: start;
 }
 
 .timeline-item::before {
   position: absolute;
   top: 14px;
-  left: 103px;
+  left: 123px;
   width: 20px;
   height: 20px;
   content: "";
@@ -1599,14 +1626,19 @@ h1 {
 
 .timeline-date {
   display: inline-grid;
+  width: 118px;
   min-height: 46px;
   place-items: center;
+  margin-top: 2px;
   border: 1px solid rgba(63, 53, 36, 0.2);
   border-radius: 999px;
   background: rgba(255, 253, 245, 0.72);
   color: var(--red-600);
   font-family: var(--display-font);
   font-weight: 800;
+  line-height: 1.18;
+  padding: 8px 18px;
+  text-align: center;
 }
 
 .timeline-item div {
@@ -1963,8 +1995,11 @@ h1 {
   }
 
   .timeline-date {
-    width: max-content;
-    padding: 0 16px;
+    justify-self: start;
+    width: auto;
+    min-width: 118px;
+    max-width: 132px;
+    padding: 8px 18px;
   }
 }
 

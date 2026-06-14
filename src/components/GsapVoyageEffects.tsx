@@ -9,7 +9,13 @@ import {
 } from "react";
 import { Database, LockKeyhole, ServerCog, Smartphone } from "lucide-react";
 import type { IconType } from "react-icons";
-import { SiNodedotjs, SiReact, SiTypescript } from "react-icons/si";
+import {
+  SiExpress,
+  SiNodedotjs,
+  SiReact,
+  SiSupabase,
+  SiTypescript,
+} from "react-icons/si";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -251,17 +257,40 @@ export function GsapStrawHatStory() {
       const dockImage = document.querySelector<HTMLImageElement>(
         ".straw-hat-dock-image",
       );
+      const navHat = document.querySelector<HTMLElement>(
+        ".nav-straw-hat-anchor",
+      );
       const about = document.querySelector<HTMLElement>("#about");
 
-      if (!wrapper || !hat || !dock || !dockImage || !about) {
+      if (!wrapper || !hat || !dock || !dockImage || !navHat || !about) {
         return;
       }
 
       if (reduceMotion) {
         gsap.set(wrapper, { autoAlpha: 0 });
+        gsap.set(navHat, { autoAlpha: 1 });
         gsap.set(dockImage, { autoAlpha: 1, scale: 1, rotation: 45 });
         return;
       }
+
+      const getNavOffset = () => {
+        const navRect = navHat.getBoundingClientRect();
+        const centerX = navRect.left + navRect.width / 2;
+        const centerY = navRect.top + navRect.height / 2;
+
+        return {
+          x: centerX - window.innerWidth / 2,
+          y: centerY - window.innerHeight / 2,
+        };
+      };
+
+      const getNavScale = () => {
+        const navRect = navHat.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const wrapperWidth = wrapperRect.width || window.innerWidth;
+
+        return navRect.width / wrapperWidth;
+      };
 
       const getDockOffset = () => {
         const dockRect = dock.getBoundingClientRect();
@@ -284,16 +313,20 @@ export function GsapStrawHatStory() {
         top: "50%",
         xPercent: -50,
         yPercent: -50,
-        zIndex: 52,
+        zIndex: 80,
       });
 
       gsap.set(hat, {
         filter: "drop-shadow(0 34px 44px rgba(3, 15, 28, 0.32))",
-        rotation: -18,
-        scale: 0.44,
+        rotation: -16,
+        scale: getNavScale,
         transformOrigin: "50% 52%",
-        x: 0,
-        y: 70,
+        x: () => getNavOffset().x,
+        y: () => getNavOffset().y,
+      });
+
+      gsap.set(navHat, {
+        autoAlpha: 1,
       });
 
       gsap.set(dockImage, {
@@ -318,7 +351,16 @@ export function GsapStrawHatStory() {
           wrapper,
           {
             autoAlpha: 1,
-            duration: 0.08,
+            duration: 0.04,
+            ease: "none",
+          },
+          0,
+        )
+        .to(
+          navHat,
+          {
+            autoAlpha: 0,
+            duration: 0.05,
             ease: "none",
           },
           0,
@@ -328,12 +370,12 @@ export function GsapStrawHatStory() {
           {
             duration: 0.38,
             ease: "power1.inOut",
-            rotation: 250,
-            scale: () => (window.innerWidth < 680 ? 1.38 : 1.22),
+            rotation: 340,
+            scale: () => (window.innerWidth < 680 ? 0.62 : 0.72),
             x: 0,
             y: () => (window.innerWidth < 680 ? -8 : 0),
           },
-          0.08,
+          0.06,
         )
         .to(
           hat,
@@ -587,13 +629,13 @@ export function GsapHeroConstellation() {
       </span>
       <span className="gsap-current-dot gsap-current-dot-two">
         <TechIcon
-          Icon={SiNodedotjs}
+          Icon={SiExpress}
           label="Node.js"
-          className="tech-icon-node"
+          className="tech-icon-express"
         />
       </span>
       <span className="gsap-hero-compass">
-        <TechIcon Icon={SiReact} label="" className="tech-icon-react" />
+        <TechIcon Icon={SiSupabase} label="" className="tech-icon-supabase" />
       </span>
     </div>
   );
