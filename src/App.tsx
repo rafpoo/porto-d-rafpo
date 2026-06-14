@@ -1,7 +1,6 @@
 import {
   Anchor,
   Award,
-  Compass,
   Download,
   ExternalLink,
   FileText,
@@ -90,6 +89,7 @@ const publicAssetUrl = (path: string) =>
 
 const CV_URL = publicAssetUrl("Rafael_Nicholas_Po_CV.pdf");
 const STRAW_HAT_URL = publicAssetUrl("assets/straw-hat.png");
+const PROFILE_IMAGE_URL = publicAssetUrl("assets/profile.png");
 
 const navItems = [
   { label: "About", href: "#about" },
@@ -656,15 +656,14 @@ function App() {
               </div>
               <div
                 className="portrait-frame"
-                aria-label="Rafael avatar placeholder"
+                aria-label="Rafael Po portrait"
               >
-                <motion.div
-                  className="portrait-compass"
-                  animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-                  transition={linearLoopTransition(32)}
-                >
-                  <Compass size={58} />
-                </motion.div>
+                <img
+                  className="portrait-image"
+                  src={PROFILE_IMAGE_URL}
+                  alt="Rafael Po portrait"
+                  decoding="async"
+                />
               </div>
               <h3>Rafael Po</h3>
               <p>
