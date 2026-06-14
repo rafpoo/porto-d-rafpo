@@ -14,11 +14,25 @@ import {
   Phone,
   Sailboat,
   Send,
-  Sparkles,
   Telescope,
-  Waves,
   X,
-} from 'lucide-react';
+} from "lucide-react";
+import type { IconType } from "react-icons";
+import {
+  SiDocker,
+  SiFirebase,
+  SiGithubactions,
+  SiJavascript,
+  SiKotlin,
+  SiMysql,
+  SiNginx,
+  SiNodedotjs,
+  SiPostgresql,
+  SiReact,
+  SiSupabase,
+  SiTailwindcss,
+  SiTypescript,
+} from "react-icons/si";
 import {
   AnimatePresence,
   motion,
@@ -26,8 +40,8 @@ import {
   useScroll,
   useTransform,
   type Variants,
-} from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+} from "framer-motion";
+import { useMemo, useRef, useState } from "react";
 import {
   GsapBountyCarousel,
   GsapBountyCounter,
@@ -36,7 +50,7 @@ import {
   GsapRouteLogbook,
   GsapStrawHatStory,
   useGsapHoverEffects,
-} from './components/GsapVoyageEffects';
+} from "./components/GsapVoyageEffects";
 
 type PortfolioProject = {
   title: string;
@@ -44,12 +58,12 @@ type PortfolioProject = {
   stack: string[];
   image: {
     label: string;
-    theme: 'lagoon' | 'sunset' | 'storm';
+    theme: "lagoon" | "sunset" | "storm";
   };
   links: {
     label: string;
     href: string;
-    icon: 'external' | 'github';
+    icon: "external" | "github";
   }[];
   category: string;
 };
@@ -68,119 +82,204 @@ type TimelineItem = {
 type SocialLink = {
   label: string;
   href: string;
-  icon: 'mail' | 'github' | 'linkedin' | 'phone';
+  icon: "mail" | "github" | "linkedin" | "phone";
 };
 
-const publicAssetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+const publicAssetUrl = (path: string) =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
-const CV_URL = publicAssetUrl('Rafael_Nicholas_Po_CV.pdf');
-const STRAW_HAT_URL = publicAssetUrl('assets/straw-hat.png');
+const CV_URL = publicAssetUrl("Rafael_Nicholas_Po_CV.pdf");
+const STRAW_HAT_URL = publicAssetUrl("assets/straw-hat.png");
 
 const navItems = [
-  { label: 'About', href: '#about' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Journey', href: '#journey' },
-  { label: 'CV', href: '#cv' },
-  { label: 'Contact', href: '#contact' },
+  { label: "About", href: "#about" },
+  { label: "Projects", href: "#projects" },
+  { label: "Skills", href: "#skills" },
+  { label: "Journey", href: "#journey" },
+  { label: "CV", href: "#cv" },
+  { label: "Contact", href: "#contact" },
 ];
 
 const projects: PortfolioProject[] = [
   {
-    title: 'MAXIMA UMN 2025 Platform',
+    title: "MAXIMA UMN 2025 Platform",
     description:
-      'Built and maintained REST APIs and responsive frontend features for a production-grade campus orientation platform serving 2,000+ users.',
-    stack: ['React', 'TypeScript', 'Tailwind CSS', 'shadcn/ui', 'Express.js', 'MySQL', 'Sequelize'],
-    image: { label: 'North harbor', theme: 'lagoon' },
-    links: [{ label: 'GitHub Profile', href: 'https://github.com/rafpoo', icon: 'github' }],
-    category: 'Full Stack',
+      "Built and maintained REST APIs and responsive frontend features for a production-grade campus orientation platform serving 2,000+ users.",
+    stack: [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "Express.js",
+      "MySQL",
+      "Sequelize",
+    ],
+    image: { label: "North harbor", theme: "lagoon" },
+    links: [
+      {
+        label: "GitHub Profile",
+        href: "https://github.com/rafpoo",
+        icon: "github",
+      },
+    ],
+    category: "Full Stack",
   },
   {
-    title: 'MAXIMA Ticketing & Payments',
+    title: "MAXIMA Ticketing & Payments",
     description:
-      'Implemented Google OAuth2, Apereo CAS SSO, Midtrans payment integration, Git-based collaboration, Docker deployment, CI/CD, and Nginx load balancing.',
-    stack: ['OAuth2', 'CAS SSO', 'Midtrans', 'Nginx', 'GitHub Actions', 'DigitalOcean'],
-    image: { label: 'Gold route', theme: 'sunset' },
-    links: [{ label: 'Discuss Project', href: '#contact', icon: 'external' }],
-    category: 'Infrastructure',
+      "Implemented Google OAuth2, Apereo CAS SSO, Midtrans payment integration, Git-based collaboration, Docker deployment, CI/CD, and Nginx load balancing.",
+    stack: [
+      "OAuth2",
+      "CAS SSO",
+      "Midtrans",
+      "Nginx",
+      "GitHub Actions",
+      "DigitalOcean",
+    ],
+    image: { label: "Gold route", theme: "sunset" },
+    links: [{ label: "Discuss Project", href: "#contact", icon: "external" }],
+    category: "Infrastructure",
   },
   {
-    title: 'TrustEnd Attendance App',
+    title: "TrustEnd Attendance App",
     description:
-      'Building a React Native employee attendance tracking app with trust scoring, GPS/WiFi validation, multi-tenant organizations, offline sync, and retry logic.',
-    stack: ['React Native', 'Expo Router', 'TypeScript', 'Supabase', 'PostgreSQL', 'Zustand'],
-    image: { label: 'Trust route', theme: 'lagoon' },
-    links: [{ label: 'GitHub Profile', href: 'https://github.com/rafpoo', icon: 'github' }],
-    category: 'Mobile',
+      "Building a React Native employee attendance tracking app with trust scoring, GPS/WiFi validation, multi-tenant organizations, offline sync, and retry logic.",
+    stack: [
+      "React Native",
+      "Expo Router",
+      "TypeScript",
+      "Supabase",
+      "PostgreSQL",
+      "Zustand",
+    ],
+    image: { label: "Trust route", theme: "lagoon" },
+    links: [
+      {
+        label: "GitHub Profile",
+        href: "https://github.com/rafpoo",
+        icon: "github",
+      },
+    ],
+    category: "Mobile",
   },
   {
-    title: 'MEDEASE Medical Service App',
+    title: "MEDEASE Medical Service App",
     description:
-      'Developed an Android medical service app with clean architecture, Firebase authentication, Firestore, appointment booking, maps, push notifications, and an admin dashboard.',
-    stack: ['Kotlin', 'Jetpack Compose', 'Firebase Auth', 'Firestore', 'Google Maps'],
-    image: { label: 'Storm chart', theme: 'storm' },
-    links: [{ label: 'GitHub Profile', href: 'https://github.com/rafpoo', icon: 'github' }],
-    category: 'Mobile',
+      "Developed an Android medical service app with clean architecture, Firebase authentication, Firestore, appointment booking, maps, push notifications, and an admin dashboard.",
+    stack: [
+      "Kotlin",
+      "Jetpack Compose",
+      "Firebase Auth",
+      "Firestore",
+      "Google Maps",
+    ],
+    image: { label: "Storm chart", theme: "storm" },
+    links: [
+      {
+        label: "GitHub Profile",
+        href: "https://github.com/rafpoo",
+        icon: "github",
+      },
+    ],
+    category: "Mobile",
   },
 ];
 
 const skillGroups: SkillGroup[] = [
   {
-    label: 'Languages',
-    items: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Java', 'Python', 'Kotlin'],
+    label: "Languages",
+    items: [
+      "JavaScript",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "Java",
+      "Python",
+      "Kotlin",
+    ],
   },
   {
-    label: 'Frameworks',
-    items: ['React', 'Next.js', 'Tailwind CSS', 'shadcn/ui', 'Express.js', 'Node.js', 'Laravel', 'Jetpack Compose'],
+    label: "Frameworks",
+    items: [
+      "React",
+      "Next.js",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "Express.js",
+      "Node.js",
+      "Laravel",
+      "Jetpack Compose",
+    ],
   },
   {
-    label: 'Databases',
-    items: ['MySQL', 'PostgreSQL', 'MongoDB', 'Firebase', 'Supabase', 'Sequelize ORM'],
+    label: "Databases",
+    items: [
+      "MySQL",
+      "PostgreSQL",
+      "MongoDB",
+      "Firebase",
+      "Supabase",
+      "Sequelize ORM",
+    ],
   },
   {
-    label: 'DevOps & Tools',
-    items: ['Git', 'GitHub', 'Docker', 'GitHub Actions', 'Nginx', 'Vercel', 'Cloudflare', 'DigitalOcean', 'Postman'],
+    label: "DevOps & Tools",
+    items: [
+      "Git",
+      "GitHub",
+      "Docker",
+      "GitHub Actions",
+      "Nginx",
+      "Vercel",
+      "Cloudflare",
+      "DigitalOcean",
+      "Postman",
+    ],
   },
 ];
 
 const timelineItems: TimelineItem[] = [
   {
-    date: 'Aug 2023 - Present',
-    title: 'Universitas Multimedia Nusantara',
+    date: "Aug 2023 - Present",
+    title: "Universitas Multimedia Nusantara",
     description:
-      'Informatics undergraduate, semester 6, with a 3.86 / 4.00 GPA, expected graduation in 2027, and coursework in data structures, databases, software engineering, mobile, and web development.',
+      "Informatics undergraduate, semester 6, with a 3.86 / 4.00 GPA, expected graduation in 2027, and coursework in data structures, databases, software engineering, mobile, and web development.",
   },
   {
-    date: '2024',
-    title: 'Orientation & Festival Leadership',
+    date: "2024",
+    title: "Orientation & Festival Leadership",
     description:
-      'Served as OMB UMN Person in Charge for 20 freshmen and as Hansan Festival security division liaison officer for guest-star coordination and event operations.',
+      "Served as OMB UMN Person in Charge for 20 freshmen and as Hansan Festival security division liaison officer for guest-star coordination and event operations.",
   },
   {
-    date: 'Jan - Nov 2025',
-    title: 'MAXIMA UMN 2025 Web Division Coordinator',
+    date: "Jan - Nov 2025",
+    title: "MAXIMA UMN 2025 Web Division Coordinator",
     description:
-      'Led a 6-member developer team while shipping a production-grade campus orientation platform for 2,000+ users with REST APIs, React UI, authentication, payments, and deployment responsibilities.',
+      "Led a 6-member developer team while shipping a production-grade campus orientation platform for 2,000+ users with REST APIs, React UI, authentication, payments, and deployment responsibilities.",
   },
   {
-    date: 'Apr 2026 - Present',
-    title: 'TrustEnd Full Stack Mobile Developer',
+    date: "Apr 2026 - Present",
+    title: "TrustEnd Full Stack Mobile Developer",
     description:
-      'Building an Expo-based attendance tracking app with trust scoring, GPS/WiFi validation, Supabase authentication, Row Level Security, PostgreSQL, and offline sync.',
+      "Building an Expo-based attendance tracking app with trust scoring, GPS/WiFi validation, Supabase authentication, Row Level Security, PostgreSQL, and offline sync.",
   },
   {
-    date: 'Jul - Dec 2025',
-    title: 'MEDEASE Full Stack Developer',
+    date: "Jul - Dec 2025",
+    title: "MEDEASE Full Stack Developer",
     description:
-      'Built a medical service Android app with Firebase-backed authentication, cloud storage, appointment booking, maps, notifications, and admin monitoring.',
+      "Built a medical service Android app with Firebase-backed authentication, cloud storage, appointment booking, maps, notifications, and admin monitoring.",
   },
 ];
 
 const socialLinks: SocialLink[] = [
-  { label: 'Email', href: 'mailto:3k.raffs@gmail.com', icon: 'mail' },
-  { label: 'Phone', href: 'tel:+6287753036926', icon: 'phone' },
-  { label: 'GitHub', href: 'https://github.com/rafpoo', icon: 'github' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/rafael-po-71507233a', icon: 'linkedin' },
+  { label: "Email", href: "mailto:3k.raffs@gmail.com", icon: "mail" },
+  { label: "Phone", href: "tel:+6287753036926", icon: "phone" },
+  { label: "GitHub", href: "https://github.com/rafpoo", icon: "github" },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com/in/rafael-po-71507233a",
+    icon: "linkedin",
+  },
 ];
 
 const iconMap = {
@@ -200,7 +299,7 @@ const revealVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 110, damping: 22 },
+    transition: { type: "spring", stiffness: 110, damping: 22 },
   },
 };
 
@@ -216,24 +315,72 @@ const loopTransition = (duration: number, delay = 0) => ({
   duration,
   delay,
   repeat: Infinity,
-  ease: 'easeInOut' as const,
+  ease: "easeInOut" as const,
 });
 
 const linearLoopTransition = (duration: number, delay = 0) => ({
   duration,
   delay,
   repeat: Infinity,
-  ease: 'linear' as const,
+  ease: "linear" as const,
 });
+
+const heroStackStreamItems: { Icon: IconType; label: string; className: string }[] = [
+  { Icon: SiReact, label: "React", className: "tech-icon-react" },
+  { Icon: SiNodedotjs, label: "Node.js", className: "tech-icon-node" },
+  { Icon: SiMysql, label: "MySQL", className: "tech-icon-mysql" },
+  { Icon: SiSupabase, label: "Supabase", className: "tech-icon-supabase" },
+  { Icon: SiDocker, label: "Docker", className: "tech-icon-docker" },
+  { Icon: SiNginx, label: "Nginx", className: "tech-icon-nginx" },
+  { Icon: SiGithubactions, label: "GitHub Actions", className: "tech-icon-actions" },
+  { Icon: SiKotlin, label: "Kotlin", className: "tech-icon-kotlin" },
+  { Icon: SiFirebase, label: "Firebase", className: "tech-icon-firebase" },
+  { Icon: SiPostgresql, label: "PostgreSQL", className: "tech-icon-postgres" },
+  { Icon: SiTypescript, label: "TypeScript", className: "tech-icon-typescript" },
+  { Icon: SiTailwindcss, label: "Tailwind CSS", className: "tech-icon-tailwind" },
+];
+
+function TechIcon({
+  className,
+  Icon,
+  label,
+}: {
+  className?: string;
+  Icon: IconType;
+  label: string;
+}) {
+  return (
+    <span
+      className={`tech-icon ${className ?? ""}`}
+      title={label}
+      aria-label={label}
+    >
+      <Icon aria-hidden="true" />
+      <span>{label}</span>
+    </span>
+  );
+}
 
 function App() {
   const appRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const { scrollY, scrollYProgress } = useScroll();
-  const skyY = useTransform(scrollY, [0, 620], shouldReduceMotion ? [0, 0] : [0, 90]);
-  const shipY = useTransform(scrollY, [0, 620], shouldReduceMotion ? [0, 0] : [0, 54]);
-  const waveY = useTransform(scrollY, [0, 620], shouldReduceMotion ? [0, 0] : [0, 28]);
+  const skyY = useTransform(
+    scrollY,
+    [0, 620],
+    shouldReduceMotion ? [0, 0] : [0, 90],
+  );
+  const shipY = useTransform(
+    scrollY,
+    [0, 620],
+    shouldReduceMotion ? [0, 0] : [0, 54],
+  );
+  const waveY = useTransform(
+    scrollY,
+    [0, 620],
+    shouldReduceMotion ? [0, 0] : [0, 28],
+  );
   useGsapHoverEffects(appRef);
 
   const motionTransition = useMemo(
@@ -250,16 +397,27 @@ function App() {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <motion.div className="scroll-progress" style={{ scaleX: scrollYProgress }} />
+      <motion.div
+        className="scroll-progress"
+        style={{ scaleX: scrollYProgress }}
+      />
       <header className="site-header" aria-label="Primary navigation">
-        <a className="brand-mark gsap-hover-link" href="#top" aria-label="Rafael's Voyage Log home">
+        <a
+          className="brand-mark gsap-hover-link"
+          href="#top"
+          aria-label="Rafael's Voyage Log home"
+        >
           <motion.span
             className="brand-emblem"
             aria-hidden="true"
             animate={shouldReduceMotion ? undefined : { rotate: 360 }}
             transition={linearLoopTransition(24)}
           >
-            <Compass size={22} />
+            <TechIcon
+              Icon={SiJavascript}
+              label="JavaScript"
+              className="tech-icon-javascript tech-icon-compact"
+            />
           </motion.span>
           <span>Rafael</span>
         </a>
@@ -273,7 +431,9 @@ function App() {
         <button
           className="menu-button gsap-hover-link"
           type="button"
-          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-label={
+            isMenuOpen ? "Close navigation menu" : "Open navigation menu"
+          }
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
           onClick={() => setIsMenuOpen((value) => !value)}
@@ -308,7 +468,11 @@ function App() {
       </AnimatePresence>
 
       <main id="main">
-        <section className="hero-section" id="top" aria-labelledby="hero-heading">
+        <section
+          className="hero-section"
+          id="top"
+          aria-labelledby="hero-heading"
+        >
           <GsapHeroConstellation />
           <motion.svg
             className="hero-route-loop"
@@ -321,7 +485,10 @@ function App() {
               animate={
                 shouldReduceMotion
                   ? { pathLength: 1, pathOffset: 0 }
-                  : { pathLength: [0.12, 0.86, 0.12], pathOffset: [0, 0.28, 0.92] }
+                  : {
+                      pathLength: [0.12, 0.86, 0.12],
+                      pathOffset: [0, 0.28, 0.92],
+                    }
               }
               transition={loopTransition(9)}
             />
@@ -336,7 +503,11 @@ function App() {
             }
             transition={loopTransition(7)}
           >
-            <Waves size={24} />
+            <TechIcon
+              Icon={SiTypescript}
+              label="TypeScript"
+              className="tech-icon-typescript"
+            />
           </motion.div>
           <motion.div
             className="hero-current-marker hero-current-marker-two"
@@ -348,7 +519,11 @@ function App() {
             }
             transition={loopTransition(8.5, 0.4)}
           >
-            <Sparkles size={22} />
+            <TechIcon
+              Icon={SiNodedotjs}
+              label="Node.js"
+              className="tech-icon-node"
+            />
           </motion.div>
           <motion.div
             className="hero-sky-map"
@@ -356,39 +531,50 @@ function App() {
             aria-hidden="true"
             animate={shouldReduceMotion ? undefined : { rotate: 360 }}
             transition={linearLoopTransition(58)}
-          />
-          <motion.div className="hero-ship-layer" style={{ y: shipY }} aria-hidden="true">
-            <motion.div
-              className="ship-silhouette"
-              animate={
-                shouldReduceMotion
-                  ? undefined
-                  : { y: [0, -12, 5, 0], rotate: [0, -1.1, 0.7, 0] }
-              }
-              transition={loopTransition(6.4)}
-            >
-              <span className="sail sail-left" />
-              <span className="sail sail-right" />
-              <span className="mast" />
-              <span className="hull" />
-            </motion.div>
+          >
+            <span className="tech-orbit-item tech-orbit-react">
+              <TechIcon
+                Icon={SiReact}
+                label="React"
+                className="tech-icon-react"
+              />
+            </span>
+            <span className="tech-orbit-item tech-orbit-mysql">
+              <TechIcon
+                Icon={SiMysql}
+                label="MySQL"
+                className="tech-icon-mysql"
+              />
+            </span>
+            <span className="tech-orbit-item tech-orbit-docker">
+              <TechIcon
+                Icon={SiDocker}
+                label="Docker"
+                className="tech-icon-docker"
+              />
+            </span>
           </motion.div>
-          <motion.div className="hero-wave-layer" style={{ y: waveY }} aria-hidden="true">
-            <motion.span
-              className="wave wave-one"
-              animate={shouldReduceMotion ? undefined : { x: [0, 38, 0] }}
-              transition={loopTransition(8.2)}
-            />
-            <motion.span
-              className="wave wave-two"
-              animate={shouldReduceMotion ? undefined : { x: [0, -42, 0] }}
-              transition={loopTransition(10.5, 0.2)}
-            />
-            <motion.span
-              className="wave wave-three"
-              animate={shouldReduceMotion ? undefined : { x: [0, 30, 0] }}
-              transition={loopTransition(12, 0.5)}
-            />
+          <motion.div
+            className="hero-tech-layer"
+            style={{ y: shipY }}
+            aria-hidden="true"
+          ></motion.div>
+          <motion.div
+            className="hero-stack-stream"
+            style={{ y: waveY }}
+            aria-hidden="true"
+          >
+            <GsapBountyCarousel>
+              {heroStackStreamItems.map((item) => (
+                <div className="hero-stack-carousel-card" key={item.label}>
+                  <TechIcon
+                    Icon={item.Icon}
+                    label={item.label}
+                    className={`${item.className} tech-icon-wide`}
+                  />
+                </div>
+              ))}
+            </GsapBountyCarousel>
           </motion.div>
 
           <motion.div
@@ -404,11 +590,15 @@ function App() {
               Rafael's Voyage Log
             </motion.h1>
             <motion.p className="hero-lede" variants={revealVariants}>
-              I build clean, maintainable full-stack web applications with React, TypeScript,
-              Node.js, and MySQL, shaped by production work serving 2,000+ campus users.
+              I build clean, maintainable full-stack web applications with
+              React, TypeScript, Node.js, and MySQL, shaped by production work
+              serving 2,000+ campus users.
             </motion.p>
             <motion.div className="hero-actions" variants={revealVariants}>
-              <a className="button button-primary gsap-hover-link" href="#projects">
+              <a
+                className="button button-primary gsap-hover-link"
+                href="#projects"
+              >
                 <Map size={18} />
                 View Projects
               </a>
@@ -421,7 +611,10 @@ function App() {
                 <FileText size={18} />
                 View CV
               </a>
-              <a className="button button-secondary gsap-hover-link" href="#contact">
+              <a
+                className="button button-secondary gsap-hover-link"
+                href="#contact"
+              >
                 <Send size={18} />
                 Send a Message
               </a>
@@ -429,20 +622,27 @@ function App() {
           </motion.div>
         </section>
 
-        <Section id="about" eyebrow="Wanted for good craft" title="About the Captain">
+        <Section
+          id="about"
+          eyebrow="Wanted for good craft"
+          title="About the Captain"
+        >
           <div className="about-grid">
             <motion.article
               className="wanted-poster gsap-hover-card"
               variants={revealVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: "-100px" }}
             >
               <div className="poster-header">
                 <span>Wanted</span>
                 <small>For shipping thoughtful products</small>
               </div>
-              <div className="portrait-frame" aria-label="Rafael avatar placeholder">
+              <div
+                className="portrait-frame"
+                aria-label="Rafael avatar placeholder"
+              >
                 <motion.div
                   className="portrait-compass"
                   animate={shouldReduceMotion ? undefined : { rotate: 360 }}
@@ -453,9 +653,9 @@ function App() {
               </div>
               <h3>Rafael Po</h3>
               <p>
-                Informatics student at Universitas Multimedia Nusantara focused on full-stack web
-                development, readable code, REST APIs, admin dashboards, and practical production
-                systems.
+                Informatics student at Universitas Multimedia Nusantara focused
+                on full-stack web development, readable code, REST APIs, admin
+                dashboards, and practical production systems.
               </p>
             </motion.article>
 
@@ -464,54 +664,83 @@ function App() {
               variants={staggerVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: "-100px" }}
             >
               <motion.p variants={revealVariants}>
-                I am a semester 6 Informatics undergraduate at Universitas Multimedia Nusantara
-                with a 3.86 GPA and expected graduation in 2027. I build maintainable applications
-                with React, TypeScript, Node.js, and MySQL, and I communicate progress clearly in
-                collaborative team environments.
+                I am a 7th semester Informatics undergraduate at Universitas
+                Multimedia Nusantara with a 3.86 GPA and expected graduation in
+                2027. I build maintainable applications with React, TypeScript,
+                Node.js, and MySQL / PostgreSQL, and I communicate progress
+                clearly in collaborative team environments.
               </motion.p>
               <GsapBountyCarousel>
                 <div className="bounty-carousel-card">
-                  <GsapBountyCounter value={3.86} decimals={2} label="Current GPA" />
+                  <GsapBountyCounter
+                    value={3.86}
+                    decimals={2}
+                    label="Current GPA"
+                  />
                 </div>
                 <div className="bounty-carousel-card">
-                  <GsapBountyCounter value={2000} suffix="+" label="Users Served" />
+                  <GsapBountyCounter
+                    value={2000}
+                    suffix="+"
+                    label="Users Served"
+                  />
                 </div>
                 <div className="bounty-carousel-card">
-                  <GsapBountyCounter value={2027} label="Expected Graduation" useGrouping={false} />
+                  <GsapBountyCounter
+                    value={2027}
+                    label="Expected Graduation"
+                    useGrouping={false}
+                  />
                 </div>
               </GsapBountyCarousel>
             </motion.div>
           </div>
         </Section>
 
-        <Section id="projects" eyebrow="Treasure map" title="Selected Project Voyages">
+        <Section
+          id="projects"
+          eyebrow="Treasure map"
+          title="Selected Project Voyages"
+        >
           <motion.div
             className="project-grid"
             variants={staggerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             {projects.map((project, index) => (
-              <ProjectCard key={project.title} project={project} index={index} />
+              <ProjectCard
+                key={project.title}
+                project={project}
+                index={index}
+              />
             ))}
           </motion.div>
         </Section>
 
-        <Section id="route-log" eyebrow="Route log" title="Engineering Route Map">
+        <Section
+          id="route-log"
+          eyebrow="Route log"
+          title="Engineering Route Map"
+        >
           <GsapRouteLogbook />
         </Section>
 
-        <Section id="skills" eyebrow="Crew inventory" title="Tools for the Voyage">
+        <Section
+          id="skills"
+          eyebrow="Crew inventory"
+          title="Tools for the Voyage"
+        >
           <motion.div
             className="skill-grid"
             variants={staggerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             {skillGroups.map((group) => (
               <motion.article
@@ -533,30 +762,39 @@ function App() {
           </motion.div>
         </Section>
 
-        <Section id="certifications" eyebrow="Credential chest" title="Certifications">
+        <Section
+          id="certifications"
+          eyebrow="Credential chest"
+          title="Certifications"
+        >
           <motion.div
             className="certification-grid"
             variants={staggerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
-            {['Huawei HCIA-AI V3.5', 'Huawei HCIA-openGauss V1.0'].map((certificate) => (
-              <motion.article
-                className="certification-card gsap-hover-card"
-                key={certificate}
-                variants={revealVariants}
-              >
-                <Award size={22} aria-hidden="true" />
-                <span>{certificate}</span>
-              </motion.article>
-            ))}
+            {["Huawei HCIA-AI V3.5", "Huawei HCIA-openGauss V1.0"].map(
+              (certificate) => (
+                <motion.article
+                  className="certification-card gsap-hover-card"
+                  key={certificate}
+                  variants={revealVariants}
+                >
+                  <Award size={22} aria-hidden="true" />
+                  <span>{certificate}</span>
+                </motion.article>
+              ),
+            )}
           </motion.div>
         </Section>
 
         <Section id="journey" eyebrow="Island route" title="Journey Timeline">
           <GsapJourneyRoute />
-          <div className="timeline" aria-label="Rafael's portfolio journey timeline">
+          <div
+            className="timeline"
+            aria-label="Rafael's portfolio journey timeline"
+          >
             {timelineItems.map((item, index) => (
               <motion.article
                 className="timeline-item gsap-hover-card"
@@ -564,7 +802,7 @@ function App() {
                 variants={revealVariants}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: '-90px' }}
+                viewport={{ once: true, margin: "-90px" }}
                 transition={{ delay: shouldReduceMotion ? 0 : index * 0.06 }}
               >
                 <span className="timeline-date">{item.date}</span>
@@ -582,7 +820,7 @@ function App() {
             className="cv-panel"
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
             transition={motionTransition}
           >
             <div className="cv-summary gsap-hover-card">
@@ -592,8 +830,9 @@ function App() {
               <div>
                 <h3>Rafael Nicholas Po - CV</h3>
                 <p>
-                  Includes education, technical skills, MAXIMA UMN production platform experience,
-                  TrustEnd, MEDEASE, organizations, and Huawei certifications.
+                  Includes education, technical skills, MAXIMA UMN production
+                  platform experience, TrustEnd, MEDEASE, organizations, and
+                  Huawei certifications.
                 </p>
               </div>
               <div className="cv-actions">
@@ -606,7 +845,11 @@ function App() {
                   <FileText size={18} />
                   Open CV
                 </a>
-                <a className="button button-secondary cv-download gsap-hover-link" href={CV_URL} download>
+                <a
+                  className="button button-secondary cv-download gsap-hover-link"
+                  href={CV_URL}
+                  download
+                >
                   <Download size={18} />
                   Download
                 </a>
@@ -620,27 +863,38 @@ function App() {
           </motion.div>
         </Section>
 
-        <section className="contact-section" id="contact" aria-labelledby="contact-title">
+        <section
+          className="contact-section"
+          id="contact"
+          aria-labelledby="contact-title"
+        >
           <motion.div
             className="contact-inner"
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
             transition={motionTransition}
           >
             <div>
               <p className="eyebrow">Message in a bottle</p>
               <h2 id="contact-title">Ready to chart the next build?</h2>
               <p>
-                Reach out for full-stack development, web platform work, Android app development,
-                or software engineering collaboration.
+                Reach out for full-stack development, web platform work, Android
+                app development, or software engineering collaboration.
               </p>
             </div>
-            <div className="contact-actions" aria-label="Social and contact links">
+            <div
+              className="contact-actions"
+              aria-label="Social and contact links"
+            >
               {socialLinks.map((link) => {
                 const Icon = iconMap[link.icon];
                 return (
-                  <a className="button button-secondary gsap-hover-link" href={link.href} key={link.label}>
+                  <a
+                    className="button button-secondary gsap-hover-link"
+                    href={link.href}
+                    key={link.label}
+                  >
                     <Icon size={18} />
                     {link.label}
                   </a>
@@ -663,17 +917,21 @@ type SectionProps = {
 
 function Section({ id, eyebrow, title, children }: SectionProps) {
   return (
-    <section className="content-section" id={id} aria-labelledby={`${id}-title`}>
+    <section
+      className="content-section"
+      id={id}
+      aria-labelledby={`${id}-title`}
+    >
       <motion.div
         className="section-heading"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-120px' }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
       >
         <p className="eyebrow">{eyebrow}</p>
         <h2 id={`${id}-title`}>
-          {id === 'about' ? (
+          {id === "about" ? (
             <>
               About the Capta
               <span className="captain-hat-anchor">
@@ -698,13 +956,19 @@ function Section({ id, eyebrow, title, children }: SectionProps) {
   );
 }
 
-function ProjectCard({ project, index }: { project: PortfolioProject; index: number }) {
+function ProjectCard({
+  project,
+  index,
+}: {
+  project: PortfolioProject;
+  index: number;
+}) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.article
       className="project-card gsap-hover-card"
-      data-gsap-tilt={index % 2 === 0 ? '-0.45' : '0.45'}
+      data-gsap-tilt={index % 2 === 0 ? "-0.45" : "0.45"}
       variants={revealVariants}
     >
       <motion.div
@@ -715,9 +979,9 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
             ? undefined
             : {
                 backgroundPosition: [
-                  '0px 0px, 0px 0px',
-                  '22px -18px, 0px 0px',
-                  '0px 0px, 0px 0px',
+                  "0px 0px, 0px 0px",
+                  "22px -18px, 0px 0px",
+                  "0px 0px, 0px 0px",
                 ],
               }
         }
@@ -743,7 +1007,10 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
         </div>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
-        <ul className="stack-list" aria-label={`${project.title} technology stack`}>
+        <ul
+          className="stack-list"
+          aria-label={`${project.title} technology stack`}
+        >
           {project.stack.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -751,15 +1018,15 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
         <div className="project-actions">
           {project.links.map((link) => {
             const Icon = projectIconMap[link.icon];
-            const isInternal = link.href.startsWith('#');
+            const isInternal = link.href.startsWith("#");
 
             return (
               <a
                 className="gsap-hover-link"
                 href={link.href}
                 key={link.label}
-                target={isInternal ? undefined : '_blank'}
-                rel={isInternal ? undefined : 'noreferrer'}
+                target={isInternal ? undefined : "_blank"}
+                rel={isInternal ? undefined : "noreferrer"}
               >
                 {link.label}
                 <Icon size={16} />
