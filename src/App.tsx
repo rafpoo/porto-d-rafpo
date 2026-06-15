@@ -42,6 +42,7 @@ import {
 } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import {
+  GsapAboutScrollytelling,
   GsapBountyCarousel,
   GsapBountyCounter,
   GsapHeroConstellation,
@@ -642,13 +643,10 @@ function App() {
           eyebrow="Wanted for good craft"
           title="About the Captain"
         >
-          <div className="about-grid">
-            <motion.article
-              className="wanted-poster gsap-hover-card"
-              variants={revealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+          <GsapAboutScrollytelling projects={projects}>
+            <article
+              className="wanted-poster about-profile-card gsap-hover-card"
+              data-gsap-hover="static"
             >
               <div className="poster-header">
                 <span>Wanted</span>
@@ -671,22 +669,16 @@ function App() {
                 on full-stack web development, readable code, REST APIs, admin
                 dashboards, and practical production systems.
               </p>
-            </motion.article>
+            </article>
 
-            <motion.div
-              className="about-copy"
-              variants={staggerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              <motion.p variants={revealVariants}>
+            <div className="about-copy about-story-copy">
+              <p>
                 I am a 7th semester Informatics undergraduate at Universitas
                 Multimedia Nusantara with a 3.86 GPA and expected graduation in
                 2027. I build maintainable applications with React, TypeScript,
                 Node.js, and MySQL / PostgreSQL, and I communicate progress
                 clearly in collaborative team environments.
-              </motion.p>
+              </p>
               <GsapBountyCarousel>
                 <div className="bounty-carousel-card">
                   <GsapBountyCounter
@@ -710,8 +702,8 @@ function App() {
                   />
                 </div>
               </GsapBountyCarousel>
-            </motion.div>
-          </div>
+            </div>
+          </GsapAboutScrollytelling>
         </Section>
 
         <Section

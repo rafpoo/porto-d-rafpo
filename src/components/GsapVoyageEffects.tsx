@@ -30,6 +30,22 @@ type BountyCounterProps = {
   value: number;
 };
 
+type ScrollytellingProject = {
+  category: string;
+  description: string;
+  image: {
+    label: string;
+    theme: "lagoon" | "sunset" | "storm";
+  };
+  stack: string[];
+  title: string;
+};
+
+type AboutScrollytellingProps = {
+  children: ReactNode;
+  projects: ScrollytellingProject[];
+};
+
 const STRAW_HAT_URL = `${import.meta.env.BASE_URL}assets/straw-hat.png`;
 
 const routeLogItems = [
@@ -109,7 +125,10 @@ export function useGsapHoverEffects(scopeRef: RefObject<HTMLElement | null>) {
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      const cards = gsap.utils.toArray<HTMLElement>(".gsap-hover-card", root);
+      const cards = gsap.utils.toArray<HTMLElement>(
+        '.gsap-hover-card:not([data-gsap-hover="static"])',
+        root,
+      );
       const links = gsap.utils.toArray<HTMLElement>(".gsap-hover-link", root);
 
       gsap.set([...cards, ...links], {
@@ -519,6 +538,343 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
                 })
               : item,
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function GsapAboutScrollytelling({
+  children,
+  projects,
+}: AboutScrollytellingProps) {
+  const scope = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const root = scope.current;
+
+      if (!root) {
+        return;
+      }
+
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          isDesktop: "(min-width: 981px)",
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+        },
+        (context) => {
+          const { isDesktop, reduceMotion } = context.conditions as {
+            isDesktop: boolean;
+            reduceMotion: boolean;
+          };
+          const profile = root.querySelector<HTMLElement>(
+            ".about-profile-card",
+          );
+          const copy = root.querySelector<HTMLElement>(".about-story-copy");
+          const roulette =
+            root.querySelector<HTMLElement>(".about-roulette");
+          const wheel = root.querySelector<HTMLElement>(
+            ".about-roulette-orbit",
+          );
+          const cards = gsap.utils.toArray<HTMLElement>(
+            ".about-roulette-card",
+            root,
+          );
+          const clearTargets = [
+            profile,
+            copy,
+            roulette,
+            wheel,
+            ...cards,
+          ].filter(Boolean);
+
+          root.classList.remove("is-pinned-ready");
+          cards.forEach((card) => {
+            card.classList.remove("is-active");
+            card.removeAttribute("aria-hidden");
+          });
+          gsap.set(clearTargets, { clearProps: "all" });
+
+          if (
+            !isDesktop ||
+            reduceMotion ||
+            !profile ||
+            !copy ||
+            !roulette ||
+            !wheel ||
+            cards.length === 0
+          ) {
+            return;
+          }
+
+          root.classList.add("is-pinned-ready");
+
+          const state = { frame: 0 };
+          const segment = 360 / cards.length;
+          let previousActiveIndex = -1;
+          let previousRenderedFrame = Number.NaN;
+          const metrics = {
+            profileDrop: 0,
+            radiusZ: 0,
+            radiusX: 0,
+            travelX: 0,
+          };
+
+          const updateMetrics = () => {
+            const rootWidth = root.getBoundingClientRect().width;
+            const wheelWidth = wheel.getBoundingClientRect().width || rootWidth;
+
+            metrics.travelX = Math.min(rootWidth * 0.58, 660);
+            metrics.profileDrop = window.innerHeight < 760 ? 30 : 58;
+            metrics.radiusX = Math.min(wheelWidth * 0.32, 270);
+            metrics.radiusZ = Math.min(wheelWidth * 0.42, 320);
+          };
+
+          const renderWheel = () => {
+            if (Math.abs(state.frame - previousRenderedFrame) < 0.004) {
+              return;
+            }
+
+            previousRenderedFrame = state.frame;
+
+            const activeIndex = gsap.utils.clamp(
+              0,
+              cards.length - 1,
+              Math.round(state.frame),
+            );
+
+            if (activeIndex !== previousActiveIndex) {
+              cards.forEach((card, index) => {
+                const isActive = index === activeIndex;
+
+                card.classList.toggle("is-active", isActive);
+                card.setAttribute("aria-hidden", isActive ? "false" : "true");
+              });
+              previousActiveIndex = activeIndex;
+            }
+
+            cards.forEach((card, index) => {
+              const angle = (index - state.frame) * segment;
+              const normalizedAngle = gsap.utils.wrap(-180, 180, angle);
+              const radians = (normalizedAngle * Math.PI) / 180;
+              const depth = Math.cos(radians);
+              const side = Math.sin(radians);
+              const depthProgress = (depth + 1) / 2;
+              const opacity = gsap.utils.clamp(0.18, 1, 0.22 + depthProgress);
+              const scale = gsap.utils.clamp(
+                0.68,
+                1,
+                0.76 + depthProgress * 0.24,
+              );
+
+              gsap.set(card, {
+                force3D: true,
+                opacity,
+                rotationY: -normalizedAngle,
+                rotationZ: side * -2.6,
+                scale,
+                transformOrigin: "50% 50%",
+                x: side * metrics.radiusX,
+                xPercent: -50,
+                y: Math.abs(side) * 14,
+                yPercent: -50,
+                z: (depth - 1) * metrics.radiusZ,
+                zIndex: Math.round(200 + depth * 100),
+              });
+            });
+          };
+
+          updateMetrics();
+          renderWheel();
+
+          gsap.set(roulette, {
+            autoAlpha: 0,
+            scale: 0.96,
+            transformOrigin: "36% 50%",
+            y: 42,
+          });
+          gsap.set(profile, {
+            transformOrigin: "50% 50%",
+            willChange: "transform",
+          });
+          gsap.set(copy, {
+            willChange: "opacity, transform",
+          });
+
+          const maxFrame = Math.max(0, cards.length - 1);
+          const timeline = gsap.timeline({
+            scrollTrigger: {
+              anticipatePin: 1,
+              end: () =>
+                `+=${Math.max(window.innerHeight * (cards.length + 2), 3200)}`,
+              invalidateOnRefresh: true,
+              onRefresh: () => {
+                updateMetrics();
+                previousRenderedFrame = Number.NaN;
+                renderWheel();
+              },
+              pin: true,
+              refreshPriority: -1,
+              scrub: 1,
+              start: "top top",
+              trigger: root,
+            },
+          });
+
+          timeline
+            .to(
+              copy,
+              {
+                autoAlpha: 0,
+                duration: 0.9,
+                ease: "power2.inOut",
+                y: -48,
+              },
+              0,
+            )
+            .to(
+              profile,
+              {
+                duration: 0.9,
+                ease: "power2.inOut",
+                rotation: 1.4,
+                scale: 0.82,
+                x: () => metrics.travelX,
+                y: () => metrics.profileDrop,
+              },
+              0,
+            )
+            .to(
+              roulette,
+              {
+                autoAlpha: 1,
+                duration: 0.55,
+                ease: "power2.out",
+                scale: 1,
+                y: 0,
+              },
+              0.68,
+            )
+            .to(
+              state,
+              {
+                duration: 0.35,
+                ease: "none",
+                frame: 0,
+                onUpdate: renderWheel,
+              },
+              0.72,
+            )
+            .to(
+              state,
+              {
+                duration: Math.max(1, cards.length - 1),
+                ease: "none",
+                frame: maxFrame,
+                onUpdate: renderWheel,
+              },
+              1.15,
+            )
+            .to(state, {
+              duration: 0.75,
+              ease: "none",
+              frame: maxFrame,
+              onUpdate: renderWheel,
+            });
+
+          const refresh = () => ScrollTrigger.refresh();
+          const loadingImages = gsap.utils
+            .toArray<HTMLImageElement>("img", root)
+            .filter((image) => !image.complete);
+
+          loadingImages.forEach((image) => {
+            image.addEventListener("load", refresh, { once: true });
+          });
+
+          requestAnimationFrame(refresh);
+
+          return () => {
+            loadingImages.forEach((image) => {
+              image.removeEventListener("load", refresh);
+            });
+            root.classList.remove("is-pinned-ready");
+            cards.forEach((card) => {
+              card.classList.remove("is-active");
+              card.removeAttribute("aria-hidden");
+            });
+          };
+        },
+      );
+
+      return () => mm.revert();
+    },
+    { scope },
+  );
+
+  return (
+    <div className="about-scrollytelling" ref={scope}>
+      <div className="about-pinned-stage">
+        <div className="about-grid about-story-grid">{children}</div>
+        <div
+          className="about-roulette"
+          aria-label="Selected project roulette"
+        >
+          <div className="about-roulette-heading">
+            <span>Project roulette</span>
+            <strong>{projects.length} builds</strong>
+          </div>
+          <div className="about-roulette-orbit">
+            {projects.map((project, index) => (
+              <article className="about-roulette-card" key={project.title}>
+                <div className="roulette-card-screen" aria-hidden="true">
+                  <div className="roulette-screen-fan">
+                    {["overview", "flow", "mobile"].map((shot) => (
+                      <div
+                        className={`roulette-app-shot roulette-app-shot-${shot} project-map-${project.image.theme}`}
+                        key={`${project.title}-${shot}`}
+                      >
+                        <div className="roulette-screen-toolbar">
+                          <span />
+                          <span />
+                          <span />
+                        </div>
+                        <span className="project-map-label">
+                          {shot === "overview"
+                            ? project.image.label
+                            : shot === "flow"
+                              ? project.category
+                              : "App view"}
+                        </span>
+                        <div className="roulette-app-layout">
+                          <span className="roulette-app-sidebar" />
+                          <span className="roulette-app-panel roulette-app-panel-wide" />
+                          <span className="roulette-app-panel" />
+                          <span className="roulette-app-panel" />
+                          <span className="roulette-app-chart" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="roulette-card-copy">
+                  <div className="project-meta">
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <span>{project.category}</span>
+                  </div>
+                  <h3>{project.title}</h3>
+                  <p>{project.description}</p>
+                  <ul className="stack-list">
+                    {project.stack.slice(0, 5).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </div>

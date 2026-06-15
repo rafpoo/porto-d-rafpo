@@ -844,6 +844,7 @@ h1 {
 .contact-section {
   position: relative;
   padding: clamp(78px, 10vw, 132px) 20px;
+  scroll-margin-top: 104px;
 }
 
 .content-section {
@@ -1013,6 +1014,353 @@ h1 {
 .about-copy {
   display: grid;
   gap: 28px;
+}
+
+.about-profile-card {
+  margin-top: clamp(28px, 4vw, 52px);
+  margin-left: clamp(16px, 3vw, 42px);
+}
+
+.about-scrollytelling {
+  width: var(--container);
+  margin: 0 auto;
+}
+
+.about-pinned-stage {
+  position: relative;
+}
+
+.about-story-grid {
+  width: 100%;
+}
+
+.about-roulette {
+  display: grid;
+  gap: 18px;
+  margin-top: clamp(34px, 6vw, 64px);
+}
+
+.about-roulette-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--ink-700);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.about-roulette-heading span {
+  color: var(--red-600);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.about-roulette-heading strong {
+  color: var(--ink-950);
+  font-family: var(--display-font);
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  line-height: 1;
+}
+
+.about-roulette-orbit {
+  display: grid;
+  gap: 18px;
+}
+
+.about-roulette-card {
+  display: grid;
+  grid-template-columns: minmax(290px, 0.95fr) minmax(270px, 1fr);
+  gap: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(63, 53, 36, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent),
+    rgba(255, 253, 245, 0.9);
+  box-shadow: 0 20px 38px rgba(63, 53, 36, 0.16);
+  pointer-events: none;
+}
+
+.roulette-card-screen {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  min-height: 354px;
+  place-items: center;
+  border-right: 1px solid rgba(63, 53, 36, 0.18);
+  background:
+    radial-gradient(
+      circle at 36% 24%,
+      rgba(255, 215, 122, 0.24),
+      transparent 12rem
+    ),
+    radial-gradient(
+      circle at 78% 74%,
+      rgba(45, 212, 191, 0.22),
+      transparent 11rem
+    ),
+    #0b3046;
+  padding: 18px;
+  perspective: 1100px;
+}
+
+.roulette-card-screen::before {
+  position: absolute;
+  inset: 18px;
+  content: "";
+  pointer-events: none;
+  border: 1px dashed rgba(255, 245, 214, 0.18);
+  border-radius: 8px;
+}
+
+.roulette-screen-fan {
+  position: relative;
+  width: min(100%, 360px);
+  min-height: 318px;
+  transform-style: preserve-3d;
+}
+
+.roulette-screen-toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  border-radius: 8px 8px 0 0;
+  background: rgba(255, 253, 245, 0.92);
+  padding: 8px 10px;
+}
+
+.roulette-screen-toolbar span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red-600);
+}
+
+.roulette-screen-toolbar span:nth-child(2) {
+  background: #d8a22d;
+}
+
+.roulette-screen-toolbar span:nth-child(3) {
+  background: var(--sea-600);
+}
+
+.roulette-app-shot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(218px, 63%);
+  aspect-ratio: 0.68;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid rgba(255, 245, 214, 0.24);
+  border-radius: 8px;
+  color: rgba(255, 253, 245, 0.9);
+  box-shadow:
+    0 18px 28px rgba(3, 15, 28, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+
+.roulette-app-shot-overview {
+  z-index: 1;
+  transform: translate(-76%, -44%) rotate(-16deg) rotateY(18deg);
+}
+
+.roulette-app-shot-flow {
+  z-index: 3;
+  width: min(234px, 68%);
+  transform: translate(-50%, -53%) translateZ(46px) rotate(-1deg);
+}
+
+.roulette-app-shot-mobile {
+  z-index: 2;
+  width: min(178px, 52%);
+  aspect-ratio: 0.56;
+  transform: translate(-16%, -40%) rotate(16deg) rotateY(-18deg);
+}
+
+.roulette-app-shot::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, rgba(255, 253, 245, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(255, 253, 245, 0.12) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(circle, black, transparent 78%);
+}
+
+.roulette-app-shot::after {
+  position: absolute;
+  inset: -34%;
+  content: "";
+  background: linear-gradient(
+    115deg,
+    transparent 36%,
+    rgba(255, 245, 214, 0.18) 48%,
+    transparent 60%
+  );
+  opacity: 0.32;
+  pointer-events: none;
+  transform: translateX(12%) rotate(8deg);
+}
+
+.roulette-app-shot .project-map-label {
+  top: 46px;
+  left: 12px;
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  padding: 6px 8px;
+  font-size: 0.64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roulette-app-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 0.56fr 1fr;
+  gap: 8px;
+  padding: 70px 12px 12px;
+}
+
+.roulette-app-sidebar,
+.roulette-app-panel,
+.roulette-app-chart {
+  border: 1px solid rgba(255, 253, 245, 0.2);
+  border-radius: 7px;
+  background: rgba(255, 253, 245, 0.16);
+}
+
+.roulette-app-sidebar {
+  min-height: 126px;
+  grid-row: span 2;
+}
+
+.roulette-app-panel {
+  min-height: 50px;
+}
+
+.roulette-app-panel-wide,
+.roulette-app-chart {
+  grid-column: 1 / -1;
+}
+
+.roulette-app-chart {
+  min-height: 62px;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 0 34%,
+      rgba(255, 253, 245, 0.3) 34% 38%,
+      transparent 38% 62%,
+      rgba(255, 253, 245, 0.22) 62% 66%,
+      transparent 66%
+    ),
+    rgba(255, 253, 245, 0.14);
+}
+
+.roulette-app-shot-mobile .roulette-app-layout {
+  grid-template-columns: 1fr;
+}
+
+.roulette-app-shot-mobile .roulette-app-sidebar {
+  min-height: 66px;
+  grid-row: auto;
+}
+
+.roulette-app-shot-mobile .roulette-app-panel {
+  min-height: 42px;
+}
+
+.roulette-app-shot-mobile .roulette-app-chart {
+  min-height: 52px;
+}
+
+.roulette-card-copy {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  padding: clamp(20px, 3vw, 30px);
+}
+
+.roulette-card-copy h3 {
+  margin: 0;
+  color: var(--ink-950);
+  font-size: clamp(1.34rem, 2.8vw, 2rem);
+}
+
+.roulette-card-copy p {
+  margin: 0;
+  color: var(--ink-700);
+  line-height: 1.62;
+}
+
+.about-scrollytelling.is-pinned-ready .about-pinned-stage {
+  display: grid;
+  min-height: clamp(700px, 88svh, 850px);
+  align-items: center;
+}
+
+.about-scrollytelling.is-pinned-ready .about-story-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.about-scrollytelling.is-pinned-ready .about-profile-card {
+  position: relative;
+  z-index: 4;
+  max-width: 410px;
+  justify-self: start;
+  will-change: transform;
+}
+
+.about-scrollytelling.is-pinned-ready .about-story-copy {
+  max-width: 620px;
+}
+
+.about-scrollytelling.is-pinned-ready .about-roulette {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 3;
+  width: min(760px, 66%);
+  margin: 0;
+  transform: translateY(-50%);
+  will-change: opacity, transform;
+}
+
+.about-scrollytelling.is-pinned-ready .about-roulette-heading {
+  margin-bottom: 16px;
+}
+
+.about-scrollytelling.is-pinned-ready .about-roulette-orbit {
+  position: relative;
+  display: block;
+  min-height: clamp(470px, 64svh, 590px);
+  perspective: 1300px;
+  transform-style: preserve-3d;
+}
+
+.about-scrollytelling.is-pinned-ready .about-roulette-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(620px, 94%);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: opacity, transform;
+}
+
+.about-roulette-card.is-active {
+  border-color: rgba(166, 56, 49, 0.34);
+  box-shadow: 0 24px 48px rgba(63, 53, 36, 0.2);
+  pointer-events: auto;
 }
 
 .straw-hat-dock {
@@ -1789,6 +2137,19 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .about-profile-card {
+    margin-left: 0;
+  }
+
+  .about-roulette-card {
+    grid-template-columns: 1fr;
+  }
+
+  .roulette-card-screen {
+    border-right: 0;
+    border-bottom: 1px solid rgba(63, 53, 36, 0.18);
+  }
+
   .project-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1882,6 +2243,24 @@ h1 {
 
   .hero-stack-stream {
     display: none;
+  }
+
+  .about-roulette-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .roulette-app-shot {
+    min-height: 210px;
+  }
+
+  .roulette-app-layout {
+    grid-template-columns: 0.62fr 1fr;
+  }
+
+  .roulette-app-panel-wide,
+  .roulette-app-chart {
+    grid-column: 1 / -1;
   }
 
   .tech-icon {
