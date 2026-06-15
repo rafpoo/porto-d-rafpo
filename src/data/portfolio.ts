@@ -217,13 +217,7 @@ export const timelineItems: TimelineItem[] = [
     date: "Aug 2023 - Present",
     title: "Universitas Multimedia Nusantara",
     description:
-      "Informatics undergraduate, semester 6, with a 3.86 / 4.00 GPA, expected graduation in 2027, and coursework in data structures, databases, software engineering, mobile, and web development.",
-  },
-  {
-    date: "2024",
-    title: "Orientation & Festival Leadership",
-    description:
-      "Served as OMB UMN Person in Charge for 20 freshmen and as Hansan Festival security division liaison officer for guest-star coordination and event operations.",
+      "Informatics undergraduate, 7th semester, with a 3.86 / 4.00 GPA, expected graduation in 2027, and coursework in data structures, databases, software engineering, mobile, and web development.",
   },
   {
     date: "Jan - Nov 2025",
@@ -232,16 +226,16 @@ export const timelineItems: TimelineItem[] = [
       "Led a 6-member developer team while shipping a production-grade campus orientation platform for 2,000+ users with REST APIs, React UI, authentication, payments, and deployment responsibilities.",
   },
   {
-    date: "Apr 2026 - Present",
-    title: "TrustEnd Full Stack Mobile Developer",
-    description:
-      "Building an Expo-based attendance tracking app with trust scoring, GPS/WiFi validation, Supabase authentication, Row Level Security, PostgreSQL, and offline sync.",
-  },
-  {
     date: "Jul - Dec 2025",
     title: "MEDEASE Full Stack Developer",
     description:
       "Built a medical service Android app with Firebase-backed authentication, cloud storage, appointment booking, maps, notifications, and admin monitoring.",
+  },
+  {
+    date: "Apr - Jun 2026",
+    title: "TrustEnd Full Stack Mobile Developer",
+    description:
+      "Building an Expo-based attendance tracking app with trust scoring, GPS/WiFi validation, Supabase authentication, Row Level Security, PostgreSQL, and offline sync.",
   },
 ];
 

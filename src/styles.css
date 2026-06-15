@@ -1041,6 +1041,74 @@ h1 {
   margin-left: clamp(16px, 3vw, 42px);
 }
 
+.wanted-poster-stage {
+  position: relative;
+  width: min(100%, 430px);
+  margin-top: clamp(28px, 4vw, 52px);
+  margin-left: clamp(16px, 3vw, 42px);
+  perspective: 1100px;
+  transform-style: preserve-3d;
+  justify-self: start;
+}
+
+.wanted-poster-stage .about-profile-card {
+  width: 100%;
+  margin: 0;
+}
+
+.wanted-poster-fall-plane,
+.wanted-poster-hinge-plane {
+  position: relative;
+  z-index: 2;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.wanted-poster-tape {
+  position: absolute;
+  top: -12px;
+  z-index: 5;
+  width: clamp(58px, 7vw, 82px);
+  height: clamp(22px, 2.4vw, 30px);
+  border: 1px solid rgba(111, 88, 46, 0.28);
+  border-radius: 5px;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(255, 253, 245, 0.7),
+      rgba(244, 223, 170, 0.62) 42%,
+      rgba(255, 253, 245, 0.48)
+    );
+  box-shadow:
+    0 8px 14px rgba(63, 53, 36, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  opacity: 0.92;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: opacity, transform;
+}
+
+.wanted-poster-tape::before {
+  position: absolute;
+  inset: 3px;
+  content: "";
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(63, 53, 36, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(63, 53, 36, 0.06) 1px, transparent 1px);
+  background-size: 9px 8px;
+  mix-blend-mode: multiply;
+  opacity: 0.34;
+}
+
+.wanted-poster-tape-left {
+  left: clamp(18px, 10%, 40px);
+}
+
+.wanted-poster-tape-right {
+  right: clamp(18px, 10%, 40px);
+}
+
 .about-scrollytelling {
   width: var(--container);
   margin: 0 auto;
@@ -1353,18 +1421,19 @@ h1 {
   transform: translateY(-2px);
 }
 
-.about-scrollytelling.is-pinned-ready .about-pinned-stage {
+.about-scrollytelling.is-wanted-exit-ready .about-pinned-stage {
   display: grid;
-  min-height: clamp(700px, 88svh, 850px);
+  min-height: max(720px, 100svh);
   align-items: center;
+  overflow: hidden;
 }
 
-.about-scrollytelling.is-pinned-ready .about-story-grid {
+.about-scrollytelling.is-wanted-exit-ready .about-story-grid {
   position: relative;
   z-index: 2;
 }
 
-.about-scrollytelling.is-pinned-ready .about-profile-card {
+.about-scrollytelling.is-wanted-exit-ready .wanted-poster-stage {
   position: relative;
   z-index: 4;
   max-width: 410px;
@@ -1372,7 +1441,11 @@ h1 {
   will-change: transform;
 }
 
-.about-scrollytelling.is-pinned-ready .about-story-copy {
+.about-scrollytelling.is-wanted-exit-ready .about-profile-card {
+  will-change: transform;
+}
+
+.about-scrollytelling.is-wanted-exit-ready .about-story-copy {
   max-width: 620px;
 }
 
@@ -2193,6 +2266,15 @@ h1 {
 
   .about-profile-card {
     margin-left: 0;
+  }
+
+  .wanted-poster-stage {
+    margin-left: 0;
+    justify-self: center;
+  }
+
+  .about-scrollytelling.is-wanted-exit-ready .wanted-poster-stage {
+    justify-self: center;
   }
 
   .about-roulette-card {

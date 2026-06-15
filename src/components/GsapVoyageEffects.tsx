@@ -561,6 +561,20 @@ export function GsapAboutScrollytelling({
   projects,
 }: AboutScrollytellingProps) {
   const scope = useRef<HTMLDivElement>(null);
+  const posterStageRef = useRef<HTMLDivElement>(null);
+  const posterWrapperRef = useRef<HTMLDivElement>(null);
+  const posterHingeRef = useRef<HTMLDivElement>(null);
+  const posterRef = useRef<HTMLElement | null>(null);
+  const leftTapeRef = useRef<HTMLSpanElement>(null);
+  const rightTapeRef = useRef<HTMLSpanElement>(null);
+  const storyItems = Children.toArray(children);
+  const [posterChild, ...contentChildren] = storyItems;
+  const posterNode = isValidElement(posterChild)
+    ? cloneElement(
+        posterChild as ReactElement<Record<string, unknown>>,
+        { ref: posterRef } as Record<string, unknown>,
+      )
+    : posterChild;
 
   useGSAP(
     () => {
@@ -575,16 +589,24 @@ export function GsapAboutScrollytelling({
       mm.add(
         {
           isDesktop: "(min-width: 981px)",
+          isMobile: "(max-width: 680px)",
           reduceMotion: "(prefers-reduced-motion: reduce)",
         },
         (context) => {
-          const { isDesktop, reduceMotion } = context.conditions as {
+          const { isDesktop, isMobile, reduceMotion } =
+            context.conditions as {
             isDesktop: boolean;
+            isMobile: boolean;
             reduceMotion: boolean;
           };
-          const profile = root.querySelector<HTMLElement>(
-            ".about-profile-card",
-          );
+          const posterStage = posterStageRef.current;
+          const posterWrapper = posterWrapperRef.current;
+          const posterHinge = posterHingeRef.current;
+          const poster =
+            posterRef.current ??
+            root.querySelector<HTMLElement>(".about-profile-card");
+          const leftTape = leftTapeRef.current;
+          const rightTape = rightTapeRef.current;
           const copy = root.querySelector<HTMLElement>(".about-story-copy");
           const roulette = root.querySelector<HTMLElement>(".about-roulette");
           const wheel = root.querySelector<HTMLElement>(
@@ -595,14 +617,19 @@ export function GsapAboutScrollytelling({
             root,
           );
           const clearTargets = [
-            profile,
+            posterStage,
+            posterWrapper,
+            posterHinge,
+            poster,
+            leftTape,
+            rightTape,
             copy,
             roulette,
             wheel,
             ...cards,
           ].filter(Boolean);
 
-          root.classList.remove("is-pinned-ready");
+          root.classList.remove("is-pinned-ready", "is-wanted-exit-ready");
           cards.forEach((card) => {
             card.classList.remove("is-active");
             card.removeAttribute("aria-hidden");
@@ -610,41 +637,86 @@ export function GsapAboutScrollytelling({
           gsap.set(clearTargets, { clearProps: "all" });
 
           if (
-            !isDesktop ||
-            reduceMotion ||
-            !profile ||
+            !posterStage ||
+            !posterWrapper ||
+            !posterHinge ||
+            !poster ||
+            !leftTape ||
+            !rightTape ||
             !copy ||
-            !roulette ||
-            !wheel ||
-            cards.length === 0
+            !roulette
           ) {
             return;
           }
 
-          root.classList.add("is-pinned-ready");
+          const useRoulette = isDesktop && !reduceMotion && Boolean(wheel);
+
+          root.classList.add("is-wanted-exit-ready");
+
+          if (useRoulette) {
+            root.classList.add("is-pinned-ready");
+          }
 
           const state = { frame: 0 };
-          const segment = 360 / cards.length;
+          const segment = cards.length > 0 ? 360 / cards.length : 0;
           let previousActiveIndex = -1;
           let previousRenderedFrame = Number.NaN;
           const metrics = {
-            profileDrop: 0,
+            fallDistance: 0,
+            fallRotation: 0,
+            fallX: 0,
+            hangRotation: 0,
+            hangX: 0,
+            hangY: 0,
             radiusZ: 0,
             radiusX: 0,
-            travelX: 0,
+            releaseRotation: 0,
+            stageDrop: 0,
+            stageScale: 1,
+            stageTravelX: 0,
           };
 
           const updateMetrics = () => {
             const rootWidth = root.getBoundingClientRect().width;
-            const wheelWidth = wheel.getBoundingClientRect().width || rootWidth;
+            const wheelWidth =
+              wheel?.getBoundingClientRect().width || rootWidth;
+            const posterRect = posterWrapper.getBoundingClientRect();
+            const stageMaxTravel = Math.max(
+              0,
+              rootWidth - posterStage.offsetLeft - posterStage.offsetWidth - 16,
+            );
 
-            metrics.travelX = Math.min(rootWidth * 0.58, 660);
-            metrics.profileDrop = window.innerHeight < 760 ? 30 : 58;
+            metrics.fallDistance =
+              window.innerHeight + posterRect.height * 1.18 + 120;
+            metrics.fallRotation = isMobile ? 12 : 22;
+            metrics.fallX = isMobile ? -24 : -54;
+            metrics.hangRotation = isMobile ? 17 : 24;
+            metrics.hangX = isMobile ? 3 : 8;
+            metrics.hangY = Math.min(
+              posterRect.height * (isMobile ? 0.1 : 0.16),
+              isMobile ? 42 : 72,
+            );
             metrics.radiusX = Math.min(wheelWidth * 0.32, 270);
             metrics.radiusZ = Math.min(wheelWidth * 0.42, 320);
+            metrics.releaseRotation = isMobile ? 13 : 17;
+            metrics.stageDrop = isDesktop
+              ? window.innerHeight < 760
+                ? 30
+                : 58
+              : isMobile
+                ? 10
+                : 24;
+            metrics.stageScale = isDesktop ? 0.82 : isMobile ? 0.92 : 0.88;
+            metrics.stageTravelX = isDesktop
+              ? Math.min(rootWidth * 0.58, 660, stageMaxTravel)
+              : Math.min(rootWidth * 0.18, 90, stageMaxTravel);
           };
 
           const renderWheel = () => {
+            if (!useRoulette || cards.length === 0) {
+              return;
+            }
+
             if (Math.abs(state.frame - previousRenderedFrame) < 0.004) {
               return;
             }
@@ -701,26 +773,87 @@ export function GsapAboutScrollytelling({
           updateMetrics();
           renderWheel();
 
-          gsap.set(roulette, {
-            autoAlpha: 0,
-            scale: 0.96,
-            transformOrigin: "36% 50%",
-            y: 42,
-          });
-          gsap.set(profile, {
+          gsap.set(posterStage, {
+            autoAlpha: 1,
+            force3D: true,
+            rotation: 0,
+            scale: 1,
             transformOrigin: "50% 50%",
             willChange: "transform",
+            x: 0,
+            y: 0,
+          });
+          gsap.set(posterWrapper, {
+            autoAlpha: 1,
+            force3D: true,
+            transformOrigin: "50% 50%",
+            willChange: "transform",
+            x: 0,
+            y: 0,
+            rotation: 0,
+          });
+          gsap.set(posterHinge, {
+            force3D: true,
+            transformOrigin: "50% 50%",
+            willChange: "transform",
+            x: 0,
+            y: 0,
+            rotation: 0,
+          });
+          gsap.set(poster, {
+            transformOrigin: "50% 50%",
+            willChange: "transform",
+          });
+          gsap.set(leftTape, {
+            autoAlpha: 1,
+            force3D: true,
+            rotation: -8,
+            scale: 1,
+            transformOrigin: "42% 50%",
+            willChange: "opacity, transform",
+            x: 0,
+            xPercent: -28,
+            y: 0,
+            yPercent: -10,
+          });
+          gsap.set(rightTape, {
+            autoAlpha: 1,
+            force3D: true,
+            rotation: 8,
+            scale: 1,
+            transformOrigin: "58% 50%",
+            willChange: "opacity, transform",
+            x: 0,
+            xPercent: 28,
+            y: 0,
+            yPercent: -10,
           });
           gsap.set(copy, {
             willChange: "opacity, transform",
           });
 
+          if (useRoulette) {
+            gsap.set(roulette, {
+              autoAlpha: 0,
+              scale: 0.96,
+              transformOrigin: "36% 50%",
+              y: 42,
+            });
+          }
+
+          const getScrollDistance = () => {
+            const multiplier = isMobile ? 3.75 : isDesktop ? 4.45 : 4;
+            const distance = Math.round(window.innerHeight * multiplier);
+
+            return `+=${gsap.utils.clamp(3000, 4200, distance)}`;
+          };
+          const getReducedScrollDistance = () =>
+            `+=${Math.max(Math.round(window.innerHeight * 0.85), 720)}`;
           const maxFrame = Math.max(0, cards.length - 1);
           const timeline = gsap.timeline({
             scrollTrigger: {
               anticipatePin: 1,
-              end: () =>
-                `+=${Math.max(window.innerHeight * (cards.length + 2), 3200)}`,
+              end: reduceMotion ? getReducedScrollDistance : getScrollDistance,
               invalidateOnRefresh: true,
               onRefresh: () => {
                 updateMetrics();
@@ -729,72 +862,249 @@ export function GsapAboutScrollytelling({
               },
               pin: true,
               refreshPriority: -1,
-              scrub: 1,
+              scrub: reduceMotion ? 0.35 : 0.8,
               start: "top top",
               trigger: root,
             },
           });
 
-          timeline
-            .to(
-              copy,
-              {
+          if (reduceMotion) {
+            timeline
+              .to([leftTape, rightTape], {
                 autoAlpha: 0,
-                duration: 0.9,
-                ease: "power2.inOut",
-                y: -48,
-              },
-              0,
-            )
-            .to(
-              profile,
-              {
-                duration: 0.9,
-                ease: "power2.inOut",
-                rotation: 1.4,
-                scale: 0.82,
-                x: () => metrics.travelX,
-                y: () => metrics.profileDrop,
-              },
-              0,
-            )
-            .to(
-              roulette,
-              {
-                autoAlpha: 1,
+                duration: 0.2,
+                ease: "none",
+                scale: 0.92,
+              })
+              .to(
+                copy,
+                {
+                  autoAlpha: 0.82,
+                  duration: 0.2,
+                  ease: "none",
+                },
+                0,
+              )
+              .to(posterWrapper, {
+                autoAlpha: 0,
                 duration: 0.55,
-                ease: "power2.out",
-                scale: 1,
-                y: 0,
-              },
-              0.68,
-            )
-            .to(
-              state,
-              {
+                ease: "none",
+                y: () => Math.min(window.innerHeight * 0.36, 320),
+              });
+          } else {
+            timeline
+              .addLabel("hold", 0)
+              .to(
+                posterStage,
+                {
+                  duration: 1.1,
+                  ease: "none",
+                  x: 0,
+                },
+                "hold",
+              )
+              .addLabel("movePoster", 1.1)
+              .to(
+                copy,
+                {
+                  autoAlpha: 0,
+                  duration: 0.9,
+                  ease: "power2.inOut",
+                  y: isMobile ? -20 : -48,
+                },
+                "movePoster",
+              )
+              .to(
+                posterStage,
+                {
+                  duration: 0.9,
+                  ease: "power2.inOut",
+                  rotation: isMobile ? 0.8 : 1.4,
+                  scale: () => metrics.stageScale,
+                  x: () => metrics.stageTravelX,
+                  y: () => metrics.stageDrop,
+                },
+                "movePoster",
+              )
+              .addLabel("roulette", 2)
+              .addLabel("leftTape", 6.2)
+              .to(
+                posterStage,
+                {
+                  duration: 0.2,
+                  ease: "none",
+                  rotation: isMobile ? 0.8 : 1.4,
+                  scale: () => metrics.stageScale,
+                  x: () => metrics.stageTravelX,
+                  y: () => metrics.stageDrop,
+                },
+                "leftTape-=0.2",
+              )
+              .to(
+                leftTape,
+                {
+                  autoAlpha: 0,
+                  duration: 1.15,
+                  ease: "power2.inOut",
+                  rotation: isMobile ? -22 : -30,
+                  scale: 0.68,
+                  x: isMobile ? -8 : -14,
+                  y: isMobile ? -12 : -20,
+                },
+                "leftTape",
+              )
+              .addLabel("hang", 7.35)
+              .set(
+                posterHinge,
+                {
+                  transformOrigin: "100% 0%",
+                },
+                "hang",
+              )
+              .to(
+                posterHinge,
+                {
+                  duration: 1.9,
+                  ease: "power2.out",
+                  rotation: () => metrics.hangRotation,
+                  x: () => metrics.hangX,
+                  y: () => metrics.hangY,
+                },
+                "hang",
+              )
+              .addLabel("wiggle", 9.25)
+              .to(
+                posterHinge,
+                {
+                  duration: 0.55,
+                  ease: "sine.inOut",
+                  rotation: isMobile ? 12 : 15,
+                },
+                "wiggle",
+              )
+              .to(posterHinge, {
+                duration: 0.45,
+                ease: "sine.inOut",
+                rotation: isMobile ? 16 : 20,
+              })
+              .to(posterHinge, {
+                duration: 0.45,
+                ease: "sine.inOut",
+                rotation: isMobile ? 13 : 16,
+              })
+              .to(posterHinge, {
                 duration: 0.35,
-                ease: "none",
-                frame: 0,
-                onUpdate: renderWheel,
-              },
-              0.72,
-            )
-            .to(
-              state,
-              {
-                duration: Math.max(1, cards.length - 1),
-                ease: "none",
-                frame: maxFrame,
-                onUpdate: renderWheel,
-              },
-              1.15,
-            )
-            .to(state, {
-              duration: 0.75,
-              ease: "none",
-              frame: maxFrame,
-              onUpdate: renderWheel,
-            });
+                ease: "sine.inOut",
+                rotation: () => metrics.releaseRotation,
+              })
+              .addLabel("rightTape", 10.7)
+              .to(
+                rightTape,
+                {
+                  autoAlpha: 0,
+                  duration: 1,
+                  ease: "power2.inOut",
+                  rotation: isMobile ? 20 : 30,
+                  scale: 0.66,
+                  x: isMobile ? 8 : 14,
+                  y: isMobile ? -12 : -20,
+                },
+                "rightTape",
+              )
+              .to(
+                posterHinge,
+                {
+                  duration: 1,
+                  ease: "sine.inOut",
+                  rotation: () => metrics.releaseRotation,
+                  y: () => metrics.hangY + (isMobile ? 6 : 10),
+                },
+                "rightTape",
+              )
+              .addLabel("fall", 11.7)
+              .set(
+                posterWrapper,
+                {
+                  transformOrigin: "50% 50%",
+                },
+                "fall",
+              )
+              .to(
+                posterWrapper,
+                {
+                  duration: 2,
+                  ease: "power3.in",
+                  rotation: () => metrics.fallRotation,
+                  x: () => metrics.fallX,
+                  y: () => metrics.fallDistance,
+                },
+                "fall",
+              )
+              .to(
+                posterHinge,
+                {
+                  duration: 2,
+                  ease: "power2.in",
+                  rotation: () =>
+                    metrics.releaseRotation + (isMobile ? 8 : 14),
+                },
+                "fall",
+              )
+              .to(
+                posterWrapper,
+                {
+                  autoAlpha: 0,
+                  duration: 0.25,
+                  ease: "none",
+                },
+                "fall+=1.72",
+              );
+
+            if (useRoulette) {
+              timeline
+                .to(
+                  roulette,
+                  {
+                    autoAlpha: 1,
+                    duration: 1.1,
+                    ease: "power2.out",
+                    scale: 1,
+                    y: 0,
+                  },
+                  "movePoster+=0.65",
+                )
+                .to(
+                  state,
+                  {
+                    duration: 0.35,
+                    ease: "none",
+                    frame: 0,
+                    onUpdate: renderWheel,
+                  },
+                  "roulette",
+                )
+                .to(
+                  state,
+                  {
+                    duration: 3.7,
+                    ease: "none",
+                    frame: maxFrame,
+                    onUpdate: renderWheel,
+                  },
+                  "roulette+=0.45",
+                )
+                .to(
+                  state,
+                  {
+                    duration: 0.9,
+                    ease: "none",
+                    frame: maxFrame,
+                    onUpdate: renderWheel,
+                  },
+                  "leftTape-=0.4",
+                );
+            }
+          }
 
           const refresh = () => ScrollTrigger.refresh();
           const loadingImages = gsap.utils
@@ -811,7 +1121,7 @@ export function GsapAboutScrollytelling({
             loadingImages.forEach((image) => {
               image.removeEventListener("load", refresh);
             });
-            root.classList.remove("is-pinned-ready");
+            root.classList.remove("is-pinned-ready", "is-wanted-exit-ready");
             cards.forEach((card) => {
               card.classList.remove("is-active");
               card.removeAttribute("aria-hidden");
@@ -828,7 +1138,26 @@ export function GsapAboutScrollytelling({
   return (
     <div className="about-scrollytelling" ref={scope}>
       <div className="about-pinned-stage">
-        <div className="about-grid about-story-grid">{children}</div>
+        <div className="about-grid about-story-grid">
+          <div className="wanted-poster-stage" ref={posterStageRef}>
+            <span
+              className="wanted-poster-tape wanted-poster-tape-left"
+              ref={leftTapeRef}
+              aria-hidden="true"
+            />
+            <span
+              className="wanted-poster-tape wanted-poster-tape-right"
+              ref={rightTapeRef}
+              aria-hidden="true"
+            />
+            <div className="wanted-poster-fall-plane" ref={posterWrapperRef}>
+              <div className="wanted-poster-hinge-plane" ref={posterHingeRef}>
+                {posterNode}
+              </div>
+            </div>
+          </div>
+          {contentChildren}
+        </div>
         <div className="about-roulette" aria-label="Selected project roulette">
           <div className="about-roulette-heading">
             <span>Project roulette</span>
