@@ -27,6 +27,7 @@ export const publicAssetUrl = (path: string) =>
 export const CV_URL = publicAssetUrl("Rafael_Nicholas_Po_CV.pdf");
 export const STRAW_HAT_URL = publicAssetUrl("assets/straw-hat.png");
 export const PROFILE_IMAGE_URL = publicAssetUrl("assets/profile.png");
+export const WANTED_POSTER_URL = publicAssetUrl("assets/wanted-poster.png");
 
 export const navItems: NavItem[] = [
   { label: "About", href: "#about" },
@@ -54,8 +55,23 @@ export const projects: PortfolioProject[] = [
     image: { label: "North harbor", theme: "lagoon" },
     links: [
       {
-        label: "GitHub Profile",
-        href: "https://github.com/rafpoo",
+        label: "Client Web",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-client",
+        icon: "github",
+      },
+      {
+        label: "Internal Web",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-internal",
+        icon: "github",
+      },
+      {
+        label: "API",
+        href: "https://github.com/MAXIMA-2025/mxm25-server-internal",
+        icon: "github",
+      },
+      {
+        label: "Mailer",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-mailer",
         icon: "github",
       },
     ],
@@ -74,7 +90,28 @@ export const projects: PortfolioProject[] = [
       "DigitalOcean",
     ],
     image: { label: "Gold route", theme: "sunset" },
-    links: [{ label: "Discuss Project", href: "#contact", icon: "external" }],
+    links: [
+      {
+        label: "Client Web",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-client",
+        icon: "github",
+      },
+      {
+        label: "Internal Web",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-internal",
+        icon: "github",
+      },
+      {
+        label: "API",
+        href: "https://github.com/MAXIMA-2025/mxm25-server-internal",
+        icon: "github",
+      },
+      {
+        label: "Mailer",
+        href: "https://github.com/MAXIMA-2025/mxm25-app-mailer",
+        icon: "github",
+      },
+    ],
     category: "Infrastructure",
   },
   {
@@ -92,8 +129,8 @@ export const projects: PortfolioProject[] = [
     image: { label: "Trust route", theme: "lagoon" },
     links: [
       {
-        label: "GitHub Profile",
-        href: "https://github.com/rafpoo",
+        label: "GitHub",
+        href: "https://github.com/rafpoo/TrustEnd",
         icon: "github",
       },
     ],
@@ -113,8 +150,8 @@ export const projects: PortfolioProject[] = [
     image: { label: "Storm chart", theme: "storm" },
     links: [
       {
-        label: "GitHub Profile",
-        href: "https://github.com/rafpoo",
+        label: "GitHub",
+        href: "https://github.com/rafpoo/MedEase",
         icon: "github",
       },
     ],

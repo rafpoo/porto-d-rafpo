@@ -7,7 +7,14 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { Database, LockKeyhole, ServerCog, Smartphone } from "lucide-react";
+import {
+  Database,
+  ExternalLink,
+  Github,
+  LockKeyhole,
+  ServerCog,
+  Smartphone,
+} from "lucide-react";
 import type { IconType } from "react-icons";
 import {
   SiExpress,
@@ -37,6 +44,11 @@ type ScrollytellingProject = {
     label: string;
     theme: "lagoon" | "sunset" | "storm";
   };
+  links: {
+    label: string;
+    href: string;
+    icon: "external" | "github";
+  }[];
   stack: string[];
   title: string;
 };
@@ -574,8 +586,7 @@ export function GsapAboutScrollytelling({
             ".about-profile-card",
           );
           const copy = root.querySelector<HTMLElement>(".about-story-copy");
-          const roulette =
-            root.querySelector<HTMLElement>(".about-roulette");
+          const roulette = root.querySelector<HTMLElement>(".about-roulette");
           const wheel = root.querySelector<HTMLElement>(
             ".about-roulette-orbit",
           );
@@ -818,10 +829,7 @@ export function GsapAboutScrollytelling({
     <div className="about-scrollytelling" ref={scope}>
       <div className="about-pinned-stage">
         <div className="about-grid about-story-grid">{children}</div>
-        <div
-          className="about-roulette"
-          aria-label="Selected project roulette"
-        >
+        <div className="about-roulette" aria-label="Selected project roulette">
           <div className="about-roulette-heading">
             <span>Project roulette</span>
             <strong>{projects.length} builds</strong>
@@ -871,6 +879,29 @@ export function GsapAboutScrollytelling({
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
+                  <div
+                    className="roulette-link-list"
+                    aria-label={`${project.title} repository links`}
+                  >
+                    {project.links.map((link) => {
+                      const LinkIcon =
+                        link.icon === "github" ? Github : ExternalLink;
+                      const isInternal = link.href.startsWith("#");
+
+                      return (
+                        <a
+                          className="roulette-repo-link gsap-hover-link"
+                          href={link.href}
+                          key={`${project.title}-${link.label}`}
+                          target={isInternal ? undefined : "_blank"}
+                          rel={isInternal ? undefined : "noreferrer"}
+                        >
+                          <LinkIcon size={14} aria-hidden="true" />
+                          <span>{link.label}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               </article>
             ))}
@@ -1063,14 +1094,23 @@ export function GsapJourneyRoute() {
 
   useGSAP(
     () => {
+      const root = scope.current;
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      const path = scope.current?.querySelector<SVGPathElement>(
+      const path = root?.querySelector<SVGPathElement>(
         ".gsap-journey-route-path",
       );
+      const islands = gsap.utils.toArray<SVGCircleElement>(
+        ".gsap-route-island",
+        root,
+      );
+      const ship = root?.querySelector<SVGGElement>(".gsap-route-ship");
+      const shipBody = root?.querySelector<SVGGElement>(
+        ".gsap-route-ship-body",
+      );
 
-      if (!path) {
+      if (!root || !path || !ship || !shipBody) {
         return;
       }
 
@@ -1081,41 +1121,81 @@ export function GsapJourneyRoute() {
       });
 
       if (reduceMotion) {
-        gsap.set(".gsap-route-island, .gsap-route-ship", {
+        gsap.set([...islands, ship], {
           autoAlpha: 1,
           scale: 1,
+          x: 0,
+          y: 0,
+          rotation: 0,
         });
         return;
       }
 
-      const routeTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: scope.current,
-          start: "top 82%",
-          end: "bottom 45%",
-          scrub: 1,
-        },
+      gsap.to(shipBody, {
+        duration: 2.8,
+        ease: "sine.inOut",
+        repeat: -1,
+        rotation: 1.4,
+        transformOrigin: "50% 50%",
+        y: -8,
+        yoyo: true,
       });
 
+      const routeTimeline = gsap.timeline({ paused: true });
+
       routeTimeline
-        .to(path, { strokeDashoffset: 0, ease: "none" })
-        .from(
-          ".gsap-route-island",
+        .to(path, {
+          duration: 1.35,
+          ease: "power2.inOut",
+          strokeDashoffset: 0,
+        })
+        .fromTo(
+          islands,
+          { autoAlpha: 0, scale: 0.35 },
           {
-            autoAlpha: 0,
+            autoAlpha: 1,
+            duration: 0.58,
             ease: "back.out(1.7)",
-            scale: 0.35,
+            scale: 1,
             stagger: 0.16,
             transformOrigin: "50% 50%",
           },
-          0.05,
+          0.18,
         )
         .fromTo(
-          ".gsap-route-ship",
+          ship,
           { autoAlpha: 0, x: -80, y: 32, rotation: -8 },
-          { autoAlpha: 1, x: 0, y: 0, rotation: 0, ease: "power1.out" },
-          0.2,
+          {
+            autoAlpha: 1,
+            duration: 0.76,
+            ease: "power2.out",
+            rotation: 0,
+            x: 0,
+            y: 0,
+          },
+          0.38,
         );
+
+      ScrollTrigger.create({
+        end: "bottom 16%",
+        onEnter: () => {
+          routeTimeline.restart();
+        },
+        onEnterBack: () => {
+          routeTimeline.restart();
+        },
+        onLeave: () => {
+          routeTimeline.progress(1).pause();
+        },
+        onLeaveBack: () => {
+          routeTimeline.reverse();
+        },
+        refreshPriority: 20,
+        start: "top 76%",
+        trigger: root,
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope },
   );
@@ -1131,9 +1211,11 @@ export function GsapJourneyRoute() {
         <circle className="gsap-route-island" cx="426" cy="94" r="18" />
         <circle className="gsap-route-island" cx="774" cy="78" r="15" />
         <g className="gsap-route-ship" transform="translate(852 70)">
-          <path d="M0 32 L96 32 L78 54 L20 54 Z" />
-          <path d="M42 0 L42 32 L8 32 Z" />
-          <path d="M48 8 L48 32 L84 32 Z" />
+          <g className="gsap-route-ship-body">
+            <path d="M0 32 L96 32 L78 54 L20 54 Z" />
+            <path d="M42 0 L42 32 L8 32 Z" />
+            <path d="M48 8 L48 32 L84 32 Z" />
+          </g>
         </g>
       </svg>
     </div>
@@ -1145,13 +1227,22 @@ export function GsapRouteLogbook() {
 
   useGSAP(
     () => {
+      const root = scope.current;
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      const path =
-        scope.current?.querySelector<SVGPathElement>(".gsap-logbook-path");
+      const path = root?.querySelector<SVGPathElement>(".gsap-logbook-path");
+      const islands = gsap.utils.toArray<SVGCircleElement>(
+        ".gsap-logbook-island",
+        root,
+      );
+      const ship = root?.querySelector<SVGGElement>(".gsap-logbook-ship");
+      const shipBody = root?.querySelector<SVGGElement>(
+        ".gsap-logbook-ship-body",
+      );
+      const cards = gsap.utils.toArray<HTMLElement>(".route-log-card", root);
 
-      if (!path) {
+      if (!root || !path || !ship || !shipBody) {
         return;
       }
 
@@ -1162,61 +1253,98 @@ export function GsapRouteLogbook() {
       });
 
       if (reduceMotion) {
-        gsap.set(".gsap-logbook-island, .gsap-logbook-ship, .route-log-card", {
+        gsap.set([...islands, ship, ...cards], {
           autoAlpha: 1,
+          rotation: 0,
           scale: 1,
+          x: 0,
           y: 0,
         });
         return;
       }
 
-      const routeTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: scope.current,
-          start: "top 78%",
-          end: "bottom 42%",
-          scrub: 1,
-        },
+      gsap.to(shipBody, {
+        duration: 2.7,
+        ease: "sine.inOut",
+        repeat: -1,
+        rotation: 1.2,
+        transformOrigin: "50% 50%",
+        y: -7,
+        yoyo: true,
       });
 
+      const routeTimeline = gsap.timeline({ paused: true });
+
       routeTimeline
-        .to(path, { strokeDashoffset: 0, ease: "none" })
-        .from(
-          ".gsap-logbook-island",
+        .to(path, {
+          duration: 1.45,
+          ease: "power2.inOut",
+          strokeDashoffset: 0,
+        })
+        .fromTo(
+          islands,
+          { autoAlpha: 0, scale: 0.35 },
           {
-            autoAlpha: 0,
+            autoAlpha: 1,
+            duration: 0.58,
             ease: "back.out(1.5)",
-            scale: 0.35,
+            scale: 1,
             stagger: 0.12,
             transformOrigin: "50% 50%",
           },
-          0.04,
-        )
-        .from(
-          ".route-log-card",
-          {
-            autoAlpha: 0,
-            ease: "power2.out",
-            rotation: (index) => (index % 2 === 0 ? -1.4 : 1.4),
-            stagger: 0.1,
-            y: 34,
-          },
-          0.1,
+          0.18,
         )
         .fromTo(
-          ".gsap-logbook-ship",
+          cards,
+          {
+            autoAlpha: 0,
+            rotation: (index) => (index % 2 === 0 ? -1.4 : 1.4),
+            y: 34,
+          },
+          {
+            autoAlpha: 1,
+            duration: 0.62,
+            ease: "power2.out",
+            rotation: 0,
+            stagger: 0.1,
+            y: 0,
+          },
+          0.28,
+        )
+        .fromTo(
+          ship,
           { autoAlpha: 0, rotation: -10, x: -70, y: 20 },
-          { autoAlpha: 1, ease: "none", rotation: 0, x: 0, y: 0 },
-          0.18,
+          {
+            autoAlpha: 1,
+            duration: 0.76,
+            ease: "power2.out",
+            rotation: 0,
+            x: 0,
+            y: 0,
+          },
+          0.42,
         );
 
-      gsap.to(".route-log-current", {
-        duration: 2.8,
-        ease: "sine.inOut",
-        repeat: -1,
-        scale: 1.16,
-        yoyo: true,
+      ScrollTrigger.create({
+        end: "bottom 14%",
+        onEnter: () => {
+          routeTimeline.restart();
+        },
+        onEnterBack: () => {
+          routeTimeline.restart();
+        },
+        onLeave: () => {
+          routeTimeline.progress(1).pause();
+        },
+        onLeaveBack: () => {
+          routeTimeline.reverse();
+        },
+        refreshPriority: 10,
+        start: "top 74%",
+        trigger: root,
       });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope },
   );
@@ -1239,9 +1367,11 @@ export function GsapRouteLogbook() {
             r="20"
           />
           <g className="gsap-logbook-ship" transform="translate(868 86)">
-            <path d="M0 30 L86 30 L70 50 L16 50 Z" />
-            <path d="M38 0 L38 30 L8 30 Z" />
-            <path d="M44 7 L44 30 L78 30 Z" />
+            <g className="gsap-logbook-ship-body">
+              <path d="M0 30 L86 30 L70 50 L16 50 Z" />
+              <path d="M38 0 L38 30 L8 30 Z" />
+              <path d="M44 7 L44 30 L78 30 Z" />
+            </g>
           </g>
         </svg>
       </div>

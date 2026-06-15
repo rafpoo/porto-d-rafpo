@@ -1,4 +1,4 @@
-import { PROFILE_IMAGE_URL, projects } from "../../data/portfolio";
+import { projects, WANTED_POSTER_URL } from "../../data/portfolio";
 import {
   GsapAboutScrollytelling,
   GsapBountyCarousel,
@@ -15,27 +15,16 @@ export function About() {
     >
       <GsapAboutScrollytelling projects={projects}>
         <article
-          className="wanted-poster about-profile-card gsap-hover-card"
+          className="wanted-poster wanted-poster-art about-profile-card gsap-hover-card"
           data-gsap-hover="static"
+          aria-label="Wanted poster for Rafael Po"
         >
-          <div className="poster-header">
-            <span>Wanted</span>
-            <small>For shipping thoughtful products</small>
-          </div>
-          <div className="portrait-frame" aria-label="Rafael Po portrait">
-            <img
-              className="portrait-image"
-              src={PROFILE_IMAGE_URL}
-              alt="Rafael Po portrait"
-              decoding="async"
-            />
-          </div>
-          <h3>Rafael Po</h3>
-          <p>
-            Informatics student at Universitas Multimedia Nusantara focused on
-            full-stack web development, readable code, REST APIs, admin
-            dashboards, and practical production systems.
-          </p>
+          <img
+            className="wanted-poster-image"
+            src={WANTED_POSTER_URL}
+            alt="Wanted poster featuring Rafael Po"
+            decoding="async"
+          />
         </article>
 
         <div className="about-copy about-story-copy">

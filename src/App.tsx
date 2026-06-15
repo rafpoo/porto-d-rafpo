@@ -1,5 +1,10 @@
 import { Menu, X } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  useScroll,
+} from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import { navItems, STRAW_HAT_URL } from "./data/portfolio";
 import {
@@ -58,7 +63,7 @@ function App() {
               decoding="async"
             />
           </span>
-          <span>Rafael</span>
+          <span>Rafael Nicholas Po</span>
         </a>
         <nav className="desktop-nav" aria-label="Main menu">
           {navItems.map((item) => (

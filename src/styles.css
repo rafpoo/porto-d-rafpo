@@ -926,6 +926,15 @@ h1 {
   box-shadow: 10px 12px 0 rgba(63, 53, 36, 0.18);
 }
 
+.wanted-poster-art {
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  line-height: 0;
+  box-shadow: 0 24px 44px rgba(63, 53, 36, 0.2);
+}
+
 .wanted-poster::before,
 .project-card::before {
   position: absolute;
@@ -934,6 +943,17 @@ h1 {
   pointer-events: none;
   border: 1px dashed rgba(63, 53, 36, 0.34);
   border-radius: 5px;
+}
+
+.wanted-poster-art::before {
+  display: none;
+}
+
+.wanted-poster-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 7px;
 }
 
 .poster-header span {
@@ -1299,6 +1319,38 @@ h1 {
   margin: 0;
   color: var(--ink-700);
   line-height: 1.62;
+}
+
+.roulette-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roulette-repo-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(15, 118, 110, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 253, 245, 0.58);
+  color: var(--ocean-900);
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.roulette-repo-link:hover {
+  border-color: var(--sea-600);
+  background: rgba(15, 118, 110, 0.1);
+  transform: translateY(-2px);
 }
 
 .about-scrollytelling.is-pinned-ready .about-pinned-stage {
@@ -1802,7 +1854,8 @@ h1 {
   fill: var(--red-600);
 }
 
-.gsap-logbook-ship {
+.gsap-logbook-ship,
+.gsap-logbook-ship-body {
   fill: var(--ink-950);
   opacity: 0.88;
   transform-box: fill-box;
@@ -1934,7 +1987,8 @@ h1 {
   transform-origin: center;
 }
 
-.gsap-route-ship {
+.gsap-route-ship,
+.gsap-route-ship-body {
   fill: var(--ink-950);
   opacity: 0.88;
   transform-box: fill-box;
