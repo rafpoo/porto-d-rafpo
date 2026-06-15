@@ -1072,13 +1072,12 @@ h1 {
   height: clamp(22px, 2.4vw, 30px);
   border: 1px solid rgba(111, 88, 46, 0.28);
   border-radius: 5px;
-  background:
-    linear-gradient(
-      110deg,
-      rgba(255, 253, 245, 0.7),
-      rgba(244, 223, 170, 0.62) 42%,
-      rgba(255, 253, 245, 0.48)
-    );
+  background: linear-gradient(
+    110deg,
+    rgba(255, 253, 245, 0.7),
+    rgba(244, 223, 170, 0.62) 42%,
+    rgba(255, 253, 245, 0.48)
+  );
   box-shadow:
     0 8px 14px rgba(63, 53, 36, 0.13),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
@@ -1149,6 +1148,7 @@ h1 {
   font-family: var(--display-font);
   font-size: clamp(1.4rem, 2.8vw, 2rem);
   line-height: 1;
+  margin-bottom: 30px;
 }
 
 .about-roulette-orbit {

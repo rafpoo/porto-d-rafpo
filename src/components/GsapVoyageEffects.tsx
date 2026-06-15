@@ -593,8 +593,7 @@ export function GsapAboutScrollytelling({
           reduceMotion: "(prefers-reduced-motion: reduce)",
         },
         (context) => {
-          const { isDesktop, isMobile, reduceMotion } =
-            context.conditions as {
+          const { isDesktop, isMobile, reduceMotion } = context.conditions as {
             isDesktop: boolean;
             isMobile: boolean;
             reduceMotion: boolean;
@@ -1045,8 +1044,7 @@ export function GsapAboutScrollytelling({
                 {
                   duration: 2,
                   ease: "power2.in",
-                  rotation: () =>
-                    metrics.releaseRotation + (isMobile ? 8 : 14),
+                  rotation: () => metrics.releaseRotation + (isMobile ? 8 : 14),
                 },
                 "fall",
               )
@@ -1160,8 +1158,7 @@ export function GsapAboutScrollytelling({
         </div>
         <div className="about-roulette" aria-label="Selected project roulette">
           <div className="about-roulette-heading">
-            <span>Project roulette</span>
-            <strong>{projects.length} builds</strong>
+            <strong>Projects</strong>
           </div>
           <div className="about-roulette-orbit">
             {projects.map((project, index) => (
