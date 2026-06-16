@@ -9,6 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/bangers": "^5.2.8",
+    "@fontsource/crimson-text": "^5.2.7",
+    "@fontsource/im-fell-english-sc": "^5.2.6",
+    "@fontsource/pirata-one": "^5.2.8",
+    "@fontsource/rye": "^5.2.7",
     "@gsap/react": "^2.1.2",
     "framer-motion": "^12.18.1",
     "gsap": "^3.15.0",

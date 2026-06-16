@@ -17,12 +17,11 @@
   --muted-blue: #dcebf0;
   --shadow: 0 24px 70px rgba(3, 15, 28, 0.28);
   --container: min(1120px, calc(100vw - 40px));
-  --body-font:
-    "Archivo", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
-    sans-serif;
-  --display-font:
-    "Space Grotesk", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
-    sans-serif;
+  --body-font: "Crimson Text", Georgia, "Times New Roman", serif;
+  --display-font: "Pirata One", Georgia, "Times New Roman", serif;
+  --map-font: "IM Fell English SC", Georgia, "Times New Roman", serif;
+  --stamp-font: "Rye", Georgia, "Times New Roman", serif;
+  --comic-font: "Bangers", Impact, "Arial Black", sans-serif;
   font-family: var(--body-font);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -54,8 +53,9 @@ body {
       #0a2639 44rem,
       #f1dfb7 44rem,
       #efe1bf 100%
-    );
+  );
   color: var(--ink-950);
+  font-size: 1.08rem;
   overflow-x: hidden;
 }
 
@@ -168,9 +168,9 @@ button:focus-visible {
 .brand-mark {
   gap: 10px;
   min-width: max-content;
-  font-family: var(--display-font);
-  font-size: 1.03rem;
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: 1.08rem;
+  font-weight: 400;
   letter-spacing: 0;
 }
 
@@ -219,9 +219,9 @@ button:focus-visible {
   border-radius: 8px;
   background: rgba(6, 24, 38, 0.72);
   color: var(--white);
-  font-family: var(--display-font);
+  font-family: var(--map-font);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 400;
   line-height: 1;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -339,8 +339,9 @@ button:focus-visible {
 .mobile-nav a {
   border-radius: 6px;
   color: rgba(255, 253, 245, 0.82);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-family: var(--map-font);
+  font-size: 1rem;
+  font-weight: 400;
   padding: 10px 12px;
   transition:
     background-color 180ms ease,
@@ -742,9 +743,9 @@ button:focus-visible {
 .eyebrow {
   margin: 0 0 14px;
   color: var(--gold-300);
-  font-family: var(--display-font);
-  font-size: clamp(0.76rem, 1vw, 0.9rem);
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: clamp(0.86rem, 1.12vw, 1rem);
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -761,13 +762,13 @@ h2,
 h3 {
   font-family: var(--display-font);
   letter-spacing: 0;
+  font-weight: 400;
 }
 
 h1 {
   margin-bottom: 22px;
   color: var(--white);
   font-size: clamp(3.1rem, 8.6vw, 7.8rem);
-  font-weight: 800;
   line-height: 0.92;
   text-wrap: balance;
 }
@@ -776,7 +777,7 @@ h1 {
   width: min(720px, 100%);
   margin: 0 auto;
   color: rgba(255, 253, 245, 0.86);
-  font-size: clamp(1.03rem, 2vw, 1.28rem);
+  font-size: clamp(1.12rem, 2vw, 1.36rem);
   line-height: 1.7;
 }
 
@@ -795,7 +796,9 @@ h1 {
   cursor: pointer;
   border-radius: 7px;
   padding: 12px 18px;
-  font-weight: 800;
+  font-family: var(--display-font);
+  font-size: 1.16rem;
+  font-weight: 400;
   line-height: 1.1;
   transition:
     transform 180ms ease,
@@ -961,7 +964,6 @@ h1 {
   color: var(--ink-950);
   font-family: var(--display-font);
   font-size: clamp(2.3rem, 6vw, 4.6rem);
-  font-weight: 800;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -970,7 +972,8 @@ h1 {
   display: block;
   margin-top: 8px;
   color: var(--ink-700);
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-weight: 400;
 }
 
 .portrait-frame {
@@ -1133,20 +1136,23 @@ h1 {
   justify-content: space-between;
   gap: 16px;
   color: var(--ink-700);
-  font-weight: 900;
+  font-family: var(--map-font);
+  font-weight: 400;
   text-transform: uppercase;
 }
 
 .about-roulette-heading span {
   color: var(--red-600);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-family: var(--comic-font);
+  font-size: 1rem;
+  letter-spacing: 0;
 }
 
 .about-roulette-heading strong {
   color: var(--ink-950);
   font-family: var(--display-font);
   font-size: clamp(1.4rem, 2.8vw, 2rem);
+  font-weight: 400;
   line-height: 1;
   margin-bottom: 30px;
 }
@@ -1606,8 +1612,9 @@ h1 {
 .bounty-card strong {
   display: block;
   color: var(--red-600);
-  font-family: var(--display-font);
+  font-family: var(--stamp-font);
   font-size: clamp(1.56rem, 3.4vw, 2.3rem);
+  font-weight: 400;
   line-height: 1;
 }
 
@@ -1615,8 +1622,9 @@ h1 {
   display: block;
   margin-top: 8px;
   color: var(--ink-700);
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: 1rem;
+  font-weight: 400;
 }
 
 .project-grid {
@@ -1682,8 +1690,9 @@ h1 {
   border-radius: 999px;
   background: rgba(6, 24, 38, 0.28);
   padding: 7px 10px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-family: var(--comic-font);
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .project-boat {
@@ -1738,8 +1747,9 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   color: var(--red-600);
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: 0.92rem;
+  font-weight: 400;
   text-transform: uppercase;
 }
 
@@ -1764,8 +1774,9 @@ h1 {
   background: rgba(244, 223, 170, 0.7);
   color: var(--ink-700);
   padding: 7px 10px;
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .project-actions {
@@ -1784,7 +1795,9 @@ h1 {
   border-radius: 6px;
   padding: 9px 12px;
   color: var(--ocean-900);
-  font-weight: 800;
+  font-family: var(--display-font);
+  font-size: 1.08rem;
+  font-weight: 400;
   transition:
     background-color 180ms ease,
     border-color 180ms ease,
@@ -1835,7 +1848,8 @@ h1 {
   background: rgba(255, 253, 245, 0.62);
   padding: 20px 22px;
   color: var(--ink-950);
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-weight: 400;
 }
 
 .certification-card svg {
@@ -1984,9 +1998,9 @@ h1 {
 
 .route-log-index span {
   color: var(--red-600);
-  font-family: var(--display-font);
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-family: var(--stamp-font);
+  font-size: 0.82rem;
+  font-weight: 400;
 }
 
 .route-log-card h3 {
@@ -2016,8 +2030,9 @@ h1 {
   background: rgba(244, 223, 170, 0.68);
   color: var(--ink-700);
   padding: 7px 10px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-family: var(--map-font);
+  font-size: 0.86rem;
+  font-weight: 400;
 }
 
 .gsap-journey-route {
@@ -2125,8 +2140,8 @@ h1 {
   border-radius: 999px;
   background: rgba(255, 253, 245, 0.72);
   color: var(--red-600);
-  font-family: var(--display-font);
-  font-weight: 800;
+  font-family: var(--stamp-font);
+  font-weight: 400;
   line-height: 1.18;
   padding: 8px 18px;
   text-align: center;
