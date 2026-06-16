@@ -763,7 +763,7 @@ export function GsapAboutScrollytelling({
             const activeIndex = gsap.utils.clamp(
               0,
               cards.length - 1,
-              Math.round(state.frame),
+              Math.floor(state.frame + 0.08),
             );
 
             if (activeIndex !== previousActiveIndex) {
@@ -877,15 +877,33 @@ export function GsapAboutScrollytelling({
             });
           }
 
+          const maxFrame = Math.max(0, cards.length - 1);
+          const rouletteHoldDuration = isDesktop ? 2.8 : 2.25;
+          const rouletteTransitionDuration = isDesktop ? 0.5 : 0.45;
+          const rouletteSpinDuration =
+            maxFrame > 0
+              ? maxFrame *
+                  (rouletteHoldDuration + rouletteTransitionDuration) +
+                rouletteHoldDuration
+              : rouletteHoldDuration;
+          const rouletteStartOffset = 0.45;
+          const rouletteExitStart =
+            2 + rouletteStartOffset + rouletteSpinDuration + 0.7;
           const getScrollDistance = () => {
-            const multiplier = isMobile ? 3.75 : isDesktop ? 4.45 : 4;
-            const distance = Math.round(window.innerHeight * multiplier);
+            const projectStepScroll = isDesktop ? 1200 : isMobile ? 820 : 980;
+            const setupAndExitScroll = isDesktop
+              ? 3200
+              : isMobile
+                ? 2500
+                : 2850;
+            const distance = Math.round(
+              setupAndExitScroll + maxFrame * projectStepScroll,
+            );
 
-            return `+=${gsap.utils.clamp(3000, 4200, distance)}`;
+            return `+=${gsap.utils.clamp(4800, 10800, distance)}`;
           };
           const getReducedScrollDistance = () =>
             `+=${Math.max(Math.round(window.innerHeight * 0.85), 720)}`;
-          const maxFrame = Math.max(0, cards.length - 1);
           const timeline = gsap.timeline({
             scrollTrigger: {
               anticipatePin: 1,
@@ -963,7 +981,7 @@ export function GsapAboutScrollytelling({
                 "movePoster",
               )
               .addLabel("roulette", 2)
-              .addLabel("leftTape", 6.2)
+              .addLabel("leftTape", rouletteExitStart)
               .to(
                 posterStage,
                 {
@@ -989,7 +1007,7 @@ export function GsapAboutScrollytelling({
                 },
                 "leftTape",
               )
-              .addLabel("hang", 7.35)
+              .addLabel("hang", rouletteExitStart + 1.15)
               .set(
                 posterHinge,
                 {
@@ -1008,7 +1026,7 @@ export function GsapAboutScrollytelling({
                 },
                 "hang",
               )
-              .addLabel("wiggle", 9.25)
+              .addLabel("wiggle", rouletteExitStart + 3.05)
               .to(
                 posterHinge,
                 {
@@ -1033,7 +1051,7 @@ export function GsapAboutScrollytelling({
                 ease: "sine.inOut",
                 rotation: () => metrics.releaseRotation,
               })
-              .addLabel("rightTape", 10.7)
+              .addLabel("rightTape", rouletteExitStart + 4.5)
               .to(
                 rightTape,
                 {
@@ -1057,7 +1075,7 @@ export function GsapAboutScrollytelling({
                 },
                 "rightTape",
               )
-              .addLabel("fall", 11.7)
+              .addLabel("fall", rouletteExitStart + 5.5)
               .set(
                 posterWrapper,
                 {
@@ -1121,16 +1139,6 @@ export function GsapAboutScrollytelling({
                 .to(
                   state,
                   {
-                    duration: 3.7,
-                    ease: "none",
-                    frame: maxFrame,
-                    onUpdate: renderWheel,
-                  },
-                  "roulette+=0.45",
-                )
-                .to(
-                  state,
-                  {
                     duration: 0.9,
                     ease: "none",
                     frame: maxFrame,
@@ -1138,6 +1146,37 @@ export function GsapAboutScrollytelling({
                   },
                   "leftTape-=0.4",
                 );
+
+              for (let frame = 0; frame <= maxFrame; frame += 1) {
+                const holdOffset =
+                  rouletteStartOffset +
+                  frame *
+                    (rouletteHoldDuration + rouletteTransitionDuration);
+
+                timeline.to(
+                  state,
+                  {
+                    duration: rouletteHoldDuration,
+                    ease: "none",
+                    frame,
+                    onUpdate: renderWheel,
+                  },
+                  `roulette+=${holdOffset}`,
+                );
+
+                if (frame < maxFrame) {
+                  timeline.to(
+                    state,
+                    {
+                      duration: rouletteTransitionDuration,
+                      ease: "none",
+                      frame: frame + 1,
+                      onUpdate: renderWheel,
+                    },
+                    `roulette+=${holdOffset + rouletteHoldDuration}`,
+                  );
+                }
+              }
             }
           }
 
@@ -1371,9 +1410,12 @@ export function GsapHeroConstellation() {
             transformOrigin: "50% 50%",
           })
         : null;
-      const animations = [mapTimeline, nodeTween, dotTween, compassTween].filter(
-        Boolean,
-      );
+      const animations = [
+        mapTimeline,
+        nodeTween,
+        dotTween,
+        compassTween,
+      ].filter(Boolean);
       const setActive = (active: boolean) => {
         animations.forEach((animation) => {
           if (active) {
