@@ -708,6 +708,9 @@ export function GsapAboutScrollytelling({
             radiusZ: 0,
             radiusX: 0,
             releaseRotation: 0,
+            rightTapeHangRotation: 0,
+            rightTapeHangX: 0,
+            rightTapeHangY: 0,
             stageDrop: 0,
             stageScale: 1,
             stageTravelX: 0,
@@ -725,17 +728,20 @@ export function GsapAboutScrollytelling({
 
             metrics.fallDistance =
               window.innerHeight + posterRect.height * 1.18 + 120;
-            metrics.fallRotation = isMobile ? 12 : 22;
+            metrics.fallRotation = isMobile ? -12 : -22;
             metrics.fallX = isMobile ? -24 : -54;
-            metrics.hangRotation = isMobile ? 17 : 24;
-            metrics.hangX = isMobile ? 3 : 8;
+            metrics.hangRotation = isMobile ? -17 : -24;
+            metrics.hangX = isMobile ? -3 : -8;
             metrics.hangY = Math.min(
-              posterRect.height * (isMobile ? 0.1 : 0.16),
-              isMobile ? 42 : 72,
+              posterRect.height * (isMobile ? 0.045 : 0.06),
+              isMobile ? 20 : 30,
             );
             metrics.radiusX = Math.min(wheelWidth * 0.32, 270);
             metrics.radiusZ = Math.min(wheelWidth * 0.42, 320);
-            metrics.releaseRotation = isMobile ? 13 : 17;
+            metrics.releaseRotation = isMobile ? -13 : -17;
+            metrics.rightTapeHangRotation = isMobile ? -3 : -5;
+            metrics.rightTapeHangX = isMobile ? 14 : 28;
+            metrics.rightTapeHangY = isMobile ? 8 : 16;
             metrics.stageDrop = isDesktop
               ? window.innerHeight < 760
                 ? 30
@@ -857,7 +863,7 @@ export function GsapAboutScrollytelling({
             force3D: true,
             rotation: 8,
             scale: 1,
-            transformOrigin: "58% 50%",
+            transformOrigin: "72% 70%",
             willChange: "opacity, transform",
             x: 0,
             xPercent: 28,
@@ -1026,25 +1032,36 @@ export function GsapAboutScrollytelling({
                 },
                 "hang",
               )
+              .to(
+                rightTape,
+                {
+                  duration: 1.9,
+                  ease: "power2.out",
+                  rotation: () => metrics.rightTapeHangRotation,
+                  x: () => metrics.rightTapeHangX,
+                  y: () => metrics.rightTapeHangY,
+                },
+                "hang",
+              )
               .addLabel("wiggle", rouletteExitStart + 3.05)
               .to(
                 posterHinge,
                 {
                   duration: 0.55,
                   ease: "sine.inOut",
-                  rotation: isMobile ? 12 : 15,
+                  rotation: isMobile ? -12 : -15,
                 },
                 "wiggle",
               )
               .to(posterHinge, {
                 duration: 0.45,
                 ease: "sine.inOut",
-                rotation: isMobile ? 16 : 20,
+                rotation: isMobile ? -16 : -20,
               })
               .to(posterHinge, {
                 duration: 0.45,
                 ease: "sine.inOut",
-                rotation: isMobile ? 13 : 16,
+                rotation: isMobile ? -13 : -16,
               })
               .to(posterHinge, {
                 duration: 0.35,
@@ -1060,8 +1077,8 @@ export function GsapAboutScrollytelling({
                   ease: "power2.inOut",
                   rotation: isMobile ? 20 : 30,
                   scale: 0.66,
-                  x: isMobile ? 8 : 14,
-                  y: isMobile ? -12 : -20,
+                  x: isMobile ? 30 : 48,
+                  y: isMobile ? -18 : -28,
                 },
                 "rightTape",
               )
@@ -1099,7 +1116,7 @@ export function GsapAboutScrollytelling({
                 {
                   duration: 2,
                   ease: "power2.in",
-                  rotation: () => metrics.releaseRotation + (isMobile ? 8 : 14),
+                  rotation: () => metrics.releaseRotation - (isMobile ? 8 : 14),
                 },
                 "fall",
               )

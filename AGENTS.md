@@ -176,7 +176,11 @@ Catatan animasi terbaru:
 - Flow scroll About section harus dipertahankan: user masuk About melihat wanted poster + description, lalu scroll memindahkan wanted poster ke sisi kanan sambil menampilkan project roulette, lalu scroll berikutnya memainkan exit animation wanted poster dari posisi kanan, dan baru setelah poster jatuh keluar viewport section di-unpin menuju section berikutnya.
 - Exit animation wanted poster memakai wrapper/tape terpisah di `GsapAboutScrollytelling`: `wanted-poster-stage` untuk perpindahan ke kanan, `wanted-poster-fall-plane` untuk jatuh, `wanted-poster-hinge-plane` untuk pivot gantung dari kanan atas, serta `wanted-poster-tape-left` dan `wanted-poster-tape-right` untuk tape yang terkelupas.
 - Jangan menghapus atau mengganti animasi wanted poster yang pindah ke sisi kanan. Exit animation harus dimainkan setelah poster berada di sisi kanan, bukan menggantikan fase perpindahan poster dan roulette.
+- Exit animation wanted poster harus terasa seperti poster masih tertahan oleh tape kanan setelah tape kiri lepas. Pada fase pertama exit (`leftTape` lalu `hang`), ujung kanan atas poster harus tetap dekat/terhubung secara visual dengan `wanted-poster-tape-right`, sementara ujung kiri poster turun lebih dulu. Jangan membalik arah rotasi sehingga ujung kanan yang jatuh duluan.
+- Untuk menjaga ilusi tape kanan masih menempel, pertahankan `posterHinge` pivot di kanan atas (`transformOrigin: "100% 0%"`), gunakan rotasi negatif pada fase `hang`/`wiggle`/`fall`, dan jangan membesarkan `hangY` terlalu jauh. `rightTape` punya metrik hang sendiri (`rightTapeHangRotation`, `rightTapeHangX`, `rightTapeHangY`) agar tape kanan ikut turun/geser sedikit bersama pojok kanan poster sebelum akhirnya lepas.
 - Project roulette menggunakan layout 3D carousel/roulette dengan fan-shaped app screenshots di sisi kiri kartu.
+- Pacing project roulette harus memakai pola hold-then-step, bukan spin linear terus-menerus. Saat roulette muncul, project aktif harus bertahan cukup lama agar tombol GitHub bisa diklik, lalu scroll berikutnya baru memicu transisi pendek ke project berikutnya. Di `GsapAboutScrollytelling`, pertahankan konsep `rouletteHoldDuration`, `rouletteTransitionDuration`, `rouletteSpinDuration`, dan `projectStepScroll` agar kira-kira satu gesture scrollwheel dibutuhkan untuk pindah satu project.
+- Active card project roulette jangan dihitung dengan `Math.round(state.frame)` karena itu membuat project berganti saat frame baru setengah jalan. Gunakan threshold yang membuat card aktif bertahan hampir sepanjang fase hold/transisi, sehingga link project tetap mudah diklik.
 - `GsapJourneyRoute` dan `GsapRouteLogbook` memakai `ScrollTrigger.create` dengan callback eksplisit (`onEnter`, `onEnterBack`, `onLeave`, `onLeaveBack`) agar route drawing tidak stuck saat user scroll cepat.
 - Ship SVG dipisah menjadi outer group untuk reveal dan inner `*-ship-body` untuk idle floating supaya transform GSAP tidak saling overwrite.
 
@@ -239,7 +243,9 @@ Visual utama website menggunakan tema ocean voyage:
 - Prioritaskan animasi berbasis `transform` dan `opacity` untuk performa.
 - Untuk GSAP React, gunakan `useGSAP` dengan scope ref dan cleanup otomatis. Saat animasi route/roulette terasa diam atau stuck, cek apakah selector masih global, apakah `ScrollTrigger.refresh()` diperlukan setelah layout/image berubah, dan apakah dua tween menulis transform ke target yang sama.
 - Untuk timeline About section, pertahankan satu ScrollTrigger pinned utama dengan `scrub`, `pin: true`, `invalidateOnRefresh: true`, dan label timeline yang jelas. Urutan label penting: fase hold, perpindahan wanted poster ke kanan, roulette, lalu exit poster. Jangan membuat ScrollTrigger terpisah untuk exit poster jika masih bisa masuk timeline yang sama, agar pin tidak saling berebut.
+- Saat mengubah pacing project roulette, ubah bersama-sama durasi timeline dan `end` ScrollTrigger. Menambah durasi tween tanpa menambah jarak scroll pin bisa tetap terasa cepat. Hindari mengembalikan roulette ke animasi `state.frame` linear dari `0` ke `maxFrame` dalam satu tween panjang; gunakan fase hold per project dan transisi pendek antar project.
 - Saat mengubah exit wanted poster, animasikan transform/opacity (`x`, `y`, `rotation`, `scale`, `autoAlpha`) pada wrapper seperti `wanted-poster-stage`, `wanted-poster-fall-plane`, dan `wanted-poster-hinge-plane`. Jangan animasikan `top`, `left`, `width`, atau layout property lain.
+- Saat mengubah fase pertama exit wanted poster, validasi jarak visual antara tape kanan dan pojok kanan atas poster. Jika poster terlihat terpisah dari tape kanan, kurangi `hangY` atau sesuaikan metrik `rightTapeHang*`; jangan menaikkan tape kanan saja sampai lepas dari posisi naturalnya.
 - Untuk project roulette, pastikan link penting tetap berupa `<a>` yang bisa diklik dan tidak hanya muncul lewat hover.
 - Pastikan semua action penting tetap bisa diakses tanpa hover-only interaction.
 - Pastikan keyboard focus terlihat.
@@ -266,9 +272,11 @@ Periksa juga:
 - Text tidak overlap.
 - CTA dan link CV bisa diklik.
 - Link GitHub di project grid dan project roulette bisa diklik.
+- Project roulette tidak bergeser terlalu cepat: setelah roulette muncul, satu project harus tetap aktif cukup lama untuk membaca dan mengklik link GitHub, dan perpindahan ke project berikutnya idealnya butuh kira-kira satu gesture scrollwheel/trackpad yang jelas.
 - Scroll animation tidak menutup konten penting.
 - Flow About scroll storytelling benar: wanted poster + description tampil dulu, poster pindah ke sisi kanan sambil project roulette muncul, exit animation poster berjalan dari sisi kanan, lalu section berikutnya baru muncul setelah poster jatuh keluar viewport.
 - Tape kiri dan kanan terlihat di pojok atas poster, ikut berpindah bersama poster ke sisi kanan, lalu terkelupas secara berurutan saat exit animation.
+- Pada tahap pertama exit animation, setelah tape kiri lepas, tape kanan masih terlihat menahan pojok kanan atas poster; poster tidak boleh terlihat menggantung jauh di bawah tape kanan atau jatuh dari ujung kanan terlebih dahulu.
 - Route drawing di "Engineering Route Map" dan "Journey Timeline" bergerak saat section masuk viewport dan tidak stuck saat scroll cepat.
 - Wanted poster About section muncul dari `public/assets/wanted-poster.png` dan tidak membesar saat hover.
 - Reduced motion tetap nyaman.
