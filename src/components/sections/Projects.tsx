@@ -1,8 +1,8 @@
 import { ExternalLink, Github, Sailboat, Telescope } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { projects } from "../../data/portfolio";
 import type { PortfolioProject } from "../../types";
-import { loopTransition, revealVariants, staggerVariants } from "../../utils/motion";
+import { revealVariants, staggerVariants } from "../../utils/motion";
 import { Section } from "../Section";
 
 const projectIconMap = {
@@ -45,7 +45,6 @@ function ProjectCard({
   project: PortfolioProject;
   index: number;
 }) {
-  const shouldReduceMotion = useReducedMotion();
   const variant = projectCardVariants[index % projectCardVariants.length];
 
   return (
@@ -54,35 +53,15 @@ function ProjectCard({
       data-gsap-tilt={index % 2 === 0 ? "-0.45" : "0.45"}
       variants={revealVariants}
     >
-      <motion.div
+      <div
         className={`project-map project-map-${project.image.theme}`}
         aria-hidden="true"
-        animate={
-          shouldReduceMotion
-            ? undefined
-            : {
-                backgroundPosition: [
-                  "0px 0px, 0px 0px",
-                  "22px -18px, 0px 0px",
-                  "0px 0px, 0px 0px",
-                ],
-              }
-        }
-        transition={loopTransition(10 + index)}
       >
         <span className="project-map-label">{project.image.label}</span>
-        <motion.span
-          className="project-boat"
-          animate={
-            shouldReduceMotion
-              ? undefined
-              : { y: [0, -7, 0], rotate: [-1.5, 2, -1.5] }
-          }
-          transition={loopTransition(4.4 + index * 0.35, index * 0.25)}
-        >
+        <span className="project-boat">
           <Sailboat size={38} />
-        </motion.span>
-      </motion.div>
+        </span>
+      </div>
       <div className="project-body">
         <div className="project-meta">
           <span>{project.category}</span>

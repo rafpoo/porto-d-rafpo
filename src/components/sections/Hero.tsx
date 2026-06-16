@@ -1,5 +1,12 @@
 import { FileText, Map, Send } from "lucide-react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import { useRef } from "react";
 import { SiDocker, SiLaravel, SiMysql, SiNodedotjs, SiReact } from "react-icons/si";
 import { CV_URL, heroStackStreamItems } from "../../data/portfolio";
 import { linearLoopTransition, loopTransition, revealVariants, staggerVariants } from "../../utils/motion";
@@ -7,7 +14,10 @@ import { GsapBountyCarousel, GsapHeroConstellation } from "../GsapVoyageEffects"
 import { TechIcon } from "../TechIcon";
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const isHeroInView = useInView(heroRef, { margin: "0px 0px -15% 0px" });
+  const shouldAnimateHero = !shouldReduceMotion && isHeroInView;
   const { scrollY } = useScroll();
   const skyY = useTransform(
     scrollY,
@@ -29,6 +39,7 @@ export function Hero() {
     <section
       className="hero-section"
       id="top"
+      ref={heroRef}
       aria-labelledby="hero-heading"
     >
       <GsapHeroConstellation />
@@ -41,12 +52,14 @@ export function Hero() {
         <motion.path
           d="M54 296 C176 104 276 90 362 186 C458 294 596 286 704 98"
           animate={
-            shouldReduceMotion
-              ? { pathLength: 1, pathOffset: 0 }
-              : {
+            shouldAnimateHero
+              ? {
                   pathLength: [0.12, 0.86, 0.12],
                   pathOffset: [0, 0.28, 0.92],
                 }
+              : shouldReduceMotion
+              ? { pathLength: 1, pathOffset: 0 }
+              : undefined
           }
           transition={loopTransition(9)}
         />
@@ -55,9 +68,9 @@ export function Hero() {
         className="hero-current-marker hero-current-marker-one"
         aria-hidden="true"
         animate={
-          shouldReduceMotion
-            ? undefined
-            : { x: [0, 28, 0], y: [0, -14, 0], opacity: [0.42, 0.86, 0.42] }
+          shouldAnimateHero
+            ? { x: [0, 28, 0], y: [0, -14, 0], opacity: [0.42, 0.86, 0.42] }
+            : undefined
         }
         transition={loopTransition(7)}
       >
@@ -71,9 +84,9 @@ export function Hero() {
         className="hero-current-marker hero-current-marker-two"
         aria-hidden="true"
         animate={
-          shouldReduceMotion
-            ? undefined
-            : { x: [0, -20, 0], y: [0, 18, 0], opacity: [0.36, 0.78, 0.36] }
+          shouldAnimateHero
+            ? { x: [0, -20, 0], y: [0, 18, 0], opacity: [0.36, 0.78, 0.36] }
+            : undefined
         }
         transition={loopTransition(8.5, 0.4)}
       >
@@ -85,9 +98,9 @@ export function Hero() {
       </motion.div>
       <motion.div
         className="hero-sky-map"
-        style={{ y: skyY }}
+        style={{ y: shouldAnimateHero ? skyY : 0 }}
         aria-hidden="true"
-        animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+        animate={shouldAnimateHero ? { rotate: 360 } : undefined}
         transition={linearLoopTransition(58)}
       >
         <span className="tech-orbit-item tech-orbit-react">
@@ -102,12 +115,12 @@ export function Hero() {
       </motion.div>
       <motion.div
         className="hero-tech-layer"
-        style={{ y: shipY }}
+        style={{ y: shouldAnimateHero ? shipY : 0 }}
         aria-hidden="true"
       />
       <motion.div
         className="hero-stack-stream"
-        style={{ y: waveY }}
+        style={{ y: shouldAnimateHero ? waveY : 0 }}
         aria-hidden="true"
       >
         <GsapBountyCarousel>

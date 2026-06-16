@@ -28,6 +28,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 type BountyCounterProps = {
   decimals?: number;
@@ -59,6 +60,17 @@ type AboutScrollytellingProps = {
 };
 
 const STRAW_HAT_URL = `${import.meta.env.BASE_URL}assets/straw-hat.png`;
+
+function isElementVisible(element: Element) {
+  const rect = element.getBoundingClientRect();
+
+  return (
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < window.innerHeight &&
+    rect.left < window.innerWidth
+  );
+}
 
 const routeLogItems = [
   {
@@ -503,27 +515,53 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
         const gap = Number.parseFloat(getComputedStyle(track).columnGap || "0");
         const distance = firstSet.offsetWidth + gap;
 
+        if (distance <= 1) {
+          return null;
+        }
+
         gsap.set(track, { x: 0 });
 
         return gsap.to(track, {
           duration: 14,
           ease: "none",
+          paused: true,
           repeat: -1,
           x: -distance,
         });
       };
 
       let loop = createLoop();
+      const playLoop = () => loop?.play();
+      const pauseLoop = () => loop?.pause();
+      const visibilityTrigger = ScrollTrigger.create({
+        end: "bottom top",
+        onEnter: playLoop,
+        onEnterBack: playLoop,
+        onLeave: pauseLoop,
+        onLeaveBack: pauseLoop,
+        start: "top bottom",
+        trigger: root,
+      });
+
+      if (loop && isElementVisible(root)) {
+        loop.play();
+      }
 
       const handleResize = () => {
-        loop.kill();
+        loop?.kill();
         loop = createLoop();
+        visibilityTrigger.refresh();
+
+        if (loop && isElementVisible(root)) {
+          loop.play();
+        }
       };
 
       window.addEventListener("resize", handleResize);
 
       return () => {
-        loop.kill();
+        visibilityTrigger.kill();
+        loop?.kill();
         window.removeEventListener("resize", handleResize);
       };
     },
@@ -716,7 +754,7 @@ export function GsapAboutScrollytelling({
               return;
             }
 
-            if (Math.abs(state.frame - previousRenderedFrame) < 0.004) {
+            if (Math.abs(state.frame - previousRenderedFrame) < 0.02) {
               return;
             }
 
@@ -753,7 +791,6 @@ export function GsapAboutScrollytelling({
               );
 
               gsap.set(card, {
-                force3D: true,
                 opacity,
                 rotationY: -normalizedAngle,
                 rotationZ: side * -2.6,
@@ -1243,11 +1280,30 @@ export function GsapHeroConstellation() {
 
   useGSAP(
     () => {
+      const root = scope.current;
+
+      if (!root) {
+        return;
+      }
+
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
       const paths = gsap.utils.toArray<SVGPathElement>(
         ".gsap-constellation-path",
+        root,
+      );
+      const mapNodes = gsap.utils.toArray<SVGCircleElement>(
+        ".gsap-map-node",
+        root,
+      );
+      const currentDots = gsap.utils.toArray<HTMLElement>(
+        ".gsap-current-dot",
+        root,
+      );
+      const compass = root.querySelector<HTMLElement>(".gsap-hero-compass");
+      const animatedTargets = [...mapNodes, ...currentDots, compass].filter(
+        Boolean,
       );
 
       paths.forEach((path) => {
@@ -1259,7 +1315,7 @@ export function GsapHeroConstellation() {
       });
 
       if (reduceMotion) {
-        gsap.set(".gsap-map-node, .gsap-current-dot, .gsap-hero-compass", {
+        gsap.set(animatedTargets, {
           autoAlpha: 0.78,
           scale: 1,
         });
@@ -1268,14 +1324,14 @@ export function GsapHeroConstellation() {
 
       const mapTimeline = gsap.timeline({ repeat: -1, repeatDelay: 0.4 });
       mapTimeline
-        .to(".gsap-constellation-path", {
+        .to(paths, {
           strokeDashoffset: 0,
           duration: 3.2,
           ease: "power2.inOut",
           stagger: 0.22,
         })
         .to(
-          ".gsap-constellation-path",
+          paths,
           {
             strokeDashoffset: (_, target: SVGPathElement) =>
               -target.getTotalLength(),
@@ -1286,7 +1342,7 @@ export function GsapHeroConstellation() {
           "+=0.3",
         );
 
-      gsap.to(".gsap-map-node", {
+      const nodeTween = gsap.to(mapNodes, {
         autoAlpha: 0.95,
         duration: 1.8,
         ease: "sine.inOut",
@@ -1296,7 +1352,7 @@ export function GsapHeroConstellation() {
         yoyo: true,
       });
 
-      gsap.to(".gsap-current-dot", {
+      const dotTween = gsap.to(currentDots, {
         duration: 5.8,
         ease: "sine.inOut",
         repeat: -1,
@@ -1306,13 +1362,43 @@ export function GsapHeroConstellation() {
         yoyo: true,
       });
 
-      gsap.to(".gsap-hero-compass", {
-        duration: 18,
-        ease: "none",
-        repeat: -1,
-        rotation: 360,
-        transformOrigin: "50% 50%",
+      const compassTween = compass
+        ? gsap.to(compass, {
+            duration: 18,
+            ease: "none",
+            repeat: -1,
+            rotation: 360,
+            transformOrigin: "50% 50%",
+          })
+        : null;
+      const animations = [mapTimeline, nodeTween, dotTween, compassTween].filter(
+        Boolean,
+      );
+      const setActive = (active: boolean) => {
+        animations.forEach((animation) => {
+          if (active) {
+            animation?.resume();
+          } else {
+            animation?.pause();
+          }
+        });
+      };
+      const heroSection = root.closest<HTMLElement>(".hero-section") ?? root;
+      const visibilityTrigger = ScrollTrigger.create({
+        end: "bottom top",
+        onEnter: () => setActive(true),
+        onEnterBack: () => setActive(true),
+        onLeave: () => setActive(false),
+        onLeaveBack: () => setActive(false),
+        start: "top bottom",
+        trigger: heroSection,
       });
+
+      setActive(isElementVisible(heroSection));
+
+      return () => {
+        visibilityTrigger.kill();
+      };
     },
     { scope },
   );
@@ -1457,9 +1543,10 @@ export function GsapJourneyRoute() {
         return;
       }
 
-      gsap.to(shipBody, {
+      const idleTween = gsap.to(shipBody, {
         duration: 2.8,
         ease: "sine.inOut",
+        paused: true,
         repeat: -1,
         rotation: 1.4,
         transformOrigin: "50% 50%",
@@ -1502,18 +1589,22 @@ export function GsapJourneyRoute() {
           0.38,
         );
 
-      ScrollTrigger.create({
+      const routeTrigger = ScrollTrigger.create({
         end: "bottom 16%",
         onEnter: () => {
+          idleTween.play();
           routeTimeline.restart();
         },
         onEnterBack: () => {
+          idleTween.play();
           routeTimeline.restart();
         },
         onLeave: () => {
+          idleTween.pause();
           routeTimeline.progress(1).pause();
         },
         onLeaveBack: () => {
+          idleTween.pause();
           routeTimeline.reverse();
         },
         refreshPriority: 20,
@@ -1521,7 +1612,17 @@ export function GsapJourneyRoute() {
         trigger: root,
       });
 
+      if (isElementVisible(root)) {
+        idleTween.play();
+      }
+
       requestAnimationFrame(() => ScrollTrigger.refresh());
+
+      return () => {
+        routeTrigger.kill();
+        idleTween.kill();
+        routeTimeline.kill();
+      };
     },
     { scope },
   );
@@ -1589,9 +1690,10 @@ export function GsapRouteLogbook() {
         return;
       }
 
-      gsap.to(shipBody, {
+      const idleTween = gsap.to(shipBody, {
         duration: 2.7,
         ease: "sine.inOut",
+        paused: true,
         repeat: -1,
         rotation: 1.2,
         transformOrigin: "50% 50%",
@@ -1651,18 +1753,22 @@ export function GsapRouteLogbook() {
           0.42,
         );
 
-      ScrollTrigger.create({
+      const routeTrigger = ScrollTrigger.create({
         end: "bottom 14%",
         onEnter: () => {
+          idleTween.play();
           routeTimeline.restart();
         },
         onEnterBack: () => {
+          idleTween.play();
           routeTimeline.restart();
         },
         onLeave: () => {
+          idleTween.pause();
           routeTimeline.progress(1).pause();
         },
         onLeaveBack: () => {
+          idleTween.pause();
           routeTimeline.reverse();
         },
         refreshPriority: 10,
@@ -1670,7 +1776,17 @@ export function GsapRouteLogbook() {
         trigger: root,
       });
 
+      if (isElementVisible(root)) {
+        idleTween.play();
+      }
+
       requestAnimationFrame(() => ScrollTrigger.refresh());
+
+      return () => {
+        routeTrigger.kill();
+        idleTween.kill();
+        routeTimeline.kill();
+      };
     },
     { scope },
   );
