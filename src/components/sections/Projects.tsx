@@ -10,6 +10,12 @@ const projectIconMap = {
   github: Github,
 };
 
+const projectCardVariants = [
+  "treasure-map",
+  "ship-log",
+  "expedition-record",
+] as const;
+
 export function Projects() {
   return (
     <Section
@@ -40,10 +46,11 @@ function ProjectCard({
   index: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const variant = projectCardVariants[index % projectCardVariants.length];
 
   return (
     <motion.article
-      className="project-card gsap-hover-card"
+      className={`project-card project-card-${variant} gsap-hover-card`}
       data-gsap-tilt={index % 2 === 0 ? "-0.45" : "0.45"}
       variants={revealVariants}
     >

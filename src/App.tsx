@@ -114,7 +114,7 @@ function App() {
       <main id="main">
         <Hero />
         <About />
-        {/* <Projects /> */}
+        <Projects />
         <RouteLog />
         <Skills />
         {/* <Certifications /> */}
