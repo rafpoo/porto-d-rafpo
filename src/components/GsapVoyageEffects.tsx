@@ -8,12 +8,8 @@ import {
   type RefObject,
 } from "react";
 import {
-  Database,
   ExternalLink,
   Github,
-  LockKeyhole,
-  ServerCog,
-  Smartphone,
 } from "lucide-react";
 import type { IconType } from "react-icons";
 import {
@@ -25,9 +21,10 @@ import {
 } from "react-icons/si";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 type BountyCounterProps = {
@@ -71,38 +68,6 @@ function isElementVisible(element: Element) {
     rect.left < window.innerWidth
   );
 }
-
-const routeLogItems = [
-  {
-    icon: ServerCog,
-    label: "01",
-    title: "API Harbor",
-    text: "REST APIs, clean CRUD flows, and Sequelize models for production campus platforms.",
-    tools: ["Express.js", "Node.js", "Sequelize"],
-  },
-  {
-    icon: LockKeyhole,
-    label: "02",
-    title: "Auth Gate",
-    text: "OAuth2, Apereo CAS SSO, Supabase auth, and Row Level Security for safer access control.",
-    tools: ["OAuth2", "CAS SSO", "Supabase RLS"],
-  },
-  {
-    icon: Database,
-    label: "03",
-    title: "Data Reef",
-    text: "Relational schemas, admin dashboards, ticketing flows, payment states, and reporting views.",
-    tools: ["MySQL", "PostgreSQL", "Midtrans"],
-  },
-  {
-    icon: Smartphone,
-    label: "04",
-    title: "Mobile Island",
-    text: "Attendance, medical booking, offline sync, maps, notifications, and Android-first workflows.",
-    tools: ["React Native", "Kotlin", "Firebase"],
-  },
-];
-
 function formatCounter(
   value: number,
   decimals: number,
@@ -115,7 +80,6 @@ function formatCounter(
     useGrouping,
   })}${suffix}`;
 }
-
 function TechIcon({
   className,
   Icon,
@@ -163,8 +127,7 @@ export function useGsapHoverEffects(scopeRef: RefObject<HTMLElement | null>) {
         return;
       }
 
-      const hoverIcons =
-        "svg, .brand-emblem, .cv-summary-icon, .route-log-index";
+      const hoverIcons = "svg, .brand-emblem, .cv-summary-icon";
 
       cards.forEach((card, index) => {
         card.dataset.gsapTilt =
@@ -914,6 +877,7 @@ export function GsapAboutScrollytelling({
             scrollTrigger: {
               anticipatePin: 1,
               end: reduceMotion ? getReducedScrollDistance : getScrollDistance,
+              id: "about-wanted-poster-story",
               invalidateOnRefresh: true,
               onRefresh: () => {
                 updateMetrics();
@@ -921,7 +885,7 @@ export function GsapAboutScrollytelling({
                 renderWheel();
               },
               pin: true,
-              refreshPriority: -1,
+              refreshPriority: 100,
               scrub: reduceMotion ? 0.35 : 0.8,
               start: "top top",
               trigger: root,
@@ -1560,6 +1524,967 @@ export function GsapBountyCounter({
   );
 }
 
+export type GrandLineJourneyHandle = {
+  calculateScrollDistance: () => number;
+  timeline: gsap.core.Timeline;
+};
+
+type GsapGrandLineJourneyProps = {
+  children: ReactNode;
+  controlled?: boolean;
+  onTimelineReady?: (handle: GrandLineJourneyHandle | null) => void;
+};
+
+export function GsapGrandLineJourney({
+  children,
+  controlled = false,
+  onTimelineReady,
+}: GsapGrandLineJourneyProps) {
+  const scope = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const root = scope.current;
+
+      if (!root) {
+        return;
+      }
+
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          isLargeDesktop: "(min-width: 1440px) and (min-height: 850px)",
+          isDesktop: "(min-width: 981px) and (max-width: 1439px), (min-width: 981px) and (max-height: 849px)",
+          isTablet: "(min-width: 681px) and (max-width: 980px)",
+          isMobile: "(max-width: 680px)",
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+        },
+        (context) => {
+          const {
+            isLargeDesktop,
+            isDesktop,
+            isTablet,
+            isMobile,
+            reduceMotion,
+          } =
+            context.conditions as {
+              isLargeDesktop: boolean;
+              isDesktop: boolean;
+              isTablet: boolean;
+              isMobile: boolean;
+              reduceMotion: boolean;
+            };
+          const viewport = root.querySelector<HTMLElement>(
+            ".journey-grand-line-viewport",
+          );
+          const mapStage =
+            root.querySelector<HTMLElement>(".journey-map-stage");
+          const mapCamera =
+            root.querySelector<HTMLElement>(".journey-map-camera");
+          const mapBoard = root.querySelector<HTMLElement>(".journey-map-board");
+          const titleCard =
+            root.querySelector<HTMLElement>(".journey-title-card");
+          const logPose =
+            root.querySelector<HTMLElement>(".journey-log-pose");
+          const progressCount = root.querySelector<HTMLElement>(
+            "[data-journey-progress-count]",
+          );
+          const progressFill = root.querySelector<HTMLElement>(
+            "[data-journey-progress-fill]",
+          );
+          const needle = root.querySelector<HTMLElement>(
+            ".journey-log-pose-needle",
+          );
+          const routeOutline = root.querySelector<SVGPathElement>(
+            ".journey-route-outline",
+          );
+          const routeProgress = root.querySelector<SVGPathElement>(
+            ".journey-route-progress",
+          );
+          const routeMotion = root.querySelector<SVGPathElement>(
+            ".journey-route-motion-path",
+          );
+          const ship = root.querySelector<SVGGElement>(".journey-ship");
+          const shipBody =
+            root.querySelector<SVGGElement>(".journey-ship-body");
+          const panels = gsap.utils.toArray<HTMLElement>(
+            "[data-journey-panel]",
+            root,
+          );
+          const islands = gsap.utils.toArray<HTMLElement>(
+            "[data-journey-island]",
+            root,
+          );
+          const clouds = gsap.utils.toArray<HTMLElement>(
+            ".journey-cloud",
+            root,
+          );
+          const decorativeLayers = gsap.utils.toArray<HTMLElement>(
+            ".journey-map-depth, .journey-compass-rose, .journey-coordinate-grid",
+            root,
+          );
+
+          root.classList.remove("is-reduced-motion");
+          [...panels, ...islands].forEach((element) => {
+            element.classList.remove("is-active", "is-past");
+          });
+          gsap.set(
+            [
+              viewport,
+              mapStage,
+              mapCamera,
+              mapBoard,
+              titleCard,
+              logPose,
+              progressFill,
+              needle,
+              routeOutline,
+              routeProgress,
+              ship,
+              shipBody,
+              ...panels,
+              ...clouds,
+              ...decorativeLayers,
+            ].filter(Boolean),
+            { clearProps: "all" },
+          );
+          gsap.set(islands, {
+            clearProps: "transform,opacity,visibility",
+          });
+
+          if (
+            !viewport ||
+            !mapStage ||
+            !mapCamera ||
+            !mapBoard ||
+            !titleCard ||
+            !logPose ||
+            !progressCount ||
+            !progressFill ||
+            !needle ||
+            !routeOutline ||
+            !routeProgress ||
+            !routeMotion ||
+            !ship ||
+            !shipBody ||
+            panels.length === 0 ||
+            islands.length === 0
+          ) {
+            return;
+          }
+
+          if (reduceMotion) {
+            onTimelineReady?.(null);
+            root.classList.add("is-reduced-motion");
+            panels.forEach((panel) => {
+              panel.classList.add("is-active");
+              panel.removeAttribute("aria-hidden");
+            });
+            islands.forEach((island) => {
+              island.classList.add("is-active");
+            });
+            progressCount.textContent = `01 / ${String(panels.length).padStart(
+              2,
+              "0",
+            )}`;
+            gsap.set([routeOutline, routeProgress], { strokeDashoffset: 0 });
+            gsap.set(progressFill, { scaleX: 1, transformOrigin: "0% 50%" });
+            return;
+          }
+
+          const routeLength = routeProgress.getTotalLength();
+          const outlineLength = routeOutline.getTotalLength();
+          const totalMilestones = panels.length;
+          const travelPhaseCount = Math.max(totalMilestones - 1, 0);
+          const cardRevealPhaseCount = totalMilestones;
+          const fixedPhaseCount = 3;
+          const totalScrollPhases =
+            fixedPhaseCount + travelPhaseCount + cardRevealPhaseCount;
+          let master: gsap.core.Timeline | undefined;
+          const scrollConfig = isMobile
+            ? {
+                baseVh: 0.7,
+                cardVh: 0.78,
+                phaseVh: 0.58,
+                maxVh: 4.75,
+                minVh: 3.75,
+                scrub: 0.92,
+                startOffsetVh: 0.045,
+                startOffsetMax: 36,
+              }
+            : isTablet
+              ? {
+                  baseVh: 0.82,
+                  cardVh: 0.84,
+                  phaseVh: 0.66,
+                  maxVh: 5.4,
+                  minVh: 4.25,
+                  scrub: 1.04,
+                  startOffsetVh: 0.04,
+                  startOffsetMax: 42,
+                }
+              : isLargeDesktop
+                ? {
+                    baseVh: 1.0,
+                    cardVh: 0.94,
+                    phaseVh: 0.82,
+                    maxVh: 6.65,
+                    minVh: 5.45,
+                    scrub: 1.28,
+                    startOffsetVh: 0.025,
+                    startOffsetMax: 28,
+                  }
+                : {
+                    baseVh: 0.9,
+                    cardVh: 0.86,
+                    phaseVh: 0.72,
+                    maxVh: 5.85,
+                    minVh: 4.8,
+                    scrub: 1.16,
+                    startOffsetVh: 0.055,
+                    startOffsetMax: 56,
+                  };
+          const calculateScrollDistance = () => {
+            const viewportHeight = window.innerHeight;
+            const rawDistance =
+              viewportHeight *
+              (scrollConfig.baseVh +
+                cardRevealPhaseCount * scrollConfig.cardVh +
+                (travelPhaseCount + fixedPhaseCount) * scrollConfig.phaseVh);
+            const durationBasedDistance =
+              (master?.duration() ?? totalScrollPhases) *
+              viewportHeight *
+              (isLargeDesktop ? 0.41 : isMobile ? 0.36 : 0.38);
+            const minDistance = viewportHeight * scrollConfig.minVh;
+            const maxDistance = viewportHeight * scrollConfig.maxVh;
+
+            return Math.round(
+              gsap.utils.clamp(
+                minDistance,
+                maxDistance,
+                Math.max(rawDistance, durationBasedDistance),
+              ),
+            );
+          };
+          const routeViewBox = routeMotion.ownerSVGElement?.viewBox.baseVal;
+          const routeViewBoxWidth = routeViewBox?.width || 1000;
+          const routeViewBoxHeight = routeViewBox?.height || 560;
+          const routeStart = 0;
+          const toViewBoxCoordinate = (value: string, total: number) => {
+            const trimmedValue = value.trim();
+            const numericValue = Number.parseFloat(trimmedValue);
+
+            if (Number.isNaN(numericValue)) {
+              return 0;
+            }
+
+            return trimmedValue.endsWith("%")
+              ? (numericValue / 100) * total
+              : numericValue;
+          };
+          const findClosestRouteProgress = (island: HTMLElement) => {
+            const islandStyles = getComputedStyle(island);
+            const targetX = toViewBoxCoordinate(
+              islandStyles.getPropertyValue("--journey-x"),
+              routeViewBoxWidth,
+            );
+            const targetY = toViewBoxCoordinate(
+              islandStyles.getPropertyValue("--journey-y"),
+              routeViewBoxHeight,
+            );
+            let closestProgress = 0;
+            let closestDistance = Number.POSITIVE_INFINITY;
+
+            for (let step = 0; step <= 220; step += 1) {
+              const progress = step / 220;
+              const point = routeMotion.getPointAtLength(
+                routeLength * progress,
+              );
+              const distance = Math.hypot(point.x - targetX, point.y - targetY);
+
+              if (distance < closestDistance) {
+                closestDistance = distance;
+                closestProgress = progress;
+              }
+            }
+
+            return closestProgress;
+          };
+          let previousComputedStop = routeStart;
+          const routeStops = islands.slice(0, totalMilestones).map(
+            (island, index) => {
+              const isFinalStop = index === totalMilestones - 1;
+              const minimumStop = index === 0 ? 0.04 : previousComputedStop + 0.04;
+              const maximumStop = isFinalStop ? 1 : 0.96;
+              const computedStop = isFinalStop
+                ? 1
+                : findClosestRouteProgress(island);
+              const clampedStop = gsap.utils.clamp(
+                minimumStop,
+                maximumStop,
+                computedStop,
+              );
+
+              previousComputedStop = clampedStop;
+              return clampedStop;
+            },
+          );
+          const cameraScale = isMobile ? 1.01 : isDesktop ? 1 : 0.99;
+          const cameraPositions = [
+            {
+              rotationX: isMobile ? 5 : 8,
+              rotationY: 0,
+              rotationZ: -0.8,
+              scale: cameraScale,
+              xPercent: isMobile ? 1.8 : 1.2,
+              yPercent: isMobile ? 1 : 0.5,
+            },
+            {
+              rotationX: isMobile ? 5 : 8,
+              rotationY: 0,
+              rotationZ: 0.6,
+              scale: isMobile ? 1.02 : 1.01,
+              xPercent: isMobile ? 0.8 : 0.4,
+              yPercent: isMobile ? 0 : -0.5,
+            },
+            {
+              rotationX: isMobile ? 5 : 8,
+              rotationY: 0,
+              rotationZ: -0.5,
+              scale: isMobile ? 1.02 : 1.01,
+              xPercent: isMobile ? -0.8 : -0.4,
+              yPercent: isMobile ? 0.5 : 0,
+            },
+            {
+              rotationX: isMobile ? 5 : 8,
+              rotationY: 0,
+              rotationZ: 0.7,
+              scale: cameraScale,
+              xPercent: isMobile ? -1.8 : -1.2,
+              yPercent: isMobile ? 1 : 0.5,
+            },
+          ];
+          const panelPositions = [
+            { xPercent: 0, yPercent: 0 },
+            { xPercent: 0, yPercent: 0 },
+            { xPercent: 0, yPercent: 0 },
+            { xPercent: 0, yPercent: 0 },
+          ];
+          const motionPath = (start: number, end: number) => ({
+            align: routeMotion,
+            alignOrigin: [0.5, 0.62],
+            autoRotate: true,
+            end,
+            path: routeMotion,
+            start,
+          });
+
+          let activeIndex = -1;
+          const setActive = (nextIndex: number, syncPanelVisual = true) => {
+            const clampedIndex = gsap.utils.clamp(
+              0,
+              totalMilestones - 1,
+              nextIndex,
+            );
+            const activeChanged = clampedIndex !== activeIndex;
+
+            activeIndex = clampedIndex;
+            root.style.setProperty(
+              "--journey-active-progress",
+              String(clampedIndex / Math.max(totalMilestones - 1, 1)),
+            );
+            progressCount.textContent = `${String(clampedIndex + 1).padStart(
+              2,
+              "0",
+            )} / ${String(totalMilestones).padStart(2, "0")}`;
+
+            panels.forEach((panel, index) => {
+              panel.classList.toggle("is-active", index === clampedIndex);
+              panel.classList.toggle("is-past", index < clampedIndex);
+              panel.setAttribute(
+                "aria-hidden",
+                index === clampedIndex ? "false" : "true",
+              );
+            });
+
+            if (syncPanelVisual && master) {
+              const sectionExitTime = master.labels["section-exit"];
+              const isInsideStory =
+                sectionExitTime === undefined ||
+                master.time() < sectionExitTime - 0.02;
+
+              if (isInsideStory) {
+                panels.forEach((panel, index) => {
+                  const isCurrent = index === clampedIndex;
+                  const panelStyle = getComputedStyle(panel);
+                  const needsCurrentSync =
+                    isCurrent &&
+                    (activeChanged ||
+                      panelStyle.visibility === "hidden" ||
+                      Number(panelStyle.opacity) < 0.25);
+
+                  if (needsCurrentSync) {
+                    gsap.set(panel, {
+                      autoAlpha: 1,
+                      rotationX: 0,
+                      scale: 1,
+                      xPercent: 0,
+                      y: 0,
+                      yPercent: 0,
+                      z: 0,
+                    });
+                    gsap.set(panel.children, {
+                      autoAlpha: 1,
+                      y: 0,
+                    });
+                  }
+
+                  if (activeChanged && !isCurrent) {
+                    gsap.set(panel, {
+                      autoAlpha: 0,
+                      rotationX: isMobile ? 0 : -9,
+                      scale: 0.92,
+                      y: isMobile ? 28 : 36,
+                      z: isMobile ? 0 : -120,
+                    });
+                    gsap.set(panel.children, {
+                      autoAlpha: 0,
+                      y: 14,
+                    });
+                  }
+                });
+              }
+            }
+
+            islands.forEach((island, index) => {
+              island.classList.toggle("is-active", index === clampedIndex);
+              island.classList.toggle("is-past", index < clampedIndex);
+            });
+          };
+
+          const updateHudProgress = (progress: number) => {
+            const clampedProgress = gsap.utils.clamp(0, 1, progress);
+            gsap.set(progressFill, {
+              scaleX: clampedProgress,
+              transformOrigin: "0% 50%",
+            });
+            gsap.set(needle, {
+              rotation: -132 + clampedProgress * 264,
+              transformOrigin: "50% 85%",
+            });
+          };
+
+          gsap.set(routeOutline, {
+            strokeDasharray: outlineLength,
+            strokeDashoffset: outlineLength,
+          });
+          gsap.set(routeProgress, {
+            strokeDasharray: routeLength,
+            strokeDashoffset: routeLength,
+          });
+          gsap.set(progressFill, {
+            scaleX: 0,
+            transformOrigin: "0% 50%",
+          });
+          gsap.set(needle, {
+            rotation: -132,
+            transformOrigin: "50% 85%",
+          });
+          gsap.set(ship, {
+            autoAlpha: 0,
+            motionPath: motionPath(routeStart, routeStart),
+            scale: isMobile ? 0.76 : 0.82,
+            transformOrigin: "50% 62%",
+          });
+          gsap.set(shipBody, {
+            transformOrigin: "50% 50%",
+          });
+          gsap.set(mapCamera, {
+            rotationX: isMobile ? 4 : 7,
+            rotationY: 0,
+            rotationZ: 0,
+            scale: isMobile ? 0.98 : 0.97,
+            transformOrigin: "50% 50%",
+            xPercent: 0,
+            yPercent: 0,
+          });
+          gsap.set(mapBoard, {
+            transformOrigin: "50% 50%",
+          });
+          gsap.set(titleCard, {
+            autoAlpha: 1,
+            scale: 1,
+            transformOrigin: "50% 0%",
+            xPercent: -50,
+            y: 0,
+          });
+          gsap.set(logPose, {
+            autoAlpha: 0,
+            x: isMobile ? 0 : 24,
+          });
+          gsap.set(panels, {
+            autoAlpha: 0,
+            rotationX: isMobile ? 0 : -9,
+            scale: 0.92,
+            transformOrigin: "50% 58%",
+            y: isMobile ? 28 : 36,
+            z: isMobile ? 0 : -120,
+          });
+          panels.forEach((panel) => {
+            gsap.set(panel.children, {
+              autoAlpha: 0,
+              y: 14,
+            });
+          });
+          gsap.set(islands, {
+            autoAlpha: 0.64,
+            scale: 0.86,
+            transformOrigin: "50% 50%",
+            xPercent: -50,
+            yPercent: -50,
+            z: isMobile ? 0 : 42,
+          });
+          gsap.set(clouds, {
+            autoAlpha: isMobile ? 0.3 : 0.62,
+          });
+          setActive(0, false);
+
+          const holdTimes: number[] = [];
+          const updateActiveFromTime = () => {
+            if (!master) {
+              return;
+            }
+
+            const currentTime = master.time();
+            const nextIndex = holdTimes.reduce(
+              (closest, holdTime, index) =>
+                currentTime >= holdTime - 0.28 ? index : closest,
+              0,
+            );
+            setActive(nextIndex);
+          };
+          const syncScrollState = () => {
+            if (!master) {
+              return;
+            }
+
+            updateHudProgress(master.progress());
+            updateActiveFromTime();
+          };
+
+          master = gsap.timeline({
+            defaults: { ease: "power2.inOut" },
+            onUpdate: syncScrollState,
+            paused: controlled,
+            scrollTrigger: controlled
+              ? undefined
+              : {
+                  end: () => `+=${calculateScrollDistance()}`,
+                  id: "grand-line-journey",
+                  invalidateOnRefresh: true,
+                  onEnter: syncScrollState,
+                  onEnterBack: syncScrollState,
+                  onLeave: () => {
+                    updateHudProgress(1);
+                    setActive(totalMilestones - 1, false);
+                  },
+                  onLeaveBack: () => {
+                    master?.progress(0);
+                    updateHudProgress(0);
+                    setActive(0, false);
+                  },
+                  onRefresh: syncScrollState,
+                  onUpdate: syncScrollState,
+                  pin: viewport,
+                  refreshPriority: 0,
+                  scrub: scrollConfig.scrub,
+                  start: () => {
+                    const currentScroll =
+                      window.scrollY ||
+                      document.documentElement.scrollTop ||
+                      document.body.scrollTop ||
+                      0;
+                    const skillsSection = document.getElementById("skills");
+                    const skillsEnd = skillsSection
+                      ? skillsSection.getBoundingClientRect().bottom +
+                        currentScroll
+                      : Number.NEGATIVE_INFINITY;
+                    const journeyTop =
+                      root.getBoundingClientRect().top + currentScroll;
+                    const earlyStartOffset = Math.min(
+                      window.innerHeight * scrollConfig.startOffsetVh,
+                      scrollConfig.startOffsetMax,
+                    );
+
+                    return Math.max(skillsEnd, journeyTop) - earlyStartOffset;
+                  },
+                  trigger: root,
+                },
+          });
+
+          master
+            .addLabel("intro", 0)
+            .to(
+              titleCard,
+              {
+                duration: 0.7,
+                ease: "power2.out",
+                scale: isMobile ? 0.98 : 0.95,
+                y: isMobile ? -8 : -18,
+              },
+              "intro",
+            )
+            .to(
+              logPose,
+              {
+                autoAlpha: 1,
+                duration: 0.58,
+                x: 0,
+              },
+              "intro",
+            )
+            .to(
+              routeOutline,
+              {
+                duration: 1.12,
+                ease: "power2.out",
+                strokeDashoffset: 0,
+              },
+              "intro+=0.22",
+            )
+            .to(
+              decorativeLayers,
+              {
+                duration: 1,
+                ease: "power2.out",
+                opacity: 1,
+                stagger: 0.08,
+                y: 0,
+              },
+              "intro+=0.28",
+            )
+            .to(
+              islands,
+              {
+                autoAlpha: 0.72,
+                duration: 0.72,
+                scale: 0.9,
+                stagger: 0.09,
+              },
+              "intro+=0.46",
+            )
+            .to(
+              routeProgress,
+              {
+                duration: 0.96,
+                ease: "none",
+                strokeDashoffset: routeLength * (1 - (routeStops[0] ?? 0)),
+              },
+              "intro+=0.86",
+            )
+            .to(
+              ship,
+              {
+                autoAlpha: 1,
+                duration: 0.24,
+                ease: "back.out(1.4)",
+                scale: isMobile ? 0.82 : 0.9,
+              },
+              "intro+=0.78",
+            )
+            .to(
+              ship,
+              {
+                duration: 0.96,
+                ease: "none",
+                motionPath: motionPath(routeStart, routeStops[0] ?? routeStart),
+                scale: isMobile ? 0.82 : 0.9,
+              },
+              "intro+=0.86",
+            )
+            .to(
+              mapCamera,
+              {
+                duration: 0.96,
+                ...cameraPositions[0],
+              },
+              "intro+=0.86",
+            );
+
+          panels.forEach((panel, index) => {
+            const previousPanel = panels[index - 1];
+            const previousIsland = islands[index - 1];
+            const currentIsland = islands[index];
+            const panelParts = Array.from(panel.children);
+            const previousRouteStop =
+              index > 0 ? routeStops[index - 1] ?? routeStart : routeStart;
+            const routeStop = routeStops[index] ?? 1;
+            const cameraPosition =
+              cameraPositions[index] ??
+              cameraPositions[cameraPositions.length - 1];
+            const panelPosition =
+              panelPositions[index] ?? panelPositions[panelPositions.length - 1];
+
+            if (index > 0) {
+              master
+                .addLabel(`travel-${index - 1}-${index}`)
+                .to(
+                  routeProgress,
+                  {
+                    duration: 1.08,
+                    ease: "none",
+                    strokeDashoffset: routeLength * (1 - routeStop),
+                  },
+                  `travel-${index - 1}-${index}`,
+                )
+                .to(
+                  ship,
+                  {
+                    duration: 1.08,
+                    ease: "none",
+                    motionPath: motionPath(previousRouteStop, routeStop),
+                    scale: isMobile ? 0.82 : 0.9,
+                  },
+                  `travel-${index - 1}-${index}`,
+                )
+                .to(
+                  shipBody,
+                  {
+                    duration: 0.34,
+                    ease: "sine.inOut",
+                    rotation: index % 2 === 0 ? -4 : 4,
+                    yoyo: true,
+                    repeat: 1,
+                  },
+                  `travel-${index - 1}-${index}`,
+                )
+                .to(
+                  mapCamera,
+                  {
+                    duration: 1.08,
+                    ...cameraPosition,
+                  },
+                  `travel-${index - 1}-${index}`,
+                )
+                .to(
+                  clouds,
+                  {
+                    duration: 1.08,
+                    ease: "none",
+                    xPercent: (_, target) =>
+                      Number((target as HTMLElement).dataset.cloudDrift ?? 0) +
+                      (index % 2 === 0 ? -6 : 6),
+                  },
+                  `travel-${index - 1}-${index}`,
+                )
+                .to(
+                  previousPanel,
+                  {
+                    autoAlpha: 0,
+                    duration: 0.34,
+                    ease: "power2.in",
+                    rotationX: isMobile ? 0 : 8,
+                    scale: 0.92,
+                    y: isMobile ? -20 : -30,
+                    z: isMobile ? 0 : -130,
+                  },
+                  `travel-${index - 1}-${index}+=1.02`,
+                )
+                .to(
+                  previousPanel?.children ?? [],
+                  {
+                    autoAlpha: 0,
+                    duration: 0.18,
+                    stagger: 0.025,
+                    y: -10,
+                  },
+                  `travel-${index - 1}-${index}+=1.02`,
+                )
+                .to(
+                  previousIsland,
+                  {
+                    autoAlpha: 0.76,
+                    duration: 0.34,
+                    scale: 0.92,
+                    xPercent: -50,
+                    yPercent: -50,
+                    z: isMobile ? 0 : 36,
+                  },
+                  `travel-${index - 1}-${index}+=1.02`,
+                );
+            }
+
+            master
+              .addLabel(`milestone-${index}-enter`)
+              .to(
+                currentIsland,
+                {
+                  autoAlpha: 1,
+                  duration: 0.52,
+                  ease: "back.out(1.45)",
+                  scale: isMobile ? 1 : 1.08,
+                  xPercent: -50,
+                  yPercent: -50,
+                  z: isMobile ? 0 : 68,
+                },
+                `milestone-${index}-enter`,
+              )
+              .to(
+                panel,
+                {
+                  autoAlpha: 1,
+                  duration: 0.58,
+                  ease: "power3.out",
+                  rotationX: 0,
+                  scale: 1,
+                  xPercent: panelPosition.xPercent,
+                  y: 0,
+                  yPercent: panelPosition.yPercent,
+                  z: 0,
+                },
+                `milestone-${index}-enter+=0.08`,
+              )
+              .to(
+                panelParts,
+                {
+                  autoAlpha: 1,
+                  duration: 0.4,
+                  ease: "power2.out",
+                  stagger: 0.055,
+                  y: 0,
+                },
+                `milestone-${index}-enter+=0.18`,
+              )
+              .addLabel(`milestone-${index}-hold`);
+
+            holdTimes[index] = master.duration();
+
+            master.to({}, { duration: isMobile ? 0.95 : 1.22 });
+          });
+
+          const finalPanel = panels[panels.length - 1];
+          const finalIsland = islands[islands.length - 1];
+          const routeEnd = routeStops[routeStops.length - 1] ?? 1;
+
+          master
+            .addLabel("final-overview")
+            .to(
+              routeProgress,
+              {
+                duration: 0.82,
+                ease: "none",
+                strokeDashoffset: 0,
+              },
+              "final-overview",
+            )
+            .to(
+              ship,
+              {
+                duration: 0.82,
+                ease: "none",
+                motionPath: motionPath(routeEnd, routeEnd),
+                scale: isMobile ? 0.78 : 0.86,
+              },
+              "final-overview",
+            )
+            .to(
+              mapCamera,
+              {
+                duration: 0.98,
+                rotationX: isMobile ? 4 : 7,
+                rotationY: 0,
+                rotationZ: 0,
+                scale: isMobile ? 0.98 : 0.96,
+                xPercent: 0,
+                yPercent: 0,
+              },
+              "final-overview",
+            )
+            .to(
+              finalIsland,
+              {
+                duration: 0.52,
+                scale: isMobile ? 1.02 : 1.08,
+              },
+              "final-overview+=0.18",
+            )
+            .to({}, { duration: isMobile ? 0.72 : 0.9 })
+            .addLabel("section-exit")
+            .to(
+              finalPanel,
+              {
+                autoAlpha: 0,
+                duration: 0.5,
+                ease: "power2.inOut",
+                scale: 0.94,
+                y: isMobile ? 18 : 28,
+                z: isMobile ? 0 : -120,
+              },
+              "section-exit",
+            )
+            .to(
+              finalPanel.children,
+              {
+                autoAlpha: 0,
+                duration: 0.24,
+                stagger: 0.025,
+                y: 10,
+              },
+              "section-exit",
+            )
+            .to(
+              [titleCard, logPose],
+              {
+                autoAlpha: 0.72,
+                duration: 0.48,
+                y: -8,
+              },
+              "section-exit+=0.04",
+            )
+            .to(
+              mapCamera,
+              {
+                duration: 0.66,
+                scale: isMobile ? 0.94 : 0.92,
+                xPercent: 0,
+                yPercent: 0,
+              },
+              "section-exit+=0.02",
+            );
+
+          updateHudProgress(0);
+
+          if (controlled) {
+            master.pause(0);
+            onTimelineReady?.({ calculateScrollDistance, timeline: master });
+          } else {
+            requestAnimationFrame(() => ScrollTrigger.refresh());
+            void document.fonts?.ready.then(() => ScrollTrigger.refresh());
+          }
+
+          return () => {
+            if (controlled) {
+              onTimelineReady?.(null);
+            }
+          };
+        },
+      );
+
+      return () => {
+        mm.revert();
+      };
+    },
+    { dependencies: [controlled, onTimelineReady], revertOnUpdate: true, scope },
+  );
+
+  return (
+    <div className="journey-grand-line-story" ref={scope}>
+      {children}
+    </div>
+  );
+}
+
 export function GsapJourneyRoute() {
   const scope = useRef<HTMLDivElement>(null);
 
@@ -1704,206 +2629,6 @@ export function GsapJourneyRoute() {
           </g>
         </g>
       </svg>
-    </div>
-  );
-}
-
-export function GsapRouteLogbook() {
-  const scope = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      const root = scope.current;
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      const path = root?.querySelector<SVGPathElement>(".gsap-logbook-path");
-      const islands = gsap.utils.toArray<SVGCircleElement>(
-        ".gsap-logbook-island",
-        root,
-      );
-      const ship = root?.querySelector<SVGGElement>(".gsap-logbook-ship");
-      const shipBody = root?.querySelector<SVGGElement>(
-        ".gsap-logbook-ship-body",
-      );
-      const cards = gsap.utils.toArray<HTMLElement>(".route-log-card", root);
-
-      if (!root || !path || !ship || !shipBody) {
-        return;
-      }
-
-      const length = path.getTotalLength();
-      gsap.set(path, {
-        strokeDasharray: length,
-        strokeDashoffset: reduceMotion ? 0 : length,
-      });
-
-      if (reduceMotion) {
-        gsap.set([...islands, ship, ...cards], {
-          autoAlpha: 1,
-          rotation: 0,
-          scale: 1,
-          x: 0,
-          y: 0,
-        });
-        return;
-      }
-
-      const idleTween = gsap.to(shipBody, {
-        duration: 2.7,
-        ease: "sine.inOut",
-        paused: true,
-        repeat: -1,
-        rotation: 1.2,
-        transformOrigin: "50% 50%",
-        y: -7,
-        yoyo: true,
-      });
-
-      const routeTimeline = gsap.timeline({ paused: true });
-
-      routeTimeline
-        .to(path, {
-          duration: 1.45,
-          ease: "power2.inOut",
-          strokeDashoffset: 0,
-        })
-        .fromTo(
-          islands,
-          { autoAlpha: 0, scale: 0.35 },
-          {
-            autoAlpha: 1,
-            duration: 0.58,
-            ease: "back.out(1.5)",
-            scale: 1,
-            stagger: 0.12,
-            transformOrigin: "50% 50%",
-          },
-          0.18,
-        )
-        .fromTo(
-          cards,
-          {
-            autoAlpha: 0,
-            rotation: (index) => (index % 2 === 0 ? -1.4 : 1.4),
-            y: 34,
-          },
-          {
-            autoAlpha: 1,
-            duration: 0.62,
-            ease: "power2.out",
-            rotation: 0,
-            stagger: 0.1,
-            y: 0,
-          },
-          0.28,
-        )
-        .fromTo(
-          ship,
-          { autoAlpha: 0, rotation: -10, x: -70, y: 20 },
-          {
-            autoAlpha: 1,
-            duration: 0.76,
-            ease: "power2.out",
-            rotation: 0,
-            x: 0,
-            y: 0,
-          },
-          0.42,
-        );
-
-      const routeTrigger = ScrollTrigger.create({
-        end: "bottom 14%",
-        onEnter: () => {
-          idleTween.play();
-          routeTimeline.restart();
-        },
-        onEnterBack: () => {
-          idleTween.play();
-          routeTimeline.restart();
-        },
-        onLeave: () => {
-          idleTween.pause();
-          routeTimeline.progress(1).pause();
-        },
-        onLeaveBack: () => {
-          idleTween.pause();
-          routeTimeline.reverse();
-        },
-        refreshPriority: 10,
-        start: "top 74%",
-        trigger: root,
-      });
-
-      if (isElementVisible(root)) {
-        idleTween.play();
-      }
-
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-
-      return () => {
-        routeTrigger.kill();
-        idleTween.kill();
-        routeTimeline.kill();
-      };
-    },
-    { scope },
-  );
-
-  return (
-    <div className="gsap-route-logbook" ref={scope}>
-      <div className="route-log-map" aria-hidden="true">
-        <svg viewBox="0 0 1020 260">
-          <path
-            className="gsap-logbook-path"
-            d="M70 188 C176 64 274 76 354 146 C446 226 550 220 632 126 C720 24 826 50 948 106"
-          />
-          <circle className="gsap-logbook-island" cx="70" cy="188" r="18" />
-          <circle className="gsap-logbook-island" cx="354" cy="146" r="20" />
-          <circle className="gsap-logbook-island" cx="632" cy="126" r="18" />
-          <circle
-            className="gsap-logbook-island route-log-current"
-            cx="948"
-            cy="106"
-            r="20"
-          />
-          <g className="gsap-logbook-ship" transform="translate(868 86)">
-            <g className="gsap-logbook-ship-body">
-              <path d="M0 30 L86 30 L70 50 L16 50 Z" />
-              <path d="M38 0 L38 30 L8 30 Z" />
-              <path d="M44 7 L44 30 L78 30 Z" />
-            </g>
-          </g>
-        </svg>
-      </div>
-
-      <div className="route-log-grid">
-        {routeLogItems.map((item, index) => {
-          const Icon = item.icon;
-
-          return (
-            <article
-              className="route-log-card gsap-hover-card"
-              data-gsap-tilt={index % 2 === 0 ? "-0.45" : "0.45"}
-              key={item.title}
-            >
-              <div className="route-log-index">
-                <Icon size={22} />
-                <span>{item.label}</span>
-              </div>
-              <div>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </div>
-              <ul aria-label={`${item.title} technologies`}>
-                {item.tools.map((tool) => (
-                  <li key={tool}>{tool}</li>
-                ))}
-              </ul>
-            </article>
-          );
-        })}
-      </div>
     </div>
   );
 }

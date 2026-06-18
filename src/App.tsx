@@ -12,14 +12,10 @@ import {
   useGsapHoverEffects,
 } from "./components/GsapVoyageEffects";
 import { About } from "./components/sections/About";
-import { Certifications } from "./components/sections/Certifications";
 import { Contact } from "./components/sections/Contact";
 import { Cv } from "./components/sections/Cv";
 import { Hero } from "./components/sections/Hero";
-import { Journey } from "./components/sections/Journey";
-import { Projects } from "./components/sections/Projects";
-import { RouteLog } from "./components/sections/RouteLog";
-import { Skills } from "./components/sections/Skills";
+import { PortfolioStorySequence } from "./components/sections/PortfolioStorySequence";
 
 function App() {
   const appRef = useRef<HTMLDivElement>(null);
@@ -114,11 +110,7 @@ function App() {
       <main id="main">
         <Hero />
         <About />
-        {/* <Projects /> */}
-        <RouteLog />
-        <Skills />
-        {/* <Certifications /> */}
-        <Journey />
+        <PortfolioStorySequence />
         <Cv />
         <Contact />
       </main>
