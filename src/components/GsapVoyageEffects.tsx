@@ -23,6 +23,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useGSAP } from "@gsap/react";
+import { LOG_POSE_ANGLES } from "./LogPoseDial";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -1587,6 +1588,12 @@ export function GsapGrandLineJourney({
             root.querySelector<HTMLElement>(".journey-title-card");
           const logPose =
             root.querySelector<HTMLElement>(".journey-log-pose");
+          const logPoseAsset = root.querySelector<HTMLElement>(
+            ".journey-log-pose-asset",
+          );
+          const logPoseGlow = root.querySelector<HTMLElement>(
+            ".journey-log-pose-glow",
+          );
           const progressCount = root.querySelector<HTMLElement>(
             "[data-journey-progress-count]",
           );
@@ -1637,6 +1644,8 @@ export function GsapGrandLineJourney({
               mapBoard,
               titleCard,
               logPose,
+              logPoseAsset,
+              logPoseGlow,
               progressFill,
               needle,
               routeOutline,
@@ -1660,6 +1669,8 @@ export function GsapGrandLineJourney({
             !mapBoard ||
             !titleCard ||
             !logPose ||
+            !logPoseAsset ||
+            !logPoseGlow ||
             !progressCount ||
             !progressFill ||
             !needle ||
@@ -1690,6 +1701,15 @@ export function GsapGrandLineJourney({
             )}`;
             gsap.set([routeOutline, routeProgress], { strokeDashoffset: 0 });
             gsap.set(progressFill, { scaleX: 1, transformOrigin: "0% 50%" });
+            gsap.set(logPoseAsset, {
+              scale: 1,
+              transformOrigin: "50% 50%",
+            });
+            gsap.set(logPoseGlow, { opacity: 0.32 });
+            gsap.set(needle, {
+              rotation: 58,
+              svgOrigin: "100 100",
+            });
             return;
           }
 
@@ -1879,9 +1899,80 @@ export function GsapGrandLineJourney({
             path: routeMotion,
             start,
           });
+          const logPoseStates = [
+            {
+              accentColor: "rgba(184, 136, 45, 0.58)",
+              glow: 0.3,
+              pulse: 1,
+              rotation: LOG_POSE_ANGLES[0],
+            },
+            {
+              accentColor: "rgba(143, 36, 28, 0.56)",
+              glow: 0.46,
+              pulse: 1.025,
+              rotation: LOG_POSE_ANGLES[1],
+            },
+            {
+              accentColor: "rgba(15, 118, 110, 0.58)",
+              glow: 0.62,
+              pulse: 1.04,
+              rotation: LOG_POSE_ANGLES[2],
+            },
+            {
+              accentColor: "rgba(23, 52, 74, 0.58)",
+              glow: 0.78,
+              pulse: 1.055,
+              rotation: LOG_POSE_ANGLES[3],
+            },
+          ];
+          const logPoseEase = gsap.parseEase("sine.inOut");
+          const getShortestRotation = (from: number, to: number) => {
+            const delta = gsap.utils.wrap(-180, 180, to - from);
+
+            return from + delta;
+          };
+          const getLogPoseState = (progress: number) => {
+            const clampedProgress = gsap.utils.clamp(0, 1, progress);
+            const stateProgress =
+              clampedProgress * Math.max(logPoseStates.length - 1, 1);
+            const startIndex = Math.min(
+              Math.floor(stateProgress),
+              logPoseStates.length - 1,
+            );
+            const endIndex = Math.min(startIndex + 1, logPoseStates.length - 1);
+            const easedProgress = logPoseEase(stateProgress - startIndex);
+            const startState = logPoseStates[startIndex];
+            const endState = logPoseStates[endIndex];
+            const endRotation = getShortestRotation(
+              startState.rotation,
+              endState.rotation,
+            );
+
+            return {
+              glow: gsap.utils.interpolate(
+                startState.glow,
+                endState.glow,
+                easedProgress,
+              ),
+              pulse: gsap.utils.interpolate(
+                startState.pulse,
+                endState.pulse,
+                easedProgress,
+              ),
+              rotation: gsap.utils.interpolate(
+                startState.rotation,
+                endRotation,
+                easedProgress,
+              ),
+            };
+          };
 
           let activeIndex = -1;
-          const setActive = (nextIndex: number, syncPanelVisual = true) => {
+          const setActive = (
+            nextIndex: number,
+            syncPanelVisual = true,
+            force = false,
+          ) => {
             const clampedIndex = gsap.utils.clamp(
               0,
               totalMilestones - 1,
@@ -1889,7 +1980,16 @@ export function GsapGrandLineJourney({
             );
             const activeChanged = clampedIndex !== activeIndex;
 
+            if (!activeChanged && !force) {
+              return;
+            }
+
             activeIndex = clampedIndex;
+            logPose.style.setProperty(
+              "--journey-log-pose-accent",
+              logPoseStates[clampedIndex]?.accentColor ??
+                "rgba(184, 136, 45, 0.58)",
+            );
             root.style.setProperty(
               "--journey-active-progress",
               String(clampedIndex / Math.max(totalMilestones - 1, 1)),
@@ -1908,7 +2008,7 @@ export function GsapGrandLineJourney({
               );
             });
 
-            if (syncPanelVisual && master) {
+            if (syncPanelVisual && activeChanged && master) {
               const sectionExitTime = master.labels["section-exit"];
               const isInsideStory =
                 sectionExitTime === undefined ||
@@ -1917,14 +2017,8 @@ export function GsapGrandLineJourney({
               if (isInsideStory) {
                 panels.forEach((panel, index) => {
                   const isCurrent = index === clampedIndex;
-                  const panelStyle = getComputedStyle(panel);
-                  const needsCurrentSync =
-                    isCurrent &&
-                    (activeChanged ||
-                      panelStyle.visibility === "hidden" ||
-                      Number(panelStyle.opacity) < 0.25);
 
-                  if (needsCurrentSync) {
+                  if (isCurrent) {
                     gsap.set(panel, {
                       autoAlpha: 1,
                       rotationX: 0,
@@ -1940,7 +2034,7 @@ export function GsapGrandLineJourney({
                     });
                   }
 
-                  if (activeChanged && !isCurrent) {
+                  if (!isCurrent) {
                     gsap.set(panel, {
                       autoAlpha: 0,
                       rotationX: isMobile ? 0 : -9,
@@ -1963,16 +2057,18 @@ export function GsapGrandLineJourney({
             });
           };
 
+          const setProgressScale = gsap.quickSetter(progressFill, "scaleX");
+          const setNeedleRotation = gsap.quickSetter(needle, "rotation", "deg");
+          const setGlowOpacity = gsap.quickSetter(logPoseGlow, "opacity");
+          const setLogPoseScale = gsap.quickSetter(logPoseAsset, "scale");
           const updateHudProgress = (progress: number) => {
             const clampedProgress = gsap.utils.clamp(0, 1, progress);
-            gsap.set(progressFill, {
-              scaleX: clampedProgress,
-              transformOrigin: "0% 50%",
-            });
-            gsap.set(needle, {
-              rotation: -132 + clampedProgress * 264,
-              transformOrigin: "50% 85%",
-            });
+            const logPoseState = getLogPoseState(clampedProgress);
+
+            setProgressScale(clampedProgress);
+            setNeedleRotation(logPoseState.rotation);
+            setGlowOpacity(logPoseState.glow);
+            setLogPoseScale(logPoseState.pulse);
           };
 
           gsap.set(routeOutline, {
@@ -1987,9 +2083,16 @@ export function GsapGrandLineJourney({
             scaleX: 0,
             transformOrigin: "0% 50%",
           });
+          gsap.set(logPoseAsset, {
+            scale: 1,
+            transformOrigin: "50% 50%",
+          });
+          gsap.set(logPoseGlow, {
+            opacity: logPoseStates[0].glow,
+          });
           gsap.set(needle, {
-            rotation: -132,
-            transformOrigin: "50% 85%",
+            rotation: logPoseStates[0].rotation,
+            svgOrigin: "100 100",
           });
           gsap.set(ship, {
             autoAlpha: 0,
@@ -2048,7 +2151,7 @@ export function GsapGrandLineJourney({
           gsap.set(clouds, {
             autoAlpha: isMobile ? 0.3 : 0.62,
           });
-          setActive(0, false);
+          setActive(0, false, true);
 
           const holdTimes: number[] = [];
           const updateActiveFromTime = () => {
@@ -2087,15 +2190,14 @@ export function GsapGrandLineJourney({
                   onEnterBack: syncScrollState,
                   onLeave: () => {
                     updateHudProgress(1);
-                    setActive(totalMilestones - 1, false);
+                    setActive(totalMilestones - 1, false, true);
                   },
                   onLeaveBack: () => {
                     master?.progress(0);
                     updateHudProgress(0);
-                    setActive(0, false);
+                    setActive(0, false, true);
                   },
                   onRefresh: syncScrollState,
-                  onUpdate: syncScrollState,
                   pin: viewport,
                   refreshPriority: 0,
                   scrub: scrollConfig.scrub,

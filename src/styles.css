@@ -2620,6 +2620,7 @@ h1 {
   display: grid;
   min-height: 100dvh;
   height: 100dvh;
+  backface-visibility: hidden;
   isolation: isolate;
   overflow: hidden;
   color: var(--ink-950);
@@ -2914,7 +2915,7 @@ h1 {
   opacity: 0.7;
   transform: translate3d(-50%, -50%, 42px);
   transform-style: preserve-3d;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .journey-island-shadow,
@@ -2932,7 +2933,7 @@ h1 {
   height: 24%;
   border-radius: 50%;
   background: rgba(42, 23, 14, 0.28);
-  filter: blur(10px);
+  opacity: 0.34;
   transform: translateZ(-60px);
 }
 
@@ -3028,9 +3029,6 @@ h1 {
 
 .journey-island.is-active {
   z-index: 7;
-  filter:
-    drop-shadow(0 0 18px rgba(255, 215, 122, 0.52))
-    drop-shadow(0 18px 24px rgba(42, 23, 14, 0.18));
 }
 
 .journey-island.is-active .journey-island-ring {
@@ -3038,7 +3036,7 @@ h1 {
 }
 
 .journey-island.is-past .journey-island-base {
-  filter: saturate(0.72);
+  opacity: 0.78;
 }
 
 .journey-island-academy .journey-island-base {
@@ -3066,6 +3064,7 @@ h1 {
 }
 
 .journey-log-pose {
+  --journey-log-pose-accent: rgba(184, 136, 45, 0.58);
   position: absolute;
   right: clamp(16px, 4.5vw, 74px);
   top: clamp(108px, 12vh, 138px);
@@ -3075,38 +3074,139 @@ h1 {
   gap: 10px 12px;
   align-items: center;
   min-width: min(258px, calc(100vw - 32px));
-  border: 1px solid rgba(42, 23, 14, 0.28);
+  border: 1px solid var(--journey-log-pose-accent);
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 245, 214, 0.92), rgba(217, 189, 131, 0.84)),
     var(--parchment-texture);
   padding: 10px 12px;
   box-shadow:
+    0 0 0 1px rgba(255, 253, 245, 0.18),
+    0 0 20px color-mix(in srgb, var(--journey-log-pose-accent) 48%, transparent),
     0 18px 36px rgba(42, 23, 14, 0.18),
     inset 0 0 0 1px rgba(255, 253, 245, 0.2);
 }
 
 .journey-log-pose-ring {
   position: relative;
-  display: grid;
-  width: 48px;
+  display: block;
+  width: clamp(92px, 7vw, 124px);
   aspect-ratio: 1;
-  place-items: center;
   grid-row: span 2;
-  border: 1px solid rgba(42, 23, 14, 0.3);
-  border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, rgba(143, 36, 28, 0.26) 0deg 8deg, transparent 8deg 20deg),
-    radial-gradient(circle, rgba(255, 253, 245, 0.9) 0 42%, rgba(184, 136, 45, 0.28) 43% 45%, transparent 46%);
+  border-radius: 12px;
+  overflow: visible;
+}
+
+.journey-log-pose-asset {
+  --log-pose-glow-opacity: 0.3;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.log-pose-dial-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 14px rgba(42, 23, 14, 0.2));
+}
+
+.log-pose-dial-outer-glow {
+  fill: url("#log-pose-glow");
+  opacity: var(--log-pose-glow-opacity);
+}
+
+.log-pose-dial-outer-ring {
+  fill: url("#log-pose-ring");
+  stroke: rgba(42, 23, 14, 0.42);
+  stroke-width: 2;
+}
+
+.log-pose-dial-base {
+  fill: url("#log-pose-parchment");
+  stroke: rgba(99, 69, 33, 0.42);
+  stroke-width: 1.5;
+}
+
+.log-pose-dial-guides line,
+.log-pose-dial-guides circle {
+  fill: none;
+  stroke: rgba(99, 69, 33, 0.24);
+  stroke-linecap: round;
+  stroke-width: 1;
+}
+
+.log-pose-dial-radial-marks {
+  stroke: rgba(99, 69, 33, 0.35);
+  stroke-linecap: round;
+}
+
+.log-pose-dial-tick {
+  stroke-width: 1;
+}
+
+.log-pose-dial-tick.is-major {
+  stroke: rgba(99, 69, 33, 0.5);
+  stroke-width: 1.5;
+}
+
+.log-pose-dial-tick.is-cardinal {
+  stroke: rgba(42, 23, 14, 0.62);
+  stroke-width: 2;
+}
+
+.log-pose-dial-compass-star {
+  fill: rgba(184, 136, 45, 0.13);
+  stroke: rgba(99, 69, 33, 0.24);
+  stroke-linejoin: round;
+  stroke-width: 1;
 }
 
 .journey-log-pose-needle {
-  width: 5px;
-  height: 28px;
-  border-radius: 999px 999px 4px 4px;
-  background: linear-gradient(180deg, var(--pirate-red), var(--pirate-ink));
-  transform-origin: 50% 85%;
+  transform-box: view-box;
+  transform-origin: 100px 100px;
   will-change: transform;
+}
+
+.log-pose-dial-needle-shadow {
+  fill: rgba(42, 23, 14, 0.32);
+  transform: translate(2px, 2px);
+}
+
+.log-pose-dial-needle-main {
+  fill: url("#log-pose-needle-red");
+  stroke: rgba(77, 16, 11, 0.72);
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.log-pose-dial-needle-tail {
+  fill: rgba(77, 16, 11, 0.92);
+  stroke: rgba(42, 23, 14, 0.5);
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+
+.log-pose-dial-center-cap {
+  fill: var(--pirate-navy);
+  stroke: rgba(255, 245, 214, 0.82);
+  stroke-width: 2;
+}
+
+.log-pose-dial-center-dot {
+  fill: var(--gold-300);
+}
+
+.journey-log-pose-highlight {
+  fill: none;
+  opacity: 0.58;
+  stroke: rgba(255, 253, 245, 0.62);
+  stroke-linecap: round;
+  stroke-width: 6;
 }
 
 .journey-log-pose-copy {
@@ -3280,6 +3380,60 @@ h1 {
   color: var(--sea-600);
 }
 
+.portfolio-story-sequence .journey-map-stage,
+.portfolio-story-sequence .journey-map-camera,
+.portfolio-story-sequence .journey-map-board,
+.portfolio-story-sequence .journey-panel {
+  backface-visibility: hidden;
+}
+
+.portfolio-story-sequence .journey-map-stage::before,
+.portfolio-story-sequence .journey-map-stage::after,
+.portfolio-story-sequence .journey-map-grain {
+  mix-blend-mode: normal;
+}
+
+.portfolio-story-sequence .journey-map-stage::after {
+  opacity: 0.1;
+}
+
+.portfolio-story-sequence .journey-map-board {
+  box-shadow:
+    0 22px 48px rgba(42, 23, 14, 0.26),
+    inset 0 0 0 8px rgba(255, 253, 245, 0.09),
+    inset 0 0 42px rgba(42, 23, 14, 0.14);
+}
+
+.portfolio-story-sequence .journey-route-outline,
+.portfolio-story-sequence .journey-route-progress,
+.portfolio-story-sequence .journey-ship {
+  filter: none;
+}
+
+.portfolio-story-sequence .journey-island-shadow,
+.portfolio-story-sequence .journey-panel::after {
+  filter: none;
+}
+
+.portfolio-story-sequence .journey-island.is-active .journey-island-icon {
+  box-shadow:
+    0 0 0 4px rgba(255, 215, 122, 0.24),
+    0 10px 18px rgba(42, 23, 14, 0.18),
+    inset 0 0 0 1px rgba(255, 253, 245, 0.16);
+}
+
+.portfolio-story-sequence .journey-panel {
+  box-shadow:
+    0 16px 30px rgba(42, 23, 14, 0.18),
+    0 3px 0 rgba(74, 42, 22, 0.12),
+    inset 0 0 0 1px rgba(255, 253, 245, 0.18);
+}
+
+.portfolio-story-sequence .journey-panel::after {
+  height: 10px;
+  opacity: 0.3;
+}
+
 .journey-grand-line-story.is-reduced-motion .journey-grand-line-viewport {
   display: block;
   height: auto;
@@ -3318,7 +3472,16 @@ h1 {
 }
 
 .journey-grand-line-story.is-reduced-motion .journey-log-pose {
-  display: none;
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  display: grid;
+  width: min(258px, calc(100vw - 40px));
+  margin: 0 auto 24px;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
 }
 
 .journey-grand-line-story.is-reduced-motion .journey-panels {
@@ -3579,6 +3742,10 @@ h1 {
   .journey-log-pose {
     top: clamp(210px, 24vh, 238px);
     min-width: 232px;
+  }
+
+  .journey-log-pose-ring {
+    width: clamp(78px, 10vw, 92px);
   }
 
   .journey-panel {
@@ -3900,12 +4067,15 @@ h1 {
     right: 14px;
     top: 178px;
     grid-template-columns: auto 1fr;
+    width: calc(100vw - 28px);
+    max-width: calc(100vw - 28px);
     min-width: 0;
+    box-sizing: border-box;
     padding: 8px 10px;
   }
 
   .journey-log-pose-ring {
-    width: 42px;
+    width: 72px;
   }
 
   .journey-panel,

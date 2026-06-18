@@ -108,6 +108,7 @@ export function PortfolioStorySequence() {
         isLargeViewport() ? 0.14 : isMobileViewport() ? 0.22 : 0.16,
       );
       const syncedJourneyDuration = Math.max(journeyTimeline.duration(), 0.001);
+      let lastSyncedJourneyProgress = -1;
       const syncJourneyTimeline = () => {
         const journeyStartTime = masterTimeline.labels["journey-intro"] ?? 0;
         const journeyProgress = gsap.utils.clamp(
@@ -116,6 +117,11 @@ export function PortfolioStorySequence() {
           (masterTimeline.time() - journeyStartTime) / syncedJourneyDuration,
         );
 
+        if (Math.abs(journeyProgress - lastSyncedJourneyProgress) < 0.0005) {
+          return;
+        }
+
+        lastSyncedJourneyProgress = journeyProgress;
         journeyTimeline.progress(journeyProgress).pause();
       };
 

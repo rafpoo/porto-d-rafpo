@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { CSSProperties } from "react";
+import { LogPoseDial } from "../LogPoseDial";
 import { timelineItems } from "../../data/portfolio";
 import {
   GsapGrandLineJourney,
@@ -190,7 +191,7 @@ export function Journey({
             aria-label="Journey progress"
           >
             <span className="journey-log-pose-ring" aria-hidden="true">
-              <span className="journey-log-pose-needle" />
+              <LogPoseDial />
             </span>
             <span className="journey-log-pose-copy">
               <span>Log Pose</span>
