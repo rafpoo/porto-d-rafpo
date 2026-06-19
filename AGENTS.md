@@ -60,6 +60,8 @@ npm.cmd run preview
 |   `-- assets/
 |       |-- profile.png
 |       |-- straw-hat.png
+|       |-- tools-chest/
+|       |   `-- treasure-chest.glb
 |       `-- wanted-poster.png
 |-- src/
 |   |-- components/
@@ -72,7 +74,8 @@ npm.cmd run preview
 |   |   |   |-- Journey.tsx
 |   |   |   |-- Projects.tsx
 |   |   |   |-- RouteLog.tsx
-|   |   |   `-- Skills.tsx
+|   |   |   |-- Skills.tsx
+|   |   |   `-- TreasureChest3D.tsx
 |   |   |-- GsapVoyageEffects.tsx
 |   |   |-- Section.tsx
 |   |   `-- TechIcon.tsx
@@ -146,6 +149,33 @@ Setiap section besar dipisahkan menjadi component sendiri:
 - `Contact.tsx`
 
 Gunakan file section yang sesuai saat mengubah markup section tertentu. Jangan menggabungkan kembali semua section ke `App.tsx`.
+
+### `src/components/sections/TreasureChest3D.tsx`
+
+Komponen renderer Three.js untuk model GLB treasure chest di section "Tools for the Voyage". Komponen ini:
+
+- Memuat model dari `public/assets/tools-chest/treasure-chest.glb`.
+- Merender ke WebGL canvas transparan.
+- Mengekspos imperative handle `setOpenProgress(progress)` agar animasi buka chest bisa dikontrol oleh GSAP ScrollTrigger.
+- Menggunakan clip animasi GLB jika tersedia, tanpa autoplay.
+- Melakukan disposal geometry/material/renderer saat unmount.
+
+Saat mengubah display chest:
+
+- Ubah ukuran model lewat `targetWidth` di fungsi `fitModelToStage`.
+- Ubah posisi model lewat `modelRoot.position.set(...)`.
+- Ubah orientasi model lewat `modelRoot.rotation.set(x, y, z)`. Gunakan rotasi Y untuk front-facing atau slight 3/4 view, dan hindari rotasi Z kecuali memang ingin chest miring/sideways.
+- Ubah zoom/framing lewat `PerspectiveCamera(...)`, `camera.position.set(...)`, dan `camera.lookAt(...)`.
+- Ubah framing responsive di callback resize komponen yang sama.
+- Ubah ukuran area canvas lewat CSS `.tools-chest` di `src/styles.css`.
+
+Pertahankan:
+
+- Canvas transparan.
+- Skill cards tetap semantic HTML/CSS di `Skills.tsx`, bukan bagian dari canvas.
+- ScrollTrigger tetap mengontrol open progress dari `PortfolioStorySequence.tsx`.
+- Reverse scroll menutup chest kembali.
+- Attribution model tetap terlihat dan sesuai lisensi.
 
 ### `src/components/Section.tsx`
 
