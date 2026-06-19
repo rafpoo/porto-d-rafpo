@@ -5,11 +5,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { GrandLineJourneyHandle } from "../GsapVoyageEffects";
 import { Journey } from "./Journey";
 import { SkillsContent } from "./Skills";
+import type { TreasureChest3DHandle } from "./TreasureChest3D";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export function PortfolioStorySequence() {
   const scope = useRef<HTMLElement>(null);
+  const chestModelRef = useRef<TreasureChest3DHandle | null>(null);
   const [journeyHandle, setJourneyHandle] =
     useState<GrandLineJourneyHandle | null>(null);
 
@@ -39,11 +41,13 @@ export function PortfolioStorySequence() {
         ".tools-story-heading",
       );
       const toolsChest = root.querySelector<HTMLElement>(".tools-chest");
-      const chestLid = root.querySelector<HTMLElement>(".tools-chest-lid");
-      const chestBase = root.querySelector<HTMLElement>(".tools-chest-base");
       const chestGlow = root.querySelector<HTMLElement>(".tools-chest-glow");
       const chestShadow =
         root.querySelector<HTMLElement>(".tools-chest-shadow");
+      const chestEffects = gsap.utils.toArray<HTMLElement>(
+        ".tools-chest-ray, .tools-chest-sparkle, .tools-chest-dust",
+        root,
+      );
       const skillCards = gsap.utils.toArray<HTMLElement>(
         ".tools-skill-card",
         root,
@@ -53,6 +57,7 @@ export function PortfolioStorySequence() {
       ).matches;
 
       root.classList.toggle("is-reduced-motion", reduceMotion);
+      chestModelRef.current?.setOpenProgress(reduceMotion ? 1 : 0);
 
       if (
         reduceMotion ||
@@ -62,8 +67,6 @@ export function PortfolioStorySequence() {
         !journeyPanel ||
         !toolsHeading ||
         !toolsChest ||
-        !chestLid ||
-        !chestBase ||
         !chestGlow ||
         !chestShadow ||
         skillCards.length === 0
@@ -74,9 +77,48 @@ export function PortfolioStorySequence() {
       const journeyTimeline = journeyHandle.timeline;
       journeyTimeline.progress(0).pause();
 
+      const chestModelState = { openProgress: 0 };
+      const updateChestModel = () => {
+        chestModelRef.current?.setOpenProgress(chestModelState.openProgress);
+      };
+
       const isMobileViewport = () => window.innerWidth <= 680;
       const isLargeViewport = () =>
         window.innerWidth >= 1440 || window.innerHeight >= 850;
+      const cardMidpoint = (skillCards.length - 1) / 2;
+      const getChestOpeningPoint = () => {
+        const chestRect = toolsChest.getBoundingClientRect();
+
+        return {
+          x: chestRect.left + chestRect.width * 0.52,
+          y:
+            chestRect.top +
+            chestRect.height * (isMobileViewport() ? 0.46 : 0.44),
+        };
+      };
+      const getCardOrigin = (card: HTMLElement, index: number) => {
+        const cardRect = card.getBoundingClientRect();
+        const opening = getChestOpeningPoint();
+        const fanNudge = (index - cardMidpoint) * (isMobileViewport() ? 5 : 12);
+
+        return {
+          x: opening.x - (cardRect.left + cardRect.width / 2) + fanNudge,
+          y:
+            opening.y -
+            (cardRect.top + cardRect.height / 2) +
+            (isMobileViewport() ? 8 : 14),
+        };
+      };
+      const getCardFanX = (index: number) =>
+        (index - cardMidpoint) * (isMobileViewport() ? 8 : 22);
+      const getCardFanY = (index: number) =>
+        isMobileViewport() ? -28 - (index % 2) * 5 : -58 - (index % 2) * 12;
+      const getCardFanRotation = (index: number) =>
+        gsap.utils.clamp(
+          -7,
+          7,
+          (index - cardMidpoint) * (isMobileViewport() ? 1.1 : 1.8),
+        );
 
       const calculateToolsScrollDistance = () => {
         const viewportHeight = window.innerHeight;
@@ -125,9 +167,12 @@ export function PortfolioStorySequence() {
         journeyTimeline.progress(journeyProgress).pause();
       };
 
-      gsap.set([toolsPanel, journeyPanel, toolsHeading, toolsChest], {
-        clearProps: "all",
-      });
+      gsap.set(
+        [toolsPanel, journeyPanel, toolsHeading, toolsChest, ...chestEffects],
+        {
+          clearProps: "all",
+        },
+      );
       gsap.set(skillCards, {
         clearProps: "all",
       });
@@ -146,22 +191,20 @@ export function PortfolioStorySequence() {
       gsap.set(toolsChest, {
         autoAlpha: 0,
         rotation: -2,
-        scale: isMobileViewport() ? 0.84 : 0.88,
+        scale: isMobileViewport() ? 0.82 : 0.9,
         transformOrigin: "50% 85%",
-        y: isMobileViewport() ? 30 : 44,
-      });
-      gsap.set(chestLid, {
-        rotationX: 0,
-        transformOrigin: "50% 100%",
-        y: 0,
-      });
-      gsap.set(chestBase, {
-        transformOrigin: "50% 100%",
+        y: isMobileViewport() ? 26 : 42,
       });
       gsap.set(chestGlow, {
         autoAlpha: 0,
         scale: 0.72,
         transformOrigin: "50% 50%",
+      });
+      gsap.set(chestEffects, {
+        autoAlpha: 0,
+        scale: 0.62,
+        transformOrigin: "50% 100%",
+        y: isMobileViewport() ? 8 : 14,
       });
       gsap.set(chestShadow, {
         autoAlpha: 0,
@@ -169,11 +212,12 @@ export function PortfolioStorySequence() {
       });
       gsap.set(skillCards, {
         autoAlpha: 0,
-        rotation: (index) => (index % 2 === 0 ? -4 : 4),
-        scale: 0.86,
-        transformOrigin: "50% 85%",
-        x: (index) => (index - (skillCards.length - 1) / 2) * -18,
-        y: isMobileViewport() ? 58 : 82,
+        rotation: (index) => getCardFanRotation(index) * -0.8,
+        scale: isMobileViewport() ? 0.72 : 0.6,
+        transformOrigin: "50% 95%",
+        x: (index, card) => getCardOrigin(card as HTMLElement, index).x,
+        y: (index, card) => getCardOrigin(card as HTMLElement, index).y,
+        z: isMobileViewport() ? 0 : -36,
       });
 
       const masterTimeline = gsap.timeline({
@@ -238,25 +282,14 @@ export function PortfolioStorySequence() {
           },
           "chest-anticipation",
         )
-        .to(
-          chestBase,
-          {
-            duration: 0.22,
-            ease: "sine.inOut",
-            scaleY: 0.98,
-            yoyo: true,
-            repeat: 1,
-          },
-          "chest-anticipation+=0.08",
-        )
         .addLabel("chest-open")
         .to(
-          chestLid,
+          chestModelState,
           {
-            duration: 0.54,
-            ease: "back.out(1.12)",
-            rotationX: -66,
-            y: -10,
+            duration: isMobileViewport() ? 0.9 : 1.08,
+            ease: "power3.out",
+            onUpdate: updateChestModel,
+            openProgress: 1,
           },
           "chest-open",
         )
@@ -264,29 +297,56 @@ export function PortfolioStorySequence() {
           chestGlow,
           {
             autoAlpha: 1,
-            duration: 0.46,
+            duration: 0.52,
             scale: 1,
           },
-          "chest-open+=0.08",
+          "chest-open+=0.22",
+        )
+        .to(
+          chestEffects,
+          {
+            autoAlpha: (index) => (index < 3 ? 0.54 : 0.88),
+            duration: 0.42,
+            ease: "power2.out",
+            scale: 1,
+            stagger: 0.035,
+            y: (index) => (index < 3 ? -8 : -18),
+          },
+          "chest-open+=0.26",
         );
 
       skillCards.forEach((card, index) => {
         const label = `tools-card-${index + 1}`;
+        const labelPosition =
+          index === 0 ? "chest-open+=0.72" : `tools-card-${index}+=0.5`;
 
         masterTimeline
-          .addLabel(label)
+          .addLabel(label, labelPosition)
           .to(
             card,
             {
               autoAlpha: 1,
+              duration: 0.5,
+              ease: "power3.out",
+              rotation: getCardFanRotation(index),
+              scale: isMobileViewport() ? 0.92 : 0.88,
+              x: getCardFanX(index),
+              y: getCardFanY(index),
+              z: 0,
+            },
+            label,
+          )
+          .to(
+            card,
+            {
               duration: 0.46,
-              ease: "back.out(1.2)",
-              rotation: index % 2 === 0 ? -0.8 : 0.8,
+              ease: "back.out(1.05)",
+              rotation: index % 2 === 0 ? -0.7 : 0.7,
               scale: 1,
               x: 0,
               y: 0,
             },
-            label,
+            `${label}+=0.24`,
           )
           .to(
             chestGlow,
@@ -318,6 +378,15 @@ export function PortfolioStorySequence() {
             ease: "power2.out",
             scale: isMobileViewport() ? 0.86 : 0.9,
             y: isMobileViewport() ? 8 : 12,
+          },
+          "tools-settle",
+        )
+        .to(
+          chestEffects,
+          {
+            autoAlpha: 0.34,
+            duration: 0.34,
+            ease: "power2.out",
           },
           "tools-settle",
         )
@@ -389,7 +458,7 @@ export function PortfolioStorySequence() {
               <p className="eyebrow">Crew inventory</p>
               <h2>Tools for the Voyage</h2>
             </div>
-            <SkillsContent animated={false} />
+            <SkillsContent animated={false} chestRef={chestModelRef} />
           </div>
         </div>
 
