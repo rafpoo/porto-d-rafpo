@@ -3,6 +3,7 @@ export type PortfolioProject = {
   description: string;
   stack: string[];
   image: {
+    displayType?: "landscape" | "portrait";
     label: string;
     theme: "lagoon" | "sunset" | "storm";
   };
@@ -28,7 +29,7 @@ export type TimelineItem = {
 export type SocialLink = {
   label: string;
   href: string;
-  icon: "mail" | "github" | "linkedin" | "phone";
+  icon: "mail" | "github" | "linkedin";
 };
 
 export type NavItem = {

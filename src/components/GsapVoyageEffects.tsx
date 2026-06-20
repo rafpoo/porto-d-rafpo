@@ -40,6 +40,7 @@ type ScrollytellingProject = {
   category: string;
   description: string;
   image: {
+    displayType?: "landscape" | "portrait";
     label: string;
     theme: "lagoon" | "sunset" | "storm";
   };
@@ -752,8 +753,21 @@ export function GsapAboutScrollytelling({
               const radians = (normalizedAngle * Math.PI) / 180;
               const depth = Math.cos(radians);
               const side = Math.sin(radians);
+              const distance = Math.abs(index - state.frame);
               const depthProgress = (depth + 1) / 2;
-              const opacity = gsap.utils.clamp(0.18, 1, 0.22 + depthProgress);
+              const sideVisibility = gsap.utils.clamp(
+                0,
+                1,
+                1 - (distance - 0.56) / 0.34,
+              );
+              const opacity =
+                index === activeIndex
+                  ? 1
+                  : gsap.utils.clamp(
+                      0,
+                      0.74,
+                      (0.18 + depthProgress * 0.56) * sideVisibility,
+                    );
               const scale = gsap.utils.clamp(
                 0.68,
                 1,
@@ -761,7 +775,8 @@ export function GsapAboutScrollytelling({
               );
 
               gsap.set(card, {
-                opacity,
+                autoAlpha: opacity,
+                pointerEvents: index === activeIndex ? "auto" : "none",
                 rotationY: -normalizedAngle,
                 rotationZ: side * -2.6,
                 scale,
@@ -771,7 +786,12 @@ export function GsapAboutScrollytelling({
                 y: Math.abs(side) * 14,
                 yPercent: -50,
                 z: (depth - 1) * metrics.radiusZ,
-                zIndex: Math.round(200 + depth * 100),
+                zIndex:
+                  index === activeIndex
+                    ? 30
+                    : opacity > 0.01
+                      ? Math.round(10 + depthProgress * 8)
+                      : 0,
               });
             });
           };
@@ -1219,76 +1239,98 @@ export function GsapAboutScrollytelling({
             <strong>Projects</strong>
           </div>
           <div className="about-roulette-orbit">
-            {projects.map((project, index) => (
-              <article className="about-roulette-card" key={project.title}>
-                <div className="roulette-card-screen" aria-hidden="true">
-                  <div className="roulette-screen-fan">
-                    {["overview", "flow", "mobile"].map((shot) => (
-                      <div
-                        className={`roulette-app-shot roulette-app-shot-${shot} project-map-${project.image.theme}`}
-                        key={`${project.title}-${shot}`}
-                      >
-                        <div className="roulette-screen-toolbar">
-                          <span />
-                          <span />
-                          <span />
-                        </div>
-                        <span className="project-map-label">
-                          {shot === "overview"
-                            ? project.image.label
-                            : shot === "flow"
-                              ? project.category
-                              : "App view"}
-                        </span>
-                        <div className="roulette-app-layout">
-                          <span className="roulette-app-sidebar" />
-                          <span className="roulette-app-panel roulette-app-panel-wide" />
-                          <span className="roulette-app-panel" />
-                          <span className="roulette-app-panel" />
-                          <span className="roulette-app-chart" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="roulette-card-copy">
-                  <div className="project-meta">
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <span>{project.category}</span>
-                  </div>
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                  <ul className="stack-list">
-                    {project.stack.slice(0, 5).map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                  <div
-                    className="roulette-link-list"
-                    aria-label={`${project.title} repository links`}
-                  >
-                    {project.links.map((link) => {
-                      const LinkIcon =
-                        link.icon === "github" ? Github : ExternalLink;
-                      const isInternal = link.href.startsWith("#");
+            {projects.map((project, index) => {
+              const displayType = project.image.displayType ?? "portrait";
+              const display = displayType === "landscape" ? "web" : "mobile";
+              const shots =
+                displayType === "landscape"
+                  ? ["overview", "flow", "detail"]
+                  : ["overview", "flow", "mobile"];
 
-                      return (
-                        <a
-                          className="roulette-repo-link gsap-hover-link"
-                          href={link.href}
-                          key={`${project.title}-${link.label}`}
-                          target={isInternal ? undefined : "_blank"}
-                          rel={isInternal ? undefined : "noreferrer"}
+              return (
+                <article
+                  className="about-roulette-card"
+                  data-display={display}
+                  key={project.title}
+                >
+                  <div
+                    className={`roulette-card-screen roulette-display-${display} ${
+                      displayType === "landscape"
+                        ? "desktop-mockup project-screenshot--landscape"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <div className="roulette-screen-fan">
+                      {shots.map((shot) => (
+                        <div
+                          className={`roulette-app-shot roulette-app-shot-${shot} project-map-${project.image.theme}`}
+                          key={`${project.title}-${shot}`}
                         >
-                          <LinkIcon size={14} aria-hidden="true" />
-                          <span>{link.label}</span>
-                        </a>
-                      );
-                    })}
+                          <div className="roulette-screen-toolbar">
+                            <span />
+                            <span />
+                            <span />
+                          </div>
+                          <span className="project-map-label">
+                            {shot === "overview"
+                              ? project.image.label
+                              : shot === "flow"
+                                ? project.category
+                                : display === "web"
+                                  ? "Web view"
+                                  : "App view"}
+                          </span>
+                          <div className="roulette-app-layout">
+                            <span className="roulette-app-sidebar" />
+                            <span className="roulette-app-panel roulette-app-panel-wide" />
+                            <span className="roulette-app-panel" />
+                            <span className="roulette-app-panel" />
+                            <span className="roulette-app-chart" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                  <div className="roulette-card-copy">
+                    <div className="project-meta">
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <span>{project.category}</span>
+                    </div>
+                    <h3>{project.title}</h3>
+                    <p>{project.description}</p>
+                    <ul className="stack-list">
+                      {project.stack.slice(0, 5).map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                    <div
+                      className="roulette-link-list"
+                      aria-label={`${project.title} repository links`}
+                    >
+                      {project.links.map((link) => {
+                        const LinkIcon =
+                          link.icon === "github" ? Github : ExternalLink;
+                        const isInternal = link.href.startsWith("#");
+
+                        return (
+                          <a
+                            className="roulette-repo-link gsap-hover-link"
+                            href={link.href}
+                            key={`${project.title}-${link.label}`}
+                            target={isInternal ? undefined : "_blank"}
+                            rel={isInternal ? undefined : "noreferrer"}
+                          >
+                            <LinkIcon size={14} aria-hidden="true" />
+                            <span>{link.label}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>

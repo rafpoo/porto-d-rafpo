@@ -1517,6 +1517,81 @@ h1 {
   transform: translate(-16%, -40%) rotate(16deg) rotateY(-18deg);
 }
 
+.roulette-card-screen.roulette-display-mobile {
+  min-height: clamp(386px, 48svh, 430px);
+  padding: clamp(28px, 3.4vw, 36px);
+}
+
+.roulette-card-screen.roulette-display-mobile::before {
+  inset: clamp(20px, 2.6vw, 28px);
+}
+
+.roulette-display-mobile .roulette-screen-fan {
+  width: min(100%, 334px);
+  min-height: 334px;
+}
+
+.roulette-card-screen.roulette-display-web {
+  min-height: clamp(430px, 50svh, 500px);
+  padding: clamp(14px, 2vw, 20px);
+}
+
+.roulette-display-web .roulette-screen-fan {
+  width: min(100%, 470px);
+  min-height: clamp(400px, 46vw, 458px);
+  transform: none;
+  transform-style: flat;
+}
+
+.roulette-display-web .roulette-screen-toolbar {
+  align-items: center;
+}
+
+.roulette-display-web .roulette-screen-toolbar::after {
+  flex: 1;
+  height: 8px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: rgba(19, 66, 89, 0.16);
+  content: "";
+}
+
+.roulette-display-web .roulette-app-shot {
+  width: min(390px, 90%);
+  aspect-ratio: 16 / 9;
+  transform-origin: 50% 85%;
+  transform-style: flat;
+  backface-visibility: hidden;
+  border-color: rgba(255, 245, 214, 0.38);
+  box-shadow:
+    0 18px 34px rgba(3, 15, 28, 0.34),
+    0 0 0 1px rgba(255, 253, 245, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.roulette-display-web .roulette-app-shot-overview {
+  top: 23%;
+  z-index: 2;
+  width: min(330px, 82%);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(0.88);
+}
+
+.roulette-display-web .roulette-app-shot-flow {
+  top: 50%;
+  z-index: 3;
+  width: min(390px, 96%);
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
+.roulette-display-web .roulette-app-shot-detail {
+  top: 77%;
+  z-index: 2;
+  width: min(330px, 82%);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
 .roulette-app-shot::before {
   position: absolute;
   inset: 0;
@@ -1552,6 +1627,11 @@ h1 {
   font-size: 0.64rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.roulette-display-web .roulette-app-shot .project-map-label {
+  top: 39px;
+  max-width: min(180px, calc(100% - 28px));
 }
 
 .roulette-app-layout {
@@ -1597,6 +1677,30 @@ h1 {
       transparent 66%
     ),
     rgba(255, 253, 245, 0.14);
+}
+
+.roulette-display-web .roulette-app-layout {
+  grid-template-columns: 0.46fr 1fr 0.82fr;
+  grid-template-rows: 0.66fr 0.72fr 1fr;
+  padding: 62px 12px 12px;
+}
+
+.roulette-display-web .roulette-app-sidebar {
+  min-height: auto;
+  grid-row: 1 / -1;
+}
+
+.roulette-display-web .roulette-app-panel {
+  min-height: auto;
+}
+
+.roulette-display-web .roulette-app-panel-wide {
+  grid-column: 2 / -1;
+}
+
+.roulette-display-web .roulette-app-chart {
+  min-height: auto;
+  grid-column: 2 / -1;
 }
 
 .roulette-app-shot-mobile .roulette-app-layout {
@@ -1722,6 +1826,12 @@ h1 {
   backface-visibility: hidden;
   transform-style: preserve-3d;
   will-change: opacity, transform;
+}
+
+.about-scrollytelling.is-pinned-ready
+  .about-roulette-card[data-display="web"] {
+  width: min(720px, 98%);
+  grid-template-columns: minmax(340px, 1.12fr) minmax(270px, 0.88fr);
 }
 
 .about-roulette-card.is-active {
@@ -4089,6 +4199,43 @@ h1 {
 
   .roulette-app-shot {
     min-height: 210px;
+  }
+
+  .roulette-card-screen.roulette-display-mobile {
+    min-height: 390px;
+    padding: clamp(24px, 7vw, 30px);
+  }
+
+  .roulette-display-mobile .roulette-screen-fan {
+    width: min(100%, 306px);
+    min-height: 314px;
+  }
+
+  .roulette-display-web .roulette-screen-fan {
+    width: min(100%, 320px);
+    min-height: 318px;
+  }
+
+  .roulette-display-web .roulette-app-shot {
+    min-height: 0;
+  }
+
+  .roulette-display-web .roulette-app-shot-overview {
+    top: 23%;
+    width: min(242px, 78%);
+    transform: translate(-50%, -50%) scale(0.86);
+  }
+
+  .roulette-display-web .roulette-app-shot-flow {
+    top: 50%;
+    width: min(292px, 94%);
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .roulette-display-web .roulette-app-shot-detail {
+    top: 77%;
+    width: min(242px, 78%);
+    transform: translate(-50%, -50%) scale(0.88);
   }
 
   .roulette-app-layout {

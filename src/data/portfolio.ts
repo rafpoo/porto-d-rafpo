@@ -52,7 +52,11 @@ export const projects: PortfolioProject[] = [
       "MySQL",
       "Sequelize",
     ],
-    image: { label: "North harbor", theme: "lagoon" },
+    image: {
+      displayType: "landscape",
+      label: "Campus portal",
+      theme: "lagoon",
+    },
     links: [
       {
         label: "Client Web",
@@ -89,7 +93,11 @@ export const projects: PortfolioProject[] = [
       "GitHub Actions",
       "DigitalOcean",
     ],
-    image: { label: "Gold route", theme: "sunset" },
+    image: {
+      displayType: "landscape",
+      label: "Payment flow",
+      theme: "sunset",
+    },
     links: [
       {
         label: "Client Web",
@@ -126,7 +134,11 @@ export const projects: PortfolioProject[] = [
       "PostgreSQL",
       "Zustand",
     ],
-    image: { label: "Trust route", theme: "lagoon" },
+    image: {
+      displayType: "portrait",
+      label: "Trust route",
+      theme: "lagoon",
+    },
     links: [
       {
         label: "GitHub",
@@ -147,7 +159,11 @@ export const projects: PortfolioProject[] = [
       "Firestore",
       "Google Maps",
     ],
-    image: { label: "Storm chart", theme: "storm" },
+    image: {
+      displayType: "portrait",
+      label: "Storm chart",
+      theme: "storm",
+    },
     links: [
       {
         label: "GitHub",
@@ -241,7 +257,6 @@ export const timelineItems: TimelineItem[] = [
 
 export const socialLinks: SocialLink[] = [
   { label: "Email", href: "mailto:3k.raffs@gmail.com", icon: "mail" },
-  { label: "Phone", href: "tel:+6287753036926", icon: "phone" },
   { label: "GitHub", href: "https://github.com/rafpoo", icon: "github" },
   {
     label: "LinkedIn",

@@ -1,4 +1,4 @@
-import { Github, Linkedin, Mail, Phone } from "lucide-react";
+import { Github, Linkedin, Mail } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useMemo } from "react";
 import { socialLinks } from "../../data/portfolio";
@@ -7,7 +7,6 @@ const iconMap = {
   mail: Mail,
   github: Github,
   linkedin: Linkedin,
-  phone: Phone,
 };
 
 export function Contact() {
