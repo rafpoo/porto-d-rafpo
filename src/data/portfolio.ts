@@ -55,6 +55,20 @@ export const projects: PortfolioProject[] = [
     image: {
       displayType: "landscape",
       label: "Campus portal",
+      screenshots: [
+        {
+          alt: "MAXIMA web home page attendance call to action",
+          src: publicAssetUrl("assets/projects/maxima-web-home.png"),
+        },
+        {
+          alt: "MAXIMA web STATE selection page",
+          src: publicAssetUrl("assets/projects/maxima-web-state.png"),
+        },
+        {
+          alt: "MAXIMA web challenges handbook page",
+          src: publicAssetUrl("assets/projects/maxima-web-challenges.png"),
+        },
+      ],
       theme: "lagoon",
     },
     links: [
@@ -96,6 +110,20 @@ export const projects: PortfolioProject[] = [
     image: {
       displayType: "landscape",
       label: "Payment flow",
+      screenshots: [
+        {
+          alt: "MAXIMA Ticketing internal dashboard and attendance scanner",
+          src: publicAssetUrl("assets/projects/maxima-ticketing-dashboard.png"),
+        },
+        {
+          alt: "MAXIMA Ticketing participant detail and attendance table",
+          src: publicAssetUrl("assets/projects/maxima-ticketing-participants.png"),
+        },
+        {
+          alt: "MAXIMA Ticketing login screen",
+          src: publicAssetUrl("assets/projects/maxima-ticketing-login.png"),
+        },
+      ],
       theme: "sunset",
     },
     links: [
@@ -137,6 +165,20 @@ export const projects: PortfolioProject[] = [
     image: {
       displayType: "portrait",
       label: "Trust route",
+      screenshots: [
+        {
+          alt: "TrustEnd Workforce sign-in screen",
+          src: publicAssetUrl("assets/projects/trustend-login.png"),
+        },
+        {
+          alt: "TrustEnd employee attendance dashboard",
+          src: publicAssetUrl("assets/projects/trustend-worker-dashboard.png"),
+        },
+        {
+          alt: "TrustEnd team trust score overview",
+          src: publicAssetUrl("assets/projects/trustend-team-overview.png"),
+        },
+      ],
       theme: "lagoon",
     },
     links: [
@@ -162,6 +204,20 @@ export const projects: PortfolioProject[] = [
     image: {
       displayType: "portrait",
       label: "Storm chart",
+      screenshots: [
+        {
+          alt: "MedEase sign-in screen",
+          src: publicAssetUrl("assets/projects/medease-login.png"),
+        },
+        {
+          alt: "MedEase patient dashboard",
+          src: publicAssetUrl("assets/projects/medease-dashboard.png"),
+        },
+        {
+          alt: "MedEase water quality prediction screen",
+          src: publicAssetUrl("assets/projects/medease-wqi-prediction.png"),
+        },
+      ],
       theme: "storm",
     },
     links: [

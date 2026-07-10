@@ -5,6 +5,10 @@ export type PortfolioProject = {
   image: {
     displayType?: "landscape" | "portrait";
     label: string;
+    screenshots?: {
+      alt: string;
+      src: string;
+    }[];
     theme: "lagoon" | "sunset" | "storm";
   };
   links: {

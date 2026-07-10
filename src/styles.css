@@ -1618,6 +1618,25 @@ h1 {
   transform: translateX(12%) rotate(8deg);
 }
 
+.roulette-app-shot-has-image::before,
+.roulette-app-shot-has-image::after {
+  content: none;
+}
+
+.roulette-app-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.roulette-app-shot-has-image .roulette-screen-toolbar {
+  background: rgba(255, 253, 245, 0.86);
+  box-shadow: 0 1px 0 rgba(3, 15, 28, 0.1);
+}
+
 .roulette-app-shot .project-map-label {
   top: 46px;
   left: 12px;

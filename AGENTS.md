@@ -125,6 +125,13 @@ File sumber data utama untuk konten website. Di sini terdapat:
 
 Saat memperbarui konten portfolio, prioritaskan update data array di file ini sebelum membuat markup hardcoded baru. Project roulette dan project grid memakai data `projects` yang sama.
 
+Catatan data terbaru:
+
+- `projects[].image.displayType` dapat bernilai `"landscape"` atau `"portrait"`.
+- Project MAXIMA memakai `displayType: "landscape"` karena merupakan web app dan harus dirender sebagai desktop/browser mockup.
+- Project TrustEnd dan MedEase memakai `displayType: "portrait"` karena merupakan mobile app dan tetap memakai phone/app screenshot fan.
+- `socialLinks` tidak lagi berisi nomor telepon. Jangan menambahkan `tel:` link atau icon phone kecuali diminta eksplisit oleh owner.
+
 Link GitHub yang saat ini dipakai di project roulette:
 
 - TrustEnd: `https://github.com/rafpoo/TrustEnd`
@@ -209,6 +216,11 @@ Catatan animasi terbaru:
 - Exit animation wanted poster harus terasa seperti poster masih tertahan oleh tape kanan setelah tape kiri lepas. Pada fase pertama exit (`leftTape` lalu `hang`), ujung kanan atas poster harus tetap dekat/terhubung secara visual dengan `wanted-poster-tape-right`, sementara ujung kiri poster turun lebih dulu. Jangan membalik arah rotasi sehingga ujung kanan yang jatuh duluan.
 - Untuk menjaga ilusi tape kanan masih menempel, pertahankan `posterHinge` pivot di kanan atas (`transformOrigin: "100% 0%"`), gunakan rotasi negatif pada fase `hang`/`wiggle`/`fall`, dan jangan membesarkan `hangY` terlalu jauh. `rightTape` punya metrik hang sendiri (`rightTapeHangRotation`, `rightTapeHangX`, `rightTapeHangY`) agar tape kanan ikut turun/geser sedikit bersama pojok kanan poster sebelum akhirnya lepas.
 - Project roulette menggunakan layout 3D carousel/roulette dengan fan-shaped app screenshots di sisi kiri kartu.
+- Project card roulette tetap memakai 3D carousel utama. Jangan mengubah transisi card utama menjadi vertical stack kecuali user meminta eksplisit untuk card, bukan screenshot.
+- Untuk mencegah card lama terlihat menumpuk saat berpindah project, `renderWheel` memakai `autoAlpha`, `sideVisibility`, dan z-index eksplisit: active card harus berada di layer tertinggi, card yang sudah lewat harus fade sampai hidden dan tidak menerima pointer events.
+- App screenshots di dalam card memiliki layout berbeda berdasarkan `displayType`: `landscape` memakai desktop/browser mockup vertical stack, sedangkan `portrait` memakai mobile/phone fan.
+- Untuk screenshot landscape MAXIMA, pertahankan browser frame dengan top bar dan tiga dots. Semua frame landscape harus tetap terlihat jelas dalam stack atas-tengah-bawah, tidak hanya tersisa garis tipis di belakang frame utama.
+- Untuk screenshot portrait TrustEnd/MedEase, pertahankan padding aman pada `.roulette-display-mobile` agar fan screenshot tidak terpotong di container.
 - Pacing project roulette harus memakai pola hold-then-step, bukan spin linear terus-menerus. Saat roulette muncul, project aktif harus bertahan cukup lama agar tombol GitHub bisa diklik, lalu scroll berikutnya baru memicu transisi pendek ke project berikutnya. Di `GsapAboutScrollytelling`, pertahankan konsep `rouletteHoldDuration`, `rouletteTransitionDuration`, `rouletteSpinDuration`, dan `projectStepScroll` agar kira-kira satu gesture scrollwheel dibutuhkan untuk pindah satu project.
 - Active card project roulette jangan dihitung dengan `Math.round(state.frame)` karena itu membuat project berganti saat frame baru setengah jalan. Gunakan threshold yang membuat card aktif bertahan hampir sepanjang fase hold/transisi, sehingga link project tetap mudah diklik.
 - `GsapJourneyRoute` dan `GsapRouteLogbook` memakai `ScrollTrigger.create` dengan callback eksplisit (`onEnter`, `onEnterBack`, `onLeave`, `onLeaveBack`) agar route drawing tidak stuck saat user scroll cepat.
@@ -229,6 +241,8 @@ Saat menambah style, gunakan token CSS yang sudah ada agar visual tetap konsiste
 ### `public/Rafael_Nicholas_Po_CV.pdf`
 
 File CV yang ditampilkan atau dibuka dari website. Jika CV berubah, replace file ini dengan nama yang sama agar link existing tidak rusak.
+
+CV saat ini sudah dibersihkan dari nomor telepon. Jika mengganti CV, pastikan file baru juga tidak menampilkan phone number sebelum commit atau deploy.
 
 ### `public/assets/straw-hat.png`
 
@@ -269,6 +283,7 @@ Visual utama website menggunakan tema ocean voyage:
 - Untuk update visual dan responsive behavior, kerjakan di `src/styles.css`.
 - Simpan aset gambar di `public/assets/`.
 - Simpan CV di `public/` agar bisa diakses langsung oleh Vite.
+- Jangan menampilkan phone number di website atau CV. Kontak publik saat ini dibatasi ke email, GitHub, dan LinkedIn.
 - Hormati `prefers-reduced-motion`; animasi besar harus bisa collapse menjadi fade atau state yang lebih sederhana.
 - Prioritaskan animasi berbasis `transform` dan `opacity` untuk performa.
 - Untuk GSAP React, gunakan `useGSAP` dengan scope ref dan cleanup otomatis. Saat animasi route/roulette terasa diam atau stuck, cek apakah selector masih global, apakah `ScrollTrigger.refresh()` diperlukan setelah layout/image berubah, dan apakah dua tween menulis transform ke target yang sama.
@@ -303,12 +318,16 @@ Periksa juga:
 - CTA dan link CV bisa diklik.
 - Link GitHub di project grid dan project roulette bisa diklik.
 - Project roulette tidak bergeser terlalu cepat: setelah roulette muncul, satu project harus tetap aktif cukup lama untuk membaca dan mengklik link GitHub, dan perpindahan ke project berikutnya idealnya butuh kira-kira satu gesture scrollwheel/trackpad yang jelas.
+- Saat project roulette berpindah dari project 1 ke project 2, tepi project card lama tidak boleh masih terlihat atau menumpuk di atas card aktif.
+- App screenshots landscape MAXIMA harus tampil sebagai desktop/browser vertical stack dan semua frame harus terlihat jelas.
+- App screenshots portrait TrustEnd/MedEase tidak boleh terpotong oleh container.
 - Scroll animation tidak menutup konten penting.
 - Flow About scroll storytelling benar: wanted poster + description tampil dulu, poster pindah ke sisi kanan sambil project roulette muncul, exit animation poster berjalan dari sisi kanan, lalu section berikutnya baru muncul setelah poster jatuh keluar viewport.
 - Tape kiri dan kanan terlihat di pojok atas poster, ikut berpindah bersama poster ke sisi kanan, lalu terkelupas secara berurutan saat exit animation.
 - Pada tahap pertama exit animation, setelah tape kiri lepas, tape kanan masih terlihat menahan pojok kanan atas poster; poster tidak boleh terlihat menggantung jauh di bawah tape kanan atau jatuh dari ujung kanan terlebih dahulu.
 - Route drawing di "Engineering Route Map" dan "Journey Timeline" bergerak saat section masuk viewport dan tidak stuck saat scroll cepat.
 - Wanted poster About section muncul dari `public/assets/wanted-poster.png` dan tidak membesar saat hover.
+- Tidak ada phone number, `tel:` link, atau phone icon di source website maupun CV yang dipublikasikan.
 - Reduced motion tetap nyaman.
 
 ## Catatan Git

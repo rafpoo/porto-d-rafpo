@@ -42,6 +42,10 @@ type ScrollytellingProject = {
   image: {
     displayType?: "landscape" | "portrait";
     label: string;
+    screenshots?: {
+      alt: string;
+      src: string;
+    }[];
     theme: "lagoon" | "sunset" | "storm";
   };
   links: {
@@ -1262,34 +1266,53 @@ export function GsapAboutScrollytelling({
                     aria-hidden="true"
                   >
                     <div className="roulette-screen-fan">
-                      {shots.map((shot) => (
-                        <div
-                          className={`roulette-app-shot roulette-app-shot-${shot} project-map-${project.image.theme}`}
-                          key={`${project.title}-${shot}`}
-                        >
-                          <div className="roulette-screen-toolbar">
-                            <span />
-                            <span />
-                            <span />
+                      {shots.map((shot, shotIndex) => {
+                        const screenshot = project.image.screenshots?.[shotIndex];
+
+                        return (
+                          <div
+                            className={`roulette-app-shot roulette-app-shot-${shot} project-map-${project.image.theme} ${
+                              screenshot ? "roulette-app-shot-has-image" : ""
+                            }`}
+                            key={`${project.title}-${shot}`}
+                          >
+                            {screenshot ? (
+                              <img
+                                alt={screenshot.alt}
+                                className="roulette-app-image"
+                                src={screenshot.src}
+                              />
+                            ) : null}
+                            {project.image.displayType === "landscape" ? (
+                              <div className="roulette-screen-toolbar">
+                                <span />
+                                <span />
+                                <span />
+                              </div>
+                            ) : null}
+                            {screenshot ? null : (
+                              <>
+                                <span className="project-map-label">
+                                  {shot === "overview"
+                                    ? project.image.label
+                                    : shot === "flow"
+                                      ? project.category
+                                      : display === "web"
+                                        ? "Web view"
+                                        : "App view"}
+                                </span>
+                                <div className="roulette-app-layout">
+                                  <span className="roulette-app-sidebar" />
+                                  <span className="roulette-app-panel roulette-app-panel-wide" />
+                                  <span className="roulette-app-panel" />
+                                  <span className="roulette-app-panel" />
+                                  <span className="roulette-app-chart" />
+                                </div>
+                              </>
+                            )}
                           </div>
-                          <span className="project-map-label">
-                            {shot === "overview"
-                              ? project.image.label
-                              : shot === "flow"
-                                ? project.category
-                                : display === "web"
-                                  ? "Web view"
-                                  : "App view"}
-                          </span>
-                          <div className="roulette-app-layout">
-                            <span className="roulette-app-sidebar" />
-                            <span className="roulette-app-panel roulette-app-panel-wide" />
-                            <span className="roulette-app-panel" />
-                            <span className="roulette-app-panel" />
-                            <span className="roulette-app-chart" />
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="roulette-card-copy">
