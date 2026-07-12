@@ -76,7 +76,7 @@ export function Hero() {
       >
         <TechIcon
           Icon={SiLaravel}
-          label="TypeScript"
+          label="Laravel"
           className="tech-icon-laravel"
         />
       </motion.div>
@@ -143,11 +143,17 @@ export function Hero() {
         animate="visible"
       >
         <motion.p className="eyebrow" variants={revealVariants}>
-          Informatics Undergraduate / Full-Stack Developer
+          Rafael's Voyage Log
         </motion.p>
         <motion.h1 id="hero-heading" variants={revealVariants}>
-          Rafael's Voyage Log
+          Rafael Nicholas Po
         </motion.h1>
+        <motion.p
+          className="eyebrow hero-role"
+          variants={revealVariants}
+        >
+          Informatics Undergraduate / Full-Stack Developer
+        </motion.p>
         <motion.p className="hero-lede" variants={revealVariants}>
           I build clean, maintainable full-stack web applications with React,
           TypeScript, Node.js, and MySQL, shaped by production work serving

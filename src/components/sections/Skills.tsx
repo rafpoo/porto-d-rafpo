@@ -1,4 +1,10 @@
-import { Anchor } from "lucide-react";
+import {
+  Boxes,
+  Braces,
+  Database,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import type { Ref } from "react";
 import { skillGroups } from "../../data/portfolio";
@@ -13,6 +19,35 @@ type SkillsContentProps = {
   animated?: boolean;
   chestRef?: Ref<TreasureChest3DHandle>;
 };
+
+const skillIconMap: Record<string, LucideIcon> = {
+  Languages: Braces,
+  Frameworks: Boxes,
+  Databases: Database,
+  "DevOps & Tools": Wrench,
+};
+
+function SkillCardContent({
+  group,
+}: {
+  group: (typeof skillGroups)[number];
+}) {
+  const Icon = skillIconMap[group.label] ?? Wrench;
+
+  return (
+    <>
+      <div className="skill-card-header">
+        <Icon size={20} aria-hidden="true" />
+        <h3>{group.label}</h3>
+      </div>
+      <ul>
+        {group.items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
 
 function ToolsChest({
   chestRef,
@@ -55,7 +90,7 @@ function ToolsChest({
         </a>
         , licensed under{" "}
         <a
-          href="http://creativecommons.org/licenses/by/4.0/"
+          href="https://creativecommons.org/licenses/by/4.0/"
           target="_blank"
           rel="noreferrer"
         >
@@ -76,15 +111,7 @@ function SkillCategoryCard({
 }) {
   return (
     <article className={`skill-card gsap-hover-card ${className}`}>
-      <div className="skill-card-header">
-        <Anchor size={20} />
-        <h3>{group.label}</h3>
-      </div>
-      <ul>
-        {group.items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      <SkillCardContent group={group} />
     </article>
   );
 }
@@ -118,15 +145,7 @@ function InventoryCards({ animated }: { animated: boolean }) {
           key={group.label}
           variants={revealVariants}
         >
-          <div className="skill-card-header">
-            <Anchor size={20} />
-            <h3>{group.label}</h3>
-          </div>
-          <ul>
-            {group.items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <SkillCardContent group={group} />
         </motion.article>
       ))}
     </motion.div>

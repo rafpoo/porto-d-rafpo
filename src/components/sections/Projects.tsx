@@ -46,6 +46,7 @@ function ProjectCard({
   index: number;
 }) {
   const variant = projectCardVariants[index % projectCardVariants.length];
+  const preview = project.image.screenshots?.[0];
 
   return (
     <motion.article
@@ -55,10 +56,20 @@ function ProjectCard({
     >
       <div
         className={`project-map project-map-${project.image.theme}`}
-        aria-hidden="true"
       >
-        <span className="project-map-label">{project.image.label}</span>
-        <span className="project-boat">
+        {preview ? (
+          <img
+            className="project-map-image roulette-app-image"
+            src={preview.src}
+            alt={preview.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : null}
+        <span className="project-map-label" aria-hidden="true">
+          {project.image.label}
+        </span>
+        <span className="project-boat" aria-hidden="true">
           <Sailboat size={38} />
         </span>
       </div>
@@ -91,7 +102,7 @@ function ProjectCard({
                 rel={isInternal ? undefined : "noreferrer"}
               >
                 {link.label}
-                <Icon size={16} />
+                <Icon size={16} aria-hidden="true" />
               </a>
             );
           })}

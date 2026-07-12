@@ -40,24 +40,28 @@ export function Contact() {
             development, or software engineering collaboration.
           </p>
         </div>
-        <div
-          className="contact-actions"
-          aria-label="Social and contact links"
-        >
+        <nav className="contact-actions" aria-label="Social and contact links">
           {socialLinks.map((link) => {
             const Icon = iconMap[link.icon];
+            const isEmail = link.icon === "mail";
+            const isExternal = link.href.startsWith("http");
+
             return (
               <a
-                className="button button-secondary gsap-hover-link"
+                className={`button ${
+                  isEmail ? "button-primary" : "button-secondary"
+                } gsap-hover-link`}
                 href={link.href}
                 key={link.label}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noreferrer" : undefined}
               >
-                <Icon size={18} />
+                <Icon size={18} aria-hidden="true" />
                 {link.label}
               </a>
             );
           })}
-        </div>
+        </nav>
       </motion.div>
     </section>
   );

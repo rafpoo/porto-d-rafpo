@@ -9,7 +9,74 @@ import type { TreasureChest3DHandle } from "./TreasureChest3D";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export function PortfolioStorySequence() {
+const PORTFOLIO_STORY_TRIGGER_ID = "portfolio-tools-journey-story";
+const JOURNEY_INTRO_LABEL = "journey-intro";
+const STORY_ACTIVE_CLASS = "is-story-active";
+
+type PortfolioStorySequenceProps = {
+  onActivePhaseChange?: (phase: "skills" | "journey") => void;
+};
+
+export function scrollToJourneyPhase() {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return false;
+  }
+
+  const behavior: ScrollBehavior =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth";
+  const storyTrigger = ScrollTrigger.getById(PORTFOLIO_STORY_TRIGGER_ID);
+  const storyTimeline = storyTrigger?.animation as
+    | gsap.core.Timeline
+    | undefined;
+  const timelineDuration = storyTimeline?.duration();
+  const journeyIntroTime = storyTimeline?.labels[JOURNEY_INTRO_LABEL];
+  const scrollRange = storyTrigger
+    ? storyTrigger.end - storyTrigger.start
+    : Number.NaN;
+
+  if (
+    storyTrigger &&
+    timelineDuration !== undefined &&
+    Number.isFinite(timelineDuration) &&
+    timelineDuration > 0 &&
+    journeyIntroTime !== undefined &&
+    Number.isFinite(journeyIntroTime) &&
+    Number.isFinite(scrollRange) &&
+    scrollRange > 0
+  ) {
+    const journeyProgress = gsap.utils.clamp(
+      0,
+      1,
+      journeyIntroTime / timelineDuration,
+    );
+    const documentHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body?.scrollHeight ?? 0,
+    );
+    const maxScroll = Math.max(0, documentHeight - window.innerHeight);
+    const targetScroll = gsap.utils.clamp(
+      0,
+      maxScroll,
+      storyTrigger.start + scrollRange * journeyProgress,
+    );
+
+    window.scrollTo({ behavior, left: window.scrollX, top: targetScroll });
+    return true;
+  }
+
+  const fallbackTarget =
+    document.getElementById("journey") ?? document.getElementById("skills");
+
+  fallbackTarget?.scrollIntoView({ behavior, block: "start" });
+  return Boolean(fallbackTarget);
+}
+
+export function PortfolioStorySequence({
+  onActivePhaseChange,
+}: PortfolioStorySequenceProps = {}) {
   const scope = useRef<HTMLElement>(null);
   const chestModelRef = useRef<TreasureChest3DHandle | null>(null);
   const [journeyHandle, setJourneyHandle] =
@@ -56,6 +123,7 @@ export function PortfolioStorySequence() {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      root.classList.remove(STORY_ACTIVE_CLASS);
       root.classList.toggle("is-reduced-motion", reduceMotion);
       chestModelRef.current?.setOpenProgress(reduceMotion ? 1 : 0);
 
@@ -150,13 +218,30 @@ export function PortfolioStorySequence() {
         isLargeViewport() ? 0.14 : isMobileViewport() ? 0.22 : 0.16,
       );
       const syncedJourneyDuration = Math.max(journeyTimeline.duration(), 0.001);
+      let lastActivePhase: "skills" | "journey" | null = null;
       let lastSyncedJourneyProgress = -1;
       const syncJourneyTimeline = () => {
-        const journeyStartTime = masterTimeline.labels["journey-intro"] ?? 0;
+        const journeyStartTime =
+          masterTimeline.labels[JOURNEY_INTRO_LABEL] ??
+          Number.POSITIVE_INFINITY;
+        const activePhase =
+          masterTimeline.time() >= journeyStartTime ? "journey" : "skills";
+
+        if (
+          masterTimeline.scrollTrigger?.isActive &&
+          activePhase !== lastActivePhase
+        ) {
+          lastActivePhase = activePhase;
+          onActivePhaseChange?.(activePhase);
+        }
+
         const journeyProgress = gsap.utils.clamp(
           0,
           1,
-          (masterTimeline.time() - journeyStartTime) / syncedJourneyDuration,
+          Number.isFinite(journeyStartTime)
+            ? (masterTimeline.time() - journeyStartTime) /
+                syncedJourneyDuration
+            : 0,
         );
 
         if (Math.abs(journeyProgress - lastSyncedJourneyProgress) < 0.0005) {
@@ -226,8 +311,13 @@ export function PortfolioStorySequence() {
         scrollTrigger: {
           anticipatePin: 1,
           end: () => `+=${calculateScrollDistance()}`,
-          id: "portfolio-tools-journey-story",
+          id: PORTFOLIO_STORY_TRIGGER_ID,
           invalidateOnRefresh: true,
+          onLeave: () => root.classList.remove(STORY_ACTIVE_CLASS),
+          onLeaveBack: () => root.classList.remove(STORY_ACTIVE_CLASS),
+          onToggle: (self) => {
+            root.classList.toggle(STORY_ACTIVE_CLASS, self.isActive);
+          },
           pin: viewport,
           refreshPriority: 1,
           scrub: isLargeViewport() ? 1.15 : isMobileViewport() ? 0.85 : 1,
@@ -417,25 +507,57 @@ export function PortfolioStorySequence() {
           },
           "tools-to-journey",
         )
-        .addLabel("journey-intro", "tools-to-journey+=0.18")
+        .addLabel(JOURNEY_INTRO_LABEL, "tools-to-journey+=0.18")
         .to(
           {},
           {
             duration: syncedJourneyDuration,
             ease: "none",
           },
-          "journey-intro",
+          JOURNEY_INTRO_LABEL,
         )
-        .addLabel("journey-route-draw", "journey-intro+=0.86")
-        .addLabel("journey-first-milestone", "journey-intro+=2.1");
+        .addLabel(
+          "journey-route-draw",
+          `${JOURNEY_INTRO_LABEL}+=0.86`,
+        )
+        .addLabel(
+          "journey-first-milestone",
+          `${JOURNEY_INTRO_LABEL}+=2.1`,
+        );
 
       syncJourneyTimeline();
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-      void document.fonts?.ready.then(() => ScrollTrigger.refresh());
+      let refreshFrame: number | null = null;
+      let refreshCancelled = false;
+      const scheduleRefresh = () => {
+        if (refreshCancelled || refreshFrame !== null) {
+          return;
+        }
+
+        refreshFrame = requestAnimationFrame(() => {
+          refreshFrame = null;
+
+          if (!refreshCancelled) {
+            ScrollTrigger.refresh();
+          }
+        });
+      };
+
+      scheduleRefresh();
+      void document.fonts?.ready.then(scheduleRefresh);
+
+      return () => {
+        refreshCancelled = true;
+        root.classList.remove(STORY_ACTIVE_CLASS);
+
+        if (refreshFrame !== null) {
+          cancelAnimationFrame(refreshFrame);
+          refreshFrame = null;
+        }
+      };
     },
     {
-      dependencies: [journeyHandle],
+      dependencies: [journeyHandle, onActivePhaseChange],
       revertOnUpdate: true,
       scope,
     },

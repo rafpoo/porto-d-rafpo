@@ -24,6 +24,9 @@ export function About() {
             src={WANTED_POSTER_URL}
             alt="Wanted poster featuring Rafael Po"
             decoding="async"
+            loading="lazy"
+            width="1086"
+            height="1448"
           />
         </article>
 

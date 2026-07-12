@@ -24,7 +24,7 @@ export function Section({ id, eyebrow, title, children }: SectionProps) {
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
         <p className="eyebrow">{eyebrow}</p>
-        <h2 id={`${id}-title`}>
+        <h2 id={`${id}-title`} aria-label={id === "about" ? title : undefined}>
           {id === "about" ? (
             <>
               About the Capta
@@ -36,6 +36,9 @@ export function Section({ id, eyebrow, title, children }: SectionProps) {
                     src={STRAW_HAT_URL}
                     alt=""
                     decoding="async"
+                    loading="lazy"
+                    width="1254"
+                    height="1254"
                   />
                 </span>
               </span>

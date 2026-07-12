@@ -1,17 +1,19 @@
 import {
   Children,
   cloneElement,
+  createContext,
   isValidElement,
+  useContext,
   useRef,
   type ReactElement,
   type ReactNode,
   type RefObject,
 } from "react";
 import {
+  ArrowRight,
   ExternalLink,
   Github,
 } from "lucide-react";
-import type { IconType } from "react-icons";
 import {
   SiExpress,
   SiNodedotjs,
@@ -24,6 +26,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useGSAP } from "@gsap/react";
 import { LOG_POSE_ANGLES } from "./LogPoseDial";
+import { TechIcon } from "./TechIcon";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -62,7 +65,8 @@ type AboutScrollytellingProps = {
   projects: ScrollytellingProject[];
 };
 
-const STRAW_HAT_URL = `${import.meta.env.BASE_URL}assets/straw-hat.png`;
+const STRAW_HAT_URL = `${import.meta.env.BASE_URL}assets/straw-hat.webp`;
+const BountyCarouselCloneContext = createContext(false);
 
 function isElementVisible(element: Element) {
   const rect = element.getBoundingClientRect();
@@ -86,27 +90,6 @@ function formatCounter(
     useGrouping,
   })}${suffix}`;
 }
-function TechIcon({
-  className,
-  Icon,
-  label,
-}: {
-  className?: string;
-  Icon: IconType;
-  label: string;
-}) {
-  return (
-    <span
-      className={`tech-icon ${className ?? ""}`}
-      title={label}
-      aria-label={label}
-    >
-      <Icon aria-hidden="true" />
-      <span>{label}</span>
-    </span>
-  );
-}
-
 export function useGsapHoverEffects(scopeRef: RefObject<HTMLElement | null>) {
   useGSAP(
     (_, contextSafe) => {
@@ -116,137 +99,144 @@ export function useGsapHoverEffects(scopeRef: RefObject<HTMLElement | null>) {
         return;
       }
 
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      const cards = gsap.utils.toArray<HTMLElement>(
-        '.gsap-hover-card:not([data-gsap-hover="static"])',
-        root,
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const cards = gsap.utils.toArray<HTMLElement>(
+            '.gsap-hover-card:not([data-gsap-hover="static"])',
+            root,
+          );
+          const links = gsap.utils.toArray<HTMLElement>(
+            ".gsap-hover-link",
+            root,
+          );
+          const hoverIcons = "svg, .brand-emblem, .cv-summary-icon";
+
+          gsap.set([...cards, ...links], {
+            transformOrigin: "50% 50%",
+          });
+
+          cards.forEach((card, index) => {
+            card.dataset.gsapTilt =
+              card.dataset.gsapTilt ??
+              (index % 2 === 0 ? "-0.45" : "0.45");
+          });
+
+          const handleCardEnter = contextSafe((event: Event) => {
+            const target = event.currentTarget as HTMLElement;
+            const tilt = Number(target.dataset.gsapTilt ?? 0.45);
+            const isCompact = window.matchMedia("(max-width: 680px)").matches;
+
+            gsap.to(target, {
+              duration: 0.38,
+              ease: "power3.out",
+              overwrite: "auto",
+              rotation: isCompact ? 0 : tilt,
+              scale: 1.012,
+              y: isCompact ? -4 : -8,
+            });
+
+            gsap.to(target.querySelectorAll(hoverIcons), {
+              duration: 0.38,
+              ease: "power3.out",
+              overwrite: "auto",
+              rotation: -6,
+              scale: 1.08,
+            });
+          });
+
+          const handleCardLeave = contextSafe((event: Event) => {
+            const target = event.currentTarget as HTMLElement;
+
+            gsap.to(target, {
+              duration: 0.32,
+              ease: "power2.out",
+              overwrite: "auto",
+              rotation: 0,
+              scale: 1,
+              y: 0,
+            });
+
+            gsap.to(target.querySelectorAll(hoverIcons), {
+              duration: 0.32,
+              ease: "power2.out",
+              overwrite: "auto",
+              rotation: 0,
+              scale: 1,
+              x: 0,
+            });
+          });
+
+          const handleLinkEnter = contextSafe((event: Event) => {
+            const target = event.currentTarget as HTMLElement;
+
+            gsap.to(target, {
+              duration: 0.22,
+              ease: "power2.out",
+              overwrite: "auto",
+              scale: 1.025,
+              y: -3,
+            });
+
+            gsap.to(target.querySelectorAll("svg"), {
+              duration: 0.22,
+              ease: "power2.out",
+              overwrite: "auto",
+              rotation: -8,
+              scale: 1.12,
+              x: 3,
+            });
+          });
+
+          const handleLinkLeave = contextSafe((event: Event) => {
+            const target = event.currentTarget as HTMLElement;
+
+            gsap.to(target, {
+              duration: 0.2,
+              ease: "power2.out",
+              overwrite: "auto",
+              scale: 1,
+              y: 0,
+            });
+
+            gsap.to(target.querySelectorAll("svg"), {
+              duration: 0.2,
+              ease: "power2.out",
+              overwrite: "auto",
+              rotation: 0,
+              scale: 1,
+              x: 0,
+            });
+          });
+
+          cards.forEach((card) => {
+            card.addEventListener("pointerenter", handleCardEnter);
+            card.addEventListener("pointerleave", handleCardLeave);
+          });
+
+          links.forEach((link) => {
+            link.addEventListener("pointerenter", handleLinkEnter);
+            link.addEventListener("pointerleave", handleLinkLeave);
+          });
+
+          return () => {
+            cards.forEach((card) => {
+              card.removeEventListener("pointerenter", handleCardEnter);
+              card.removeEventListener("pointerleave", handleCardLeave);
+            });
+
+            links.forEach((link) => {
+              link.removeEventListener("pointerenter", handleLinkEnter);
+              link.removeEventListener("pointerleave", handleLinkLeave);
+            });
+          };
+        },
       );
-      const links = gsap.utils.toArray<HTMLElement>(".gsap-hover-link", root);
-
-      gsap.set([...cards, ...links], {
-        transformOrigin: "50% 50%",
-      });
-
-      if (reduceMotion) {
-        return;
-      }
-
-      const hoverIcons = "svg, .brand-emblem, .cv-summary-icon";
-
-      cards.forEach((card, index) => {
-        card.dataset.gsapTilt =
-          card.dataset.gsapTilt ?? (index % 2 === 0 ? "-0.45" : "0.45");
-      });
-
-      const handleCardEnter = contextSafe((event: Event) => {
-        const target = event.currentTarget as HTMLElement;
-        const tilt = Number(target.dataset.gsapTilt ?? 0.45);
-        const isCompact = window.matchMedia("(max-width: 680px)").matches;
-
-        gsap.to(target, {
-          duration: 0.38,
-          ease: "power3.out",
-          overwrite: "auto",
-          rotation: isCompact ? 0 : tilt,
-          scale: 1.012,
-          y: isCompact ? -4 : -8,
-        });
-
-        gsap.to(target.querySelectorAll(hoverIcons), {
-          duration: 0.38,
-          ease: "power3.out",
-          overwrite: "auto",
-          rotation: -6,
-          scale: 1.08,
-        });
-      });
-
-      const handleCardLeave = contextSafe((event: Event) => {
-        const target = event.currentTarget as HTMLElement;
-
-        gsap.to(target, {
-          duration: 0.32,
-          ease: "power2.out",
-          overwrite: "auto",
-          rotation: 0,
-          scale: 1,
-          y: 0,
-        });
-
-        gsap.to(target.querySelectorAll(hoverIcons), {
-          duration: 0.32,
-          ease: "power2.out",
-          overwrite: "auto",
-          rotation: 0,
-          scale: 1,
-          x: 0,
-        });
-      });
-
-      const handleLinkEnter = contextSafe((event: Event) => {
-        const target = event.currentTarget as HTMLElement;
-
-        gsap.to(target, {
-          duration: 0.22,
-          ease: "power2.out",
-          overwrite: "auto",
-          scale: 1.025,
-          y: -3,
-        });
-
-        gsap.to(target.querySelectorAll("svg"), {
-          duration: 0.22,
-          ease: "power2.out",
-          overwrite: "auto",
-          rotation: -8,
-          scale: 1.12,
-          x: 3,
-        });
-      });
-
-      const handleLinkLeave = contextSafe((event: Event) => {
-        const target = event.currentTarget as HTMLElement;
-
-        gsap.to(target, {
-          duration: 0.2,
-          ease: "power2.out",
-          overwrite: "auto",
-          scale: 1,
-          y: 0,
-        });
-
-        gsap.to(target.querySelectorAll("svg"), {
-          duration: 0.2,
-          ease: "power2.out",
-          overwrite: "auto",
-          rotation: 0,
-          scale: 1,
-          x: 0,
-        });
-      });
-
-      cards.forEach((card) => {
-        card.addEventListener("pointerenter", handleCardEnter);
-        card.addEventListener("pointerleave", handleCardLeave);
-      });
-
-      links.forEach((link) => {
-        link.addEventListener("pointerenter", handleLinkEnter);
-        link.addEventListener("pointerleave", handleLinkLeave);
-      });
 
       return () => {
-        cards.forEach((card) => {
-          card.removeEventListener("pointerenter", handleCardEnter);
-          card.removeEventListener("pointerleave", handleCardLeave);
-        });
-
-        links.forEach((link) => {
-          link.removeEventListener("pointerenter", handleLinkEnter);
-          link.removeEventListener("pointerleave", handleLinkLeave);
-        });
+        mm.revert();
       };
     },
     { scope: scopeRef },
@@ -448,6 +438,8 @@ export function GsapStrawHatStory() {
         src={STRAW_HAT_URL}
         alt=""
         decoding="async"
+        width="1254"
+        height="1254"
       />
     </div>
   );
@@ -480,9 +472,12 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
         return;
       }
 
-      const createLoop = () => {
+      const measureDistance = () => {
         const gap = Number.parseFloat(getComputedStyle(track).columnGap || "0");
-        const distance = firstSet.offsetWidth + gap;
+        return firstSet.offsetWidth + gap;
+      };
+
+      const createLoop = (distance: number) => {
 
         if (distance <= 1) {
           return null;
@@ -499,7 +494,8 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
         });
       };
 
-      let loop = createLoop();
+      let currentDistance = measureDistance();
+      let loop = createLoop(currentDistance);
       const playLoop = () => loop?.play();
       const pauseLoop = () => loop?.pause();
       const visibilityTrigger = ScrollTrigger.create({
@@ -516,22 +512,52 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
         loop.play();
       }
 
-      const handleResize = () => {
+      let resizeFrame: number | null = null;
+      const rebuildLoop = () => {
+        resizeFrame = null;
+        const nextDistance = measureDistance();
+
+        if (Math.abs(nextDistance - currentDistance) < 0.5) {
+          return;
+        }
+
+        currentDistance = nextDistance;
         loop?.kill();
-        loop = createLoop();
+        loop = createLoop(currentDistance);
         visibilityTrigger.refresh();
 
         if (loop && isElementVisible(root)) {
           loop.play();
         }
       };
+      const scheduleLoopRebuild = () => {
+        if (resizeFrame !== null) {
+          return;
+        }
 
-      window.addEventListener("resize", handleResize);
+        resizeFrame = window.requestAnimationFrame(rebuildLoop);
+      };
+      const resizeObserver =
+        "ResizeObserver" in window
+          ? new ResizeObserver(scheduleLoopRebuild)
+          : null;
+
+      if (resizeObserver) {
+        resizeObserver.observe(firstSet);
+      } else {
+        window.addEventListener("resize", scheduleLoopRebuild);
+      }
 
       return () => {
+        resizeObserver?.disconnect();
         visibilityTrigger.kill();
         loop?.kill();
-        window.removeEventListener("resize", handleResize);
+
+        if (resizeFrame !== null) {
+          window.cancelAnimationFrame(resizeFrame);
+        }
+
+        window.removeEventListener("resize", scheduleLoopRebuild);
       };
     },
     { scope },
@@ -550,13 +576,15 @@ export function GsapBountyCarousel({ children }: { children: ReactNode }) {
           )}
         </div>
         <div className="bounty-carousel-set" aria-hidden="true">
-          {items.map((item, index) =>
-            isValidElement(item)
-              ? cloneElement(item as ReactElement<Record<string, unknown>>, {
-                  key: `bounty-clone-${index}`,
-                })
-              : item,
-          )}
+          <BountyCarouselCloneContext.Provider value>
+            {items.map((item, index) =>
+              isValidElement(item)
+                ? cloneElement(item as ReactElement<Record<string, unknown>>, {
+                    key: `bounty-clone-${index}`,
+                  })
+                : item,
+            )}
+          </BountyCarouselCloneContext.Provider>
         </div>
       </div>
     </div>
@@ -595,7 +623,7 @@ export function GsapAboutScrollytelling({
 
       mm.add(
         {
-          isDesktop: "(min-width: 981px)",
+          isDesktop: "(min-width: 1121px)",
           isMobile: "(max-width: 680px)",
           reduceMotion: "(prefers-reduced-motion: reduce)",
         },
@@ -634,12 +662,16 @@ export function GsapAboutScrollytelling({
             wheel,
             ...cards,
           ].filter(Boolean);
+          const resetCards = () => {
+            cards.forEach((card) => {
+              card.classList.remove("is-active");
+              card.removeAttribute("aria-hidden");
+              card.removeAttribute("inert");
+            });
+          };
 
           root.classList.remove("is-pinned-ready", "is-wanted-exit-ready");
-          cards.forEach((card) => {
-            card.classList.remove("is-active");
-            card.removeAttribute("aria-hidden");
-          });
+          resetCards();
           gsap.set(clearTargets, { clearProps: "all" });
 
           if (
@@ -655,7 +687,94 @@ export function GsapAboutScrollytelling({
             return;
           }
 
-          const useRoulette = isDesktop && !reduceMotion && Boolean(wheel);
+          let refreshTimeout: number | null = null;
+          let refreshFrame: number | null = null;
+          const scheduleRefresh = () => {
+            if (refreshTimeout !== null) {
+              window.clearTimeout(refreshTimeout);
+            }
+
+            refreshTimeout = window.setTimeout(() => {
+              refreshTimeout = null;
+
+              if (refreshFrame !== null) {
+                window.cancelAnimationFrame(refreshFrame);
+              }
+
+              refreshFrame = window.requestAnimationFrame(() => {
+                refreshFrame = null;
+                ScrollTrigger.refresh();
+              });
+            }, 120);
+          };
+          const loadingImages = gsap.utils
+            .toArray<HTMLImageElement>("img", root)
+            .filter((image) => !image.complete);
+          const cleanupImageRefresh = () => {
+            loadingImages.forEach((image) => {
+              image.removeEventListener("load", scheduleRefresh);
+            });
+
+            if (refreshTimeout !== null) {
+              window.clearTimeout(refreshTimeout);
+              refreshTimeout = null;
+            }
+
+            if (refreshFrame !== null) {
+              window.cancelAnimationFrame(refreshFrame);
+              refreshFrame = null;
+            }
+          };
+
+          loadingImages.forEach((image) => {
+            image.addEventListener("load", scheduleRefresh, { once: true });
+          });
+          scheduleRefresh();
+
+          if (reduceMotion) {
+            cards.forEach((card) => {
+              card.classList.add("is-active");
+              card.removeAttribute("aria-hidden");
+              card.removeAttribute("inert");
+            });
+
+            return () => {
+              cleanupImageRefresh();
+              root.classList.remove(
+                "is-pinned-ready",
+                "is-wanted-exit-ready",
+              );
+              resetCards();
+            };
+          }
+
+          const useRoulette = isDesktop && Boolean(wheel);
+          const hydrateCardImages = (cardIndexes: number[]) => {
+            cardIndexes.forEach((cardIndex) => {
+              const card = cards[cardIndex];
+
+              card
+                ?.querySelectorAll<HTMLImageElement>("img[data-src]")
+                .forEach((image) => {
+                  const source = image.dataset.src;
+
+                  if (source && !image.getAttribute("src")) {
+                    image.src = source;
+                  }
+
+                  image.removeAttribute("data-src");
+                });
+            });
+          };
+
+          if (!useRoulette) {
+            cards.forEach((card) => {
+              card.classList.add("is-active");
+              card.removeAttribute("aria-hidden");
+              card.removeAttribute("inert");
+            });
+            hydrateCardImages(cards.map((_, index) => index));
+          }
 
           root.classList.add("is-wanted-exit-ready");
 
@@ -742,11 +861,21 @@ export function GsapAboutScrollytelling({
             );
 
             if (activeIndex !== previousActiveIndex) {
+              hydrateCardImages([
+                activeIndex,
+                Math.min(activeIndex + 1, cards.length - 1),
+              ]);
               cards.forEach((card, index) => {
                 const isActive = index === activeIndex;
 
                 card.classList.toggle("is-active", isActive);
                 card.setAttribute("aria-hidden", isActive ? "false" : "true");
+
+                if (isActive) {
+                  card.removeAttribute("inert");
+                } else {
+                  card.setAttribute("inert", "");
+                }
               });
               previousActiveIndex = activeIndex;
             }
@@ -872,36 +1001,36 @@ export function GsapAboutScrollytelling({
           }
 
           const maxFrame = Math.max(0, cards.length - 1);
-          const rouletteHoldDuration = isDesktop ? 2.8 : 2.25;
-          const rouletteTransitionDuration = isDesktop ? 0.5 : 0.45;
-          const rouletteSpinDuration =
-            maxFrame > 0
+          const rouletteHoldDuration = 2.8;
+          const rouletteTransitionDuration = 0.5;
+          const rouletteSpinDuration = useRoulette
+            ? maxFrame > 0
               ? maxFrame *
                   (rouletteHoldDuration + rouletteTransitionDuration) +
                 rouletteHoldDuration
-              : rouletteHoldDuration;
+              : rouletteHoldDuration
+            : 0;
           const rouletteStartOffset = 0.45;
-          const rouletteExitStart =
-            2 + rouletteStartOffset + rouletteSpinDuration + 0.7;
+          const rouletteExitStart = useRoulette
+            ? 2 + rouletteStartOffset + rouletteSpinDuration + 0.7
+            : 2.2;
           const getScrollDistance = () => {
-            const projectStepScroll = isDesktop ? 1200 : isMobile ? 820 : 980;
-            const setupAndExitScroll = isDesktop
-              ? 3200
-              : isMobile
-                ? 2500
-                : 2850;
+            if (!useRoulette) {
+              return `+=${isMobile ? 2500 : 2850}`;
+            }
+
+            const projectStepScroll = 1200;
+            const setupAndExitScroll = 3200;
             const distance = Math.round(
               setupAndExitScroll + maxFrame * projectStepScroll,
             );
 
             return `+=${gsap.utils.clamp(4800, 10800, distance)}`;
           };
-          const getReducedScrollDistance = () =>
-            `+=${Math.max(Math.round(window.innerHeight * 0.85), 720)}`;
           const timeline = gsap.timeline({
             scrollTrigger: {
               anticipatePin: 1,
-              end: reduceMotion ? getReducedScrollDistance : getScrollDistance,
+              end: getScrollDistance,
               id: "about-wanted-poster-story",
               invalidateOnRefresh: true,
               onRefresh: () => {
@@ -911,37 +1040,13 @@ export function GsapAboutScrollytelling({
               },
               pin: true,
               refreshPriority: 100,
-              scrub: reduceMotion ? 0.35 : 0.8,
+              scrub: 0.8,
               start: "top top",
               trigger: root,
             },
           });
 
-          if (reduceMotion) {
-            timeline
-              .to([leftTape, rightTape], {
-                autoAlpha: 0,
-                duration: 0.2,
-                ease: "none",
-                scale: 0.92,
-              })
-              .to(
-                copy,
-                {
-                  autoAlpha: 0.82,
-                  duration: 0.2,
-                  ease: "none",
-                },
-                0,
-              )
-              .to(posterWrapper, {
-                autoAlpha: 0,
-                duration: 0.55,
-                ease: "none",
-                y: () => Math.min(window.innerHeight * 0.36, 320),
-              });
-          } else {
-            timeline
+          timeline
               .addLabel("hold", 0)
               .to(
                 posterStage,
@@ -1184,28 +1289,11 @@ export function GsapAboutScrollytelling({
                 }
               }
             }
-          }
-
-          const refresh = () => ScrollTrigger.refresh();
-          const loadingImages = gsap.utils
-            .toArray<HTMLImageElement>("img", root)
-            .filter((image) => !image.complete);
-
-          loadingImages.forEach((image) => {
-            image.addEventListener("load", refresh, { once: true });
-          });
-
-          requestAnimationFrame(refresh);
 
           return () => {
-            loadingImages.forEach((image) => {
-              image.removeEventListener("load", refresh);
-            });
+            cleanupImageRefresh();
             root.classList.remove("is-pinned-ready", "is-wanted-exit-ready");
-            cards.forEach((card) => {
-              card.classList.remove("is-active");
-              card.removeAttribute("aria-hidden");
-            });
+            resetCards();
           };
         },
       );
@@ -1238,9 +1326,12 @@ export function GsapAboutScrollytelling({
           </div>
           {contentChildren}
         </div>
-        <div className="about-roulette" aria-label="Selected project roulette">
+        <section
+          className="about-roulette"
+          aria-labelledby="about-projects-title"
+        >
           <div className="about-roulette-heading">
-            <strong>Projects</strong>
+            <h3 id="about-projects-title">Projects</h3>
           </div>
           <div className="about-roulette-orbit">
             {projects.map((project, index) => {
@@ -1280,7 +1371,10 @@ export function GsapAboutScrollytelling({
                               <img
                                 alt={screenshot.alt}
                                 className="roulette-app-image"
-                                src={screenshot.src}
+                                data-src={index === 0 ? undefined : screenshot.src}
+                                decoding="async"
+                                loading="lazy"
+                                src={index === 0 ? screenshot.src : undefined}
                               />
                             ) : null}
                             {project.image.displayType === "landscape" ? (
@@ -1320,14 +1414,14 @@ export function GsapAboutScrollytelling({
                       <span>{String(index + 1).padStart(2, "0")}</span>
                       <span>{project.category}</span>
                     </div>
-                    <h3>{project.title}</h3>
+                    <h4>{project.title}</h4>
                     <p>{project.description}</p>
                     <ul className="stack-list">
                       {project.stack.slice(0, 5).map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
-                    <div
+                    <nav
                       className="roulette-link-list"
                       aria-label={`${project.title} repository links`}
                     >
@@ -1349,13 +1443,20 @@ export function GsapAboutScrollytelling({
                           </a>
                         );
                       })}
-                    </div>
+                    </nav>
                   </div>
                 </article>
               );
             })}
           </div>
-        </div>
+          <a
+            className="button button-secondary about-mobile-projects-link gsap-hover-link"
+            href="#projects"
+          >
+            Explore all project voyages
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        </section>
       </div>
     </div>
   );
@@ -1518,7 +1619,7 @@ export function GsapHeroConstellation() {
       <span className="gsap-current-dot gsap-current-dot-two">
         <TechIcon
           Icon={SiExpress}
-          label="Node.js"
+          label="Express.js"
           className="tech-icon-express"
         />
       </span>
@@ -1538,6 +1639,7 @@ export function GsapBountyCounter({
 }: BountyCounterProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const valueRef = useRef<HTMLSpanElement>(null);
+  const isCarouselClone = useContext(BountyCarouselCloneContext);
 
   useGSAP(
     () => {
@@ -1559,7 +1661,7 @@ export function GsapBountyCounter({
         );
       };
 
-      if (reduceMotion) {
+      if (reduceMotion || isCarouselClone) {
         setValue(value);
         return;
       }
@@ -1577,7 +1679,17 @@ export function GsapBountyCounter({
         },
       });
     },
-    { scope: cardRef },
+    {
+      dependencies: [
+        decimals,
+        isCarouselClone,
+        suffix,
+        useGrouping,
+        value,
+      ],
+      revertOnUpdate: true,
+      scope: cardRef,
+    },
   );
 
   return (
@@ -2622,15 +2734,38 @@ export function GsapGrandLineJourney({
 
           updateHudProgress(0);
 
+          let deferredRefreshFrame: number | null = null;
+          let refreshCancelled = false;
+          const scheduleDeferredRefresh = () => {
+            if (refreshCancelled || deferredRefreshFrame !== null) {
+              return;
+            }
+
+            deferredRefreshFrame = window.requestAnimationFrame(() => {
+              deferredRefreshFrame = null;
+
+              if (!refreshCancelled) {
+                ScrollTrigger.refresh();
+              }
+            });
+          };
+
           if (controlled) {
             master.pause(0);
             onTimelineReady?.({ calculateScrollDistance, timeline: master });
           } else {
-            requestAnimationFrame(() => ScrollTrigger.refresh());
-            void document.fonts?.ready.then(() => ScrollTrigger.refresh());
+            scheduleDeferredRefresh();
+            void document.fonts?.ready.then(scheduleDeferredRefresh);
           }
 
           return () => {
+            refreshCancelled = true;
+
+            if (deferredRefreshFrame !== null) {
+              window.cancelAnimationFrame(deferredRefreshFrame);
+              deferredRefreshFrame = null;
+            }
+
             if (controlled) {
               onTimelineReady?.(null);
             }
@@ -2767,9 +2902,12 @@ export function GsapJourneyRoute() {
         idleTween.play();
       }
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
+      const refreshFrame = window.requestAnimationFrame(() =>
+        ScrollTrigger.refresh(),
+      );
 
       return () => {
+        window.cancelAnimationFrame(refreshFrame);
         routeTrigger.kill();
         idleTween.kill();
         routeTimeline.kill();

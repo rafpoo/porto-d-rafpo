@@ -60,6 +60,18 @@ const journeyLandmarks: JourneyLandmark[] = [
   },
 ];
 
+const visuallyHiddenStyle: CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
+
 type JourneyProps = {
   className?: string;
   controlled?: boolean;
@@ -187,8 +199,9 @@ export function Journey({
 
           <div
             className="journey-log-pose"
+            role="status"
             aria-live="polite"
-            aria-label="Journey progress"
+            aria-atomic="true"
           >
             <span className="journey-log-pose-ring" aria-hidden="true">
               <LogPoseDial />
@@ -206,7 +219,7 @@ export function Journey({
 
           <div
             className="journey-panels"
-            aria-label="Rafael's portfolio journey timeline"
+            aria-hidden="true"
           >
             {timelineItems.map((item, index) => {
               const landmark = journeyLandmarks[index];
@@ -231,6 +244,19 @@ export function Journey({
           </div>
         </div>
       </GsapGrandLineJourney>
+      <ol
+        aria-label="Rafael's portfolio journey timeline"
+        className="journey-transcript"
+        style={visuallyHiddenStyle}
+      >
+        {timelineItems.map((item) => (
+          <li key={item.title}>
+            <span>{item.date}</span>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

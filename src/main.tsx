@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import '@fontsource/pirata-one/400.css';
-import '@fontsource/rye/400.css';
-import '@fontsource/im-fell-english-sc/400.css';
-import '@fontsource/crimson-text/400.css';
-import '@fontsource/crimson-text/600.css';
-import '@fontsource/crimson-text/700.css';
-import '@fontsource/bangers/400.css';
+import { MotionConfig } from 'framer-motion';
+import '@fontsource/pirata-one/latin-400.css';
+import '@fontsource/im-fell-english-sc/latin-400.css';
+import '@fontsource/crimson-text/latin-400.css';
+import '@fontsource/crimson-text/latin-700.css';
 import App from './App';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <MotionConfig reducedMotion="user">
+      <App />
+    </MotionConfig>
   </React.StrictMode>,
 );

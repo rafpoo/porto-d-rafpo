@@ -25,9 +25,10 @@ export const publicAssetUrl = (path: string) =>
   `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
 export const CV_URL = publicAssetUrl("Rafael_Nicholas_Po_CV.pdf");
-export const STRAW_HAT_URL = publicAssetUrl("assets/straw-hat.png");
+export const STRAW_HAT_URL = publicAssetUrl("assets/straw-hat.webp");
+export const NAV_STRAW_HAT_URL = publicAssetUrl("assets/straw-hat-nav.webp");
 export const PROFILE_IMAGE_URL = publicAssetUrl("assets/profile.png");
-export const WANTED_POSTER_URL = publicAssetUrl("assets/wanted-poster.png");
+export const WANTED_POSTER_URL = publicAssetUrl("assets/wanted-poster.webp");
 
 export const navItems: NavItem[] = [
   { label: "About", href: "#about" },
@@ -58,15 +59,15 @@ export const projects: PortfolioProject[] = [
       screenshots: [
         {
           alt: "MAXIMA web home page attendance call to action",
-          src: publicAssetUrl("assets/projects/maxima-web-home.png"),
+          src: publicAssetUrl("assets/projects/maxima-web-home.webp"),
         },
         {
           alt: "MAXIMA web STATE selection page",
-          src: publicAssetUrl("assets/projects/maxima-web-state.png"),
+          src: publicAssetUrl("assets/projects/maxima-web-state.webp"),
         },
         {
           alt: "MAXIMA web challenges handbook page",
-          src: publicAssetUrl("assets/projects/maxima-web-challenges.png"),
+          src: publicAssetUrl("assets/projects/maxima-web-challenges.webp"),
         },
       ],
       theme: "lagoon",
@@ -113,15 +114,15 @@ export const projects: PortfolioProject[] = [
       screenshots: [
         {
           alt: "MAXIMA Ticketing internal dashboard and attendance scanner",
-          src: publicAssetUrl("assets/projects/maxima-ticketing-dashboard.png"),
+          src: publicAssetUrl("assets/projects/maxima-ticketing-dashboard.webp"),
         },
         {
           alt: "MAXIMA Ticketing participant detail and attendance table",
-          src: publicAssetUrl("assets/projects/maxima-ticketing-participants.png"),
+          src: publicAssetUrl("assets/projects/maxima-ticketing-participants.webp"),
         },
         {
           alt: "MAXIMA Ticketing login screen",
-          src: publicAssetUrl("assets/projects/maxima-ticketing-login.png"),
+          src: publicAssetUrl("assets/projects/maxima-ticketing-login.webp"),
         },
       ],
       theme: "sunset",
@@ -168,15 +169,15 @@ export const projects: PortfolioProject[] = [
       screenshots: [
         {
           alt: "TrustEnd Workforce sign-in screen",
-          src: publicAssetUrl("assets/projects/trustend-login.png"),
+          src: publicAssetUrl("assets/projects/trustend-login.webp"),
         },
         {
           alt: "TrustEnd employee attendance dashboard",
-          src: publicAssetUrl("assets/projects/trustend-worker-dashboard.png"),
+          src: publicAssetUrl("assets/projects/trustend-worker-dashboard.webp"),
         },
         {
           alt: "TrustEnd team trust score overview",
-          src: publicAssetUrl("assets/projects/trustend-team-overview.png"),
+          src: publicAssetUrl("assets/projects/trustend-team-overview.webp"),
         },
       ],
       theme: "lagoon",
@@ -207,15 +208,15 @@ export const projects: PortfolioProject[] = [
       screenshots: [
         {
           alt: "MedEase sign-in screen",
-          src: publicAssetUrl("assets/projects/medease-login.png"),
+          src: publicAssetUrl("assets/projects/medease-login.webp"),
         },
         {
           alt: "MedEase patient dashboard",
-          src: publicAssetUrl("assets/projects/medease-dashboard.png"),
+          src: publicAssetUrl("assets/projects/medease-dashboard.webp"),
         },
         {
           alt: "MedEase water quality prediction screen",
-          src: publicAssetUrl("assets/projects/medease-wqi-prediction.png"),
+          src: publicAssetUrl("assets/projects/medease-wqi-prediction.webp"),
         },
       ],
       theme: "storm",
@@ -319,11 +320,6 @@ export const socialLinks: SocialLink[] = [
     href: "https://linkedin.com/in/rafael-po-71507233a",
     icon: "linkedin",
   },
-];
-
-export const certifications = [
-  "Huawei HCIA-AI V3.5",
-  "Huawei HCIA-openGauss V1.0",
 ];
 
 export const heroStackStreamItems: {

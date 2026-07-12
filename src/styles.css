@@ -47,8 +47,8 @@
   --body-font: "Crimson Text", Georgia, "Times New Roman", serif;
   --display-font: "Pirata One", Georgia, "Times New Roman", serif;
   --map-font: "IM Fell English SC", Georgia, "Times New Roman", serif;
-  --stamp-font: "Rye", Georgia, "Times New Roman", serif;
-  --comic-font: "Bangers", Impact, "Arial Black", sans-serif;
+  --stamp-font: var(--map-font);
+  --comic-font: var(--map-font);
   font-family: var(--body-font);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -60,8 +60,23 @@
   box-sizing: border-box;
 }
 
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+img,
+video,
+canvas,
+iframe {
+  display: block;
+}
+
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -88,12 +103,22 @@ body {
   );
   color: var(--ink-950);
   font-size: 1.08rem;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 button,
 a {
   font: inherit;
+}
+
+button,
+a,
+p,
+h1,
+h2,
+h3,
+li {
+  overflow-wrap: anywhere;
 }
 
 a {
@@ -103,8 +128,9 @@ a {
 
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid var(--gold-300);
-  outline-offset: 4px;
+  outline: 2px solid var(--pirate-ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--gold-300);
 }
 
 .app-shell {
@@ -162,7 +188,7 @@ button:focus-visible {
   height: 100%;
   object-fit: contain;
   transform-style: preserve-3d;
-  will-change: transform, filter;
+  will-change: transform;
 }
 
 .site-header {
@@ -187,7 +213,7 @@ button:focus-visible {
     inset 0 0 0 1px rgba(255, 245, 214, 0.1),
     inset 0 -10px 22px rgba(0, 0, 0, 0.2);
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .site-header::before {
@@ -449,21 +475,25 @@ button:focus-visible {
 }
 
 .desktop-nav a:hover,
-.mobile-nav a:hover {
+.mobile-nav a:hover,
+.desktop-nav a[aria-current="location"],
+.mobile-nav a[aria-current="location"] {
   background: rgba(143, 36, 28, 0.08);
   color: var(--pirate-red);
 }
 
 .desktop-nav a:hover::after,
-.mobile-nav a:hover::after {
+.mobile-nav a:hover::after,
+.desktop-nav a[aria-current="location"]::after,
+.mobile-nav a[aria-current="location"]::after {
   opacity: 1;
   transform: scaleX(1);
 }
 
 .menu-button {
   display: none;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   place-items: center;
   border: 1px solid rgba(42, 23, 14, 0.28);
@@ -488,6 +518,20 @@ button:focus-visible {
   color: var(--pirate-ink);
   translate: -50% 0;
   box-shadow: var(--shadow);
+}
+
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 54;
+  display: none;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  border: 0;
+  background: rgba(3, 15, 28, 0.48);
+  padding: 0;
+  backdrop-filter: blur(3px);
 }
 
 .hero-section {
@@ -1054,12 +1098,20 @@ h1 {
 .about-grid,
 .project-grid,
 .skill-grid,
-.certification-grid,
 .timeline,
 .cv-panel,
 .contact-inner {
   width: var(--container);
   margin: 0 auto;
+}
+
+.section-heading > *,
+.about-grid > *,
+.project-grid > *,
+.skill-grid > *,
+.cv-summary > *,
+.contact-inner > * {
+  min-width: 0;
 }
 
 .section-heading {
@@ -1194,6 +1246,7 @@ h1 {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1086 / 1448;
   border-radius: 7px;
   outline: 1px solid rgba(42, 23, 14, 0.26);
   box-shadow: inset 0 0 0 1px rgba(255, 253, 245, 0.2);
@@ -1819,7 +1872,7 @@ h1 {
   top: 50%;
   left: 0;
   z-index: 3;
-  width: min(760px, 66%);
+  width: min(690px, calc(100% - 420px));
   margin: 0;
   transform: translateY(-50%);
   will-change: opacity, transform;
@@ -1849,8 +1902,8 @@ h1 {
 
 .about-scrollytelling.is-pinned-ready
   .about-roulette-card[data-display="web"] {
-  width: min(720px, 98%);
-  grid-template-columns: minmax(340px, 1.12fr) minmax(270px, 0.88fr);
+  width: min(680px, 98%);
+  grid-template-columns: minmax(320px, 1.08fr) minmax(260px, 0.92fr);
 }
 
 .about-roulette-card.is-active {
@@ -2671,35 +2724,6 @@ h1 {
   display: none;
 }
 
-.certification-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.certification-card {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(42, 23, 14, 0.24);
-  border-radius: 8px;
-  background: var(--parchment-texture);
-  padding: 20px 22px;
-  color: var(--ink-950);
-  font-family: var(--map-font);
-  font-weight: 400;
-  box-shadow:
-    0 16px 34px rgba(42, 23, 14, 0.12),
-    inset 0 0 0 1px rgba(255, 253, 245, 0.15);
-}
-
-.certification-card svg {
-  flex: 0 0 auto;
-  color: var(--pirate-gold);
-}
-
 .timeline {
   position: relative;
   display: grid;
@@ -3356,6 +3380,14 @@ h1 {
   overflow: visible;
 }
 
+.content-section > .section-heading {
+  width: min(var(--container), 820px);
+}
+
+.content-section > .section-heading .eyebrow {
+  color: var(--pirate-red);
+}
+
 .journey-log-pose-asset {
   --log-pose-glow-opacity: 0.3;
   position: relative;
@@ -3978,13 +4010,55 @@ h1 {
   gap: 12px;
 }
 
+.site-footer {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(255, 215, 122, 0.3);
+  background:
+    linear-gradient(180deg, rgba(6, 24, 38, 0.96), rgba(13, 11, 8, 0.99)),
+    var(--wood-texture);
+  color: var(--white);
+  box-shadow: inset 0 1px 0 rgba(255, 253, 245, 0.08);
+}
+
+.site-footer-inner {
+  display: flex;
+  width: var(--container);
+  min-height: 112px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+.site-footer-identity {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  color: rgba(255, 253, 245, 0.78);
+}
+
+.site-footer-identity strong {
+  color: var(--white);
+  font-family: var(--map-font);
+  font-weight: 400;
+}
+
+.site-footer-back-to-top {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 980px) {
   .desktop-nav {
     display: none;
   }
 
   .menu-button,
-  .mobile-nav {
+  .mobile-nav,
+  .mobile-nav-backdrop {
     display: grid;
   }
 
@@ -4019,8 +4093,7 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .skill-grid,
-  .certification-grid {
+  .skill-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4308,9 +4381,20 @@ h1 {
     width: 100%;
   }
 
+  .site-footer-inner {
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 28px 0;
+  }
+
+  .site-footer-identity {
+    justify-content: center;
+    text-align: center;
+  }
+
   .project-grid,
   .skill-grid,
-  .certification-grid,
   .contact-actions {
     grid-template-columns: 1fr;
   }
